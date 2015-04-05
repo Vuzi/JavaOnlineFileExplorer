@@ -12,6 +12,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import fr.vuzi.fileexplorer.database.directory.Directory;
+import fr.vuzi.fileexplorer.database.file.File;
 import fr.vuzi.fileexplorer.database.user.User;
 
 /**
@@ -56,8 +57,13 @@ public class DataBase {
 		return new User(d);
 	}
 	
-	public static Directory getDirectory(ObjectId userId, String path) {
-		
+	/**
+	 * Compute a path from a "/" separated string
+	 * @param path The string to convert
+	 * @return A list containing all the elements
+	 */
+	private static List<String> getPath(String path) {
+
 		ArrayList<String> paths = new ArrayList<String>();
 		
 		for(String tmp : path.split("/")) {
@@ -65,15 +71,80 @@ public class DataBase {
 				paths.add(tmp);
 		}
 		
-		// First step, get the user root directory
+		return paths;
+	}
+	
+	/**
+	 * Get the directories contained in a sub-directory
+	 * @param u The owner of the directory
+	 * @param dir The container directory
+	 * @return The directories contained
+	 */
+	public static Directory[] getDirectoriesContained(User u, Directory dir) {
 
-		if(paths.isEmpty()) {
-			System.out.println("Root directory");
-		} else {
-			for(String tmp : paths)
-				System.out.println(tmp);
+		MongoCollection<Document> collection = mongoClient.getCollection("directories");
+		ArrayList<Directory> directories = new ArrayList<Directory>();
+
+		BasicDBObject query = new BasicDBObject();
+
+		if(dir.name == null)
+			query.put("path", null);
+		else if(dir.path == null)
+			query.put("path","/" + dir.name + "/");
+		else
+			query.put("path", dir.path + dir.name + "/");
+		query.put("owner", new ObjectId(u.UID));
+
+		for(Document d : collection.find(query)) {
+			directories.add(new Directory(d));
 		}
 		
-		return null;
+		return directories.toArray(new Directory[0]);
+	}
+	
+	/**
+	 * Get the files contained in a directory
+	 * @param u The owner of the directory
+	 * @param d The container directory
+	 * @return The found files
+	 */
+	public static File[] getFilesContained(User u, Directory d) {
+		// TODO
+		return new File[0];
+	}
+	
+	/**
+	 * Get a directory by its path for the current user
+	 * @param u The owner of the directory
+	 * @param rawPath The raw path
+	 * @return The directory, or null if none could be found
+	 */
+	public static Directory getDirectory(User u, String rawPath) {
+		List<String> paths = getPath(rawPath);
+		
+		if(paths.isEmpty()) {
+			return new Directory(); // Root directory
+		} else {
+			MongoCollection<Document> collection = mongoClient.getCollection("directories");
+			String dir = paths.remove(paths.size() - 1);
+
+			BasicDBObject query = new BasicDBObject();
+			query.put("owner", new ObjectId(u.UID));
+			query.put("name", dir);
+			
+			if(paths.isEmpty()) {
+				query.put("path", null);
+			} else {
+				String path = "^/" + String.join("/", paths) + "/$";
+				query.put("path", new BasicDBObject("$regex", path));
+			}
+
+			Document d = collection.find(query).first();
+			
+			if(d == null)
+				return null;
+			else
+				return new Directory(d);
+		}
 	}
 }
