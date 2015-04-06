@@ -82,6 +82,7 @@ public class FrontController extends AFrontController {
 		// -- Directory actions --
 		// Listing of a directory content (not recursively)
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShow", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir-id/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowByID", new String[] { "id" }));
 		
 		// Directory modification
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "path" }));

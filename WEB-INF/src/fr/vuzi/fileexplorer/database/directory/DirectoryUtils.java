@@ -53,8 +53,6 @@ public class DirectoryUtils {
 	 * @return The directory, or null if none could be found
 	 */
 	public static Directory getDirectory(User u, List<String> path, String name) {
-		System.out.println(path.toString());
-		System.out.println(name);
 		
 		if(name == null) {
 			return new Directory(); // Root directory
@@ -71,6 +69,32 @@ public class DirectoryUtils {
 				String pathRegex = "^/" + String.join("/", path) + "/$";
 				query.put("path", new BasicDBObject("$regex", pathRegex));
 			}
+
+			Document d = collection.find(query).first();
+			
+			if(d == null)
+				return null;
+			else
+				return new Directory(d);
+		}
+	}
+
+	/**
+	 * Get a directory by its ID for the current user
+	 * @param u The owner of the directory
+	 * @param id The directory ID
+	 * @return The directory, or null if none could be found
+	 */
+	public static Directory getDirectory(User u, String id) {
+		
+		if(id == null) {
+			return new Directory(); // Root directory
+		} else {
+			MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
+
+			BasicDBObject query = new BasicDBObject();
+			query.put("owner", new ObjectId(u.UID));
+			query.put("_id", new ObjectId(id));
 
 			Document d = collection.find(query).first();
 			
