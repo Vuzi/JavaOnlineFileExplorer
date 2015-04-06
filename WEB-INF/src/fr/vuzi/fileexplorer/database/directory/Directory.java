@@ -1,6 +1,7 @@
 package fr.vuzi.fileexplorer.database.directory;
 
 import java.util.Date;
+import java.util.List;
 
 import org.bson.Document;
 
@@ -18,11 +19,10 @@ public class Directory {
 	public Directory(Document d) {
 		this.UID = d.getObjectId("_id").toString();
 		this.name = d.getString("name");
-		//this.edit = d.getDate("edit");
-		//this.creation = d.getDate("creation");
+		this.edit = d.getDate("edit");
+		this.creation = d.getDate("creation");
 		this.path = d.getString("path");
-		// Contained directories
-		// Contained files
+		this.pathList = DirectoryUtils.getPath(path);
 	}
 	
 	public Directory() {
@@ -62,4 +62,13 @@ public class Directory {
 	 * List of the contained files
 	 */
 	public File[] files;
+	
+	private List<String> pathList;
+	
+	public List<String> getPathList() {
+		if(pathList == null)
+			pathList = DirectoryUtils.getPath(path);
+		
+		return pathList;
+	}
 }

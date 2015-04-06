@@ -4,7 +4,8 @@
 	"actions" : [ 
 					"fr.vuzi.fileexplorer.api.action.ActionLogin",
 					"fr.vuzi.fileexplorer.api.action.ActionLogout",
-					"fr.vuzi.fileexplorer.api.action.ActionDirShow"
+					"fr.vuzi.fileexplorer.api.action.ActionDirShow",
+					"fr.vuzi.fileexplorer.api.action.ActionDirModification"
 				],
 	"velocity_priority" : {
 							"jwf.template.velocity.VelocityHeaderView" : true,

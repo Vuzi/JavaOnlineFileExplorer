@@ -1,7 +1,7 @@
 package fr.vuzi.fileexplorer.api.action;
 
-import fr.vuzi.fileexplorer.database.DataBase;
 import fr.vuzi.fileexplorer.database.user.User;
+import fr.vuzi.fileexplorer.database.user.UserUtils;
 import fr.vuzi.fileexplorer.message.ErrorMessage;
 import fr.vuzi.fileexplorer.message.GenericMessage;
 import fr.vuzi.webframework.action.AActionNoCredentials;
@@ -29,7 +29,7 @@ public class ActionLogin extends AActionNoCredentials {
 		String pass = c.getParameterUnique("password");
 		
 		if(login != null && login.length() > 0 && pass != null && pass.length() > 0) {
-			User user = DataBase.getUser(login, pass);
+			User user = UserUtils.getUser(login, pass);
 			if(user != null) {
 				// Save in the session and send the connected user in the response
 				c.setSessionAttribute("user", user);

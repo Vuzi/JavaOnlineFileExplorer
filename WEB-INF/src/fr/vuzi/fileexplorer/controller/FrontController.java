@@ -2,6 +2,7 @@ package fr.vuzi.fileexplorer.controller;
 
 import java.io.IOException;
 
+import fr.vuzi.fileexplorer.database.DataBase;
 import fr.vuzi.fileexplorer.message.ErrorMessage;
 import fr.vuzi.fileexplorer.message.GenericMessage;
 import fr.vuzi.webframework.Configuration;
@@ -41,6 +42,14 @@ public class FrontController extends AFrontController {
 			e.printStackTrace();
 		}
 	}
+	
+	@Override
+	public void init() {
+		super.init();
+		
+		// Start the database connection
+		DataBase.init();
+	}
 
 	@Override
 	protected void initRenderers() {
@@ -74,13 +83,10 @@ public class FrontController extends AFrontController {
 		// Listing of a directory content (not recursively)
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShow", new String[] { "path" }));
 		
-		/*
-		// Directory creation
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirCreation"));
-		
 		// Directory modification
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/([0-9]+)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "dir-id" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "path" }));
 		
+		/*
 		// Tree of all the user's directories
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowTree"));
 		
