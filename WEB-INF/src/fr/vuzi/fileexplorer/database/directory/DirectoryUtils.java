@@ -3,6 +3,7 @@ package fr.vuzi.fileexplorer.database.directory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Stack;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -44,7 +45,26 @@ public class DirectoryUtils {
 		
 		return paths;
 	}
+	
+	
+	public static Directory getDirectoryTree(User u) {
+		Directory root = getDirectory(u, null, null);
+		Stack<Directory> stack = new Stack<Directory>();
+		stack.add(root);
+		
+		while(!stack.isEmpty()) {
+			// For current directory
+			Directory current = stack.pop();
+			current.directories = getDirectoriesContained(u, current);
 
+			// Add all its sub-folders to the stack
+			for(Directory tmp : current.directories)
+				stack.add(tmp);
+		}
+		
+		return root;
+	}
+	
 	/**
 	 * Get a directory by its path for the current user
 	 * @param u The owner of the directory

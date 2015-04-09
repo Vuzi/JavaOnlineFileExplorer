@@ -87,10 +87,10 @@ public class FrontController extends AFrontController {
 		// Directory modification
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "path" }));
 		
-		/*
 		// Tree of all the user's directories
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowTree"));
 		
+		/*
 		// -- File actions --
 		// File download
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/(?:dir/(?:[0-9]+)/)?file/([0-9]+)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionFileDownload",  new String[] { "file-id" }));
