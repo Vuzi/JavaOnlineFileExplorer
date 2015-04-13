@@ -86,9 +86,13 @@ public class FrontController extends AFrontController {
 		
 		// Directory modification
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "PUT", "fr.vuzi.fileexplorer.api.action.ActionDirCreation", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "DELETE", "fr.vuzi.fileexplorer.api.action.ActionDirDeletion", new String[] { "path" }));
 		
 		// Tree of all the user's directories
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowTree"));
+
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/test/?$", "GET|POST|PUT|DELETE", "fr.vuzi.webframework.action.ActionDefault"));
 		
 		/*
 		// -- File actions --
