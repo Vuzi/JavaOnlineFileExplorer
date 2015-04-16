@@ -2,6 +2,10 @@ package fr.vuzi.fileexplorer.controller;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import fr.vuzi.fileexplorer.context.BasicAuthContext;
 import fr.vuzi.fileexplorer.database.DataBase;
 import fr.vuzi.fileexplorer.message.ErrorMessage;
 import fr.vuzi.fileexplorer.message.GenericMessage;
@@ -112,4 +116,8 @@ public class FrontController extends AFrontController {
 		return "C:/Users/Vuzi/Desktop/JEE/workspace/FileExplorer/";
 	}
 
+	@Override
+	protected IContext createContext(HttpServletRequest request, HttpServletResponse response) {
+		return new BasicAuthContext(request, response); // Use custom session handling basic auth
+	}
 }

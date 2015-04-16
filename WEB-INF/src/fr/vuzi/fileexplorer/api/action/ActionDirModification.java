@@ -39,17 +39,14 @@ public class ActionDirModification extends AAction {
 		switch(action) {
 		case "delete":
 		case "DELETE" :
-			System.out.println("Deletion of /" + c.getParameterUnique("path"));
 			deleteAction(c, u);
 			break;
 		case "create" :
 		case "CREATE" :
-			System.out.println("Creation of /" + c.getParameterUnique("path"));
 			createAction(c, u);
 			break;
 		case "rename" :
 		case "RENAME" :
-			System.out.println("Renaming of /" + c.getParameterUnique("path"));
 			renameAction(c, u);
 			break;
 		default:
