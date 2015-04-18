@@ -131,34 +131,34 @@ public class FrontController extends AFrontController {
 		File tmpDirectory = new File(rootDirectory+"/WEB-INF/conf");
 		tmpDirectory.mkdirs();
 		
-		StringBuilder sb = new StringBuilder();
-		sb.append("{\n");
-		sb.append("\t\"root\" : \"C:/Users/Vuzi/Desktop/JEE/workspace/VuziWebFramework/\",\n");
-		sb.append("\t\"URI\"  : \"/FileExplorer\",\n");
-		sb.append("\t\"actions\" : [ \n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionLogin\",\n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionLogout\",\n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShow\",\n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShowByID\",\n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShowTree\",\n");
-		sb.append("\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirModification\"\n");
-		sb.append("\t],\n");
-		sb.append("\t\"velocity_priority\" : {\n");
-		sb.append("\t\t\"jwf.template.velocity.VelocityHeaderView\" : true,\n");
-		sb.append("\t\t\"jwf.template.velocity.VelocityMainView\" : {\n");
-		sb.append("\t\t\t\"jwf.template.velocity.VelocityLeftPanelView\" : true,\n");
-		sb.append("\t\t\t\"__CURRENT__\" : true\n");
-		sb.append("\t\t},\n");
-		sb.append("\t\t\"jwf.template.velocity.VelocityFooterView\" : true\n");
-		sb.append("\t}\n");
-		sb.append("}\n");
+		String jsonConf =
+				"{\n"
+					+"\t\"root\" : \"C:/Users/Vuzi/Desktop/JEE/workspace/VuziWebFramework/\",\n"
+					+"\t\"URI\"  : \"/FileExplorer\",\n"
+					+"\t\"actions\" : [ \n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionLogin\",\n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionLogout\",\n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShow\",\n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShowByID\",\n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirShowTree\",\n"
+						+"\t\t\"fr.vuzi.fileexplorer.api.action.ActionDirModification\"\n"
+					+"\t],\n"
+					+"\t\"velocity_priority\" : {\n"
+						+"\t\t\"jwf.template.velocity.VelocityHeaderView\" : true,\n"
+						+"\t\t\"jwf.template.velocity.VelocityMainView\" : {\n"
+							+"\t\t\t\"jwf.template.velocity.VelocityLeftPanelView\" : true,\n"
+							+"\t\t\t\"__CURRENT__\" : true\n"
+						+"\t\t},\n"
+						+"\t\t\"jwf.template.velocity.VelocityFooterView\" : true\n"
+					+"\t}\n"
+				+"}\n";
 
-		File jsonConf = new File(tmpDirectory+"/conf.json");
+		File jsonConfFile = new File(tmpDirectory+"/conf.json");
 		FileWriter writer = null;
 		try {
-			jsonConf.createNewFile();
-			writer = new FileWriter(jsonConf);
-			writer.write(sb.toString());
+			jsonConfFile.createNewFile();
+			writer = new FileWriter(jsonConfFile);
+			writer.write(jsonConf);
 			writer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
