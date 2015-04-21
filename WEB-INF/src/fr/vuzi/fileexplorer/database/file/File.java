@@ -2,14 +2,27 @@ package fr.vuzi.fileexplorer.database.file;
 
 import java.util.Date;
 
-import org.bson.types.ObjectId;
+import org.bson.Document;
+
+import com.mongodb.gridfs.GridFSFile;
+import com.mongodb.gridfs.GridFSInputFile;
 
 public class File {
 
 	/**
+	 * Directory ID
+	 */
+	public String UID;
+	
+	/**
 	 * Name of the file
 	 */
 	public String name;
+	
+	/**
+	 * Directory path, null if at root directory
+	 */
+	public String path;
 	
 	/**
 	 * Creation (upload) date
@@ -20,44 +33,53 @@ public class File {
 	 * Modification date
 	 */
 	public Date modificationDate; 
-	
+
+	/**
+	 * Mime type of the file
+	 */
+	public String type;
 	/**
 	 * Size of the file, in bytes
 	 */
-	public int size;
+	public long size;
 	
 	/**
 	 * Parent directory ID of the file
 	 */
-	public ObjectId parent;
-	
-	/**
-	 * Filename used on the server side
-	 */
-	public String serverFilename;
-
-	/**
-	 * Constructor
-	 * @param name
-	 * @param creationDate
-	 * @param modificationDate
-	 * @param size
-	 * @param parent
-	 * @param serverFilename
-	 */
-	public File(String name, Date creationDate, Date modificationDate, int size, ObjectId parent, String serverFilename) {
-		this.name = name;
-		this.creationDate = creationDate;
-		this.modificationDate = modificationDate;
-		this.size = size;
-		this.parent = parent;
-		this.serverFilename = serverFilename;
-	}
+	public String parentUID;
 
 	/**
 	 * Empty constructor
 	 */
 	public File() {
 	}
-	
+
+	/**
+	 * Constructor
+	 * @param gfsFile The gfsFile of the file
+	 */
+	public File(GridFSInputFile gfsFile) {
+		this.UID = gfsFile.get("_id").toString();
+		this.name = gfsFile.getFilename();
+		this.type = gfsFile.getContentType();
+		this.path = (String) gfsFile.get("path");
+		this.creationDate = (Date) gfsFile.get("creation");
+		this.modificationDate = (Date) gfsFile.get("edit");
+		this.size = gfsFile.getLength();
+		this.parentUID = gfsFile.get("parent").toString();
+	}
+
+	public File(GridFSFile gfsFile) {
+		this.UID = gfsFile.get("_id").toString();
+		this.name = gfsFile.get("filename").toString();
+		this.type = gfsFile.getContentType();
+		this.path = (String) gfsFile.get("path");
+		this.creationDate = (Date) gfsFile.get("creation");
+		this.modificationDate = (Date) gfsFile.get("edit");
+		this.size = (Long)gfsFile.get("length");
+		this.parentUID = gfsFile.get("parent").toString();
+	}
+
+	public File(Document d) {
+	}
 }

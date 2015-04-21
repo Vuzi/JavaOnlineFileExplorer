@@ -7,7 +7,13 @@
 					"fr.vuzi.fileexplorer.api.action.ActionDirShow",
 					"fr.vuzi.fileexplorer.api.action.ActionDirShowByID",
 					"fr.vuzi.fileexplorer.api.action.ActionDirShowTree",
-					"fr.vuzi.fileexplorer.api.action.ActionDirModification"
+					"fr.vuzi.fileexplorer.api.action.ActionDirModification",
+					"fr.vuzi.fileexplorer.api.action.ActionDirCreation",
+					"fr.vuzi.fileexplorer.api.action.ActionDirDeletion",
+					"fr.vuzi.webframework.action.ActionDefault",
+					"fr.vuzi.fileexplorer.api.action.ActionFileShow",
+					"fr.vuzi.fileexplorer.api.action.ActionFileDownload",
+					"fr.vuzi.fileexplorer.api.action.ActionFileCreation"
 				],
 	"velocity_priority" : {
 							"jwf.template.velocity.VelocityHeaderView" : true,
