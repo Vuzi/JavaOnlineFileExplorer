@@ -1,10 +1,8 @@
 package fr.vuzi.fileexplorer.api.action;
 
-import java.io.InputStream;
-import java.nio.file.Files;
+import java.io.DataInputStream;
+import java.io.OutputStream;
 import java.util.List;
-
-import org.apache.commons.io.output.WriterOutputStream;
 
 import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.file.File;
@@ -26,6 +24,11 @@ public class ActionFileDownload extends AAction {
 	@Override
 	public String[] getCredentials() {
 		return new String[] { "user" };
+	}
+	
+	@Override
+	public boolean needRenderer() {
+		return false;
 	}
 	
 	@Override
@@ -52,22 +55,31 @@ public class ActionFileDownload extends AAction {
 			return;	
 		}
 		
-		InputStream in = FileUtils.getFileData(file);
+		DataInputStream in = FileUtils.getFileData(file);
 
 		if(in == null) {
 			c.setAttribute("model", new GenericMessage(true, 500, new ErrorMessage(500, "Error : Could not read file '" + c.getParameterUnique("path") + "' from database")));
 			return;	
 		}
 		
-		//c.getRequest().getc
-		
+		// Prepare headers
+		c.getResponse().setContentType("application/octet-stream");
+		c.getResponse().setContentLength((int)file.size);
+		c.getResponse().setHeader("Content-Type", file.type);
+		c.getResponse().setHeader("Content-Disposition","attachment;filename=\"" + c.getParameterUnique("path") + "\"");
+
 		// Write the file to the output
-		WriterOutputStream w = new WriterOutputStream(c.getResponseWriter());
+		OutputStream out = c.getResponse().getOutputStream();
+		
         byte[] buffer = new byte[4096];
-        int bytesRead = -1;
-         
-        while ((bytesRead = in.read(buffer)) != -1) {
-        	w.write(buffer, 0, bytesRead);
+        int byteReads = -1;
+        
+        while ((byteReads = in.read(buffer, 0, 4096)) > 0) {
+        	out.write(buffer, 0, byteReads);
         }
+
+        out.flush();
+        out.close();
+        in.close();
 	}
 }

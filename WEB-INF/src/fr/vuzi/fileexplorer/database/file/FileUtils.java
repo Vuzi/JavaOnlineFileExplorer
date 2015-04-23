@@ -1,9 +1,12 @@
 package fr.vuzi.fileexplorer.database.file;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -15,7 +18,6 @@ import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
-import eu.medsea.mimeutil.MimeUtil;
 import fr.vuzi.fileexplorer.database.DataBase;
 import fr.vuzi.fileexplorer.database.directory.Directory;
 import fr.vuzi.fileexplorer.database.user.User;
@@ -46,7 +48,10 @@ public class FileUtils {
 
 		BasicDBObject query = new BasicDBObject();
 		query.put("owner", new ObjectId(u.UID));
-		query.put("parent", new ObjectId(d.UID));
+		if(d.UID != null) // Root case
+			query.put("parent", new ObjectId(d.UID));
+		else
+			query.put("parent", null);
 		
 		for(GridFSDBFile file : gfs.find(query)) {
 			files.add(new File(file));
@@ -55,7 +60,7 @@ public class FileUtils {
 		return files.toArray(new File[0]);
 	}
 	
-	public static InputStream getFileData(File f) {
+	public static DataInputStream getFileData(File f) {
 
 		GridFS gfs = new GridFS(DataBase.getInstanceDb(), "files");
 		
@@ -68,7 +73,7 @@ public class FileUtils {
 		if(gfsFile == null)
 			return null;
 		else
-			return gfsFile.getInputStream();
+			return  new DataInputStream(new BufferedInputStream(gfsFile.getInputStream()));
 	}
 	
 	/**
@@ -115,23 +120,23 @@ public class FileUtils {
 		if(!file.exists())
 			return null;
 		
-		Collection<?> mimeTypes = MimeUtil.getMimeTypes(file);
-		String mimeType = MimeUtil.getFirstMimeType(mimeTypes.toString()).toString();
+		String mimeType = Files.probeContentType(Paths.get(file.getAbsolutePath()));
 		InputStream in = new FileInputStream(file);
 		
 		GridFS gfs = new GridFS(DataBase.getInstanceDb(), "files");
-		GridFSInputFile gfsFile = gfs.createFile(in, name);
-		Date now = new Date();
+		GridFSInputFile gfsFile = gfs.createFile(in);
+		Date now = new Date();	
 
 		gfsFile.setFilename(name);
 		gfsFile.setContentType(mimeType);
 		gfsFile.put("owner", new ObjectId(u.UID));
-		gfsFile.put("path",  d.path + d.name + "/");
+		gfsFile.put("path", (d.path == null ? "/" : d.path) + d.name + "/");
 		gfsFile.put("creation", now);
 		gfsFile.put("edit", now);
 		gfsFile.put("parent", new ObjectId(d.UID));
 		
 		gfsFile.save();
+		in.close();
 		
 		return new File(gfsFile);
 	}

@@ -64,14 +64,24 @@ public class DirectoryUtils {
 		
 		return root;
 	}
-	
+
 	/**
 	 * Get a directory by its path for the current user
 	 * @param u The owner of the directory
 	 * @param path The path
-	 * @param name The name
 	 * @return The directory, or null if none could be found
 	 */
+	public static Directory getDirectory(User u, List<String> path) {
+		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
+		return getDirectory(u, path, name);
+	}
+		/**
+		 * Get a directory by its path for the current user
+		 * @param u The owner of the directory
+		 * @param path The path
+		 * @param name The name
+		 * @return The directory, or null if none could be found
+		 */
 	public static Directory getDirectory(User u, List<String> path, String name) {
 		
 		if(name == null) {
@@ -84,7 +94,7 @@ public class DirectoryUtils {
 			query.put("name", name);
 			
 			if(path.isEmpty()) {
-				query.put("path", null);
+				query.put("path", "/");
 			} else {
 				String pathRegex = "^/" + String.join("/", path) + "/$";
 				query.put("path", new BasicDBObject("$regex", pathRegex));
@@ -139,7 +149,7 @@ public class DirectoryUtils {
 		BasicDBObject query = new BasicDBObject();
 
 		if(dir.name == null)
-			query.put("path", null);
+			query.put("path", "/");
 		else if(dir.path == null)
 			query.put("path","/" + dir.name + "/");
 		else
@@ -161,6 +171,18 @@ public class DirectoryUtils {
 	 * @param name The directory name
 	 * @return The parent directory, or null if not found
 	 */
+	public static Directory getDirectoryParent(User u, List<String> path) {
+		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
+		return getDirectoryParent(u, path, name);
+	}
+	
+		/**
+		 * Return the parent directory of a directory
+		 * @param u The owner
+		 * @param path The directory path
+		 * @param name The directory name
+		 * @return The parent directory, or null if not found
+		 */
 	public static Directory getDirectoryParent(User u, List<String> path, String name) {
 		
 		if(name == null)
@@ -207,7 +229,7 @@ public class DirectoryUtils {
 
 		newDir.put("owner", new ObjectId(u.UID));
 		newDir.put("name", name);
-		newDir.put("path", "/" + String.join("/", path) + "/");
+		newDir.put("path", path.size() > 0 ? "/" + String.join("/", path) + "/" : "/");
 		newDir.put("creation", now);
 		newDir.put("edit", now);
 		

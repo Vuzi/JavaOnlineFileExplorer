@@ -26,6 +26,7 @@ public class Directory {
 	}
 	
 	public Directory() {
+		this.path = "/";
 	}
 
 	/**

@@ -1,7 +1,9 @@
 package fr.vuzi.fileexplorer.api.action;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map.Entry;
 
 import fr.vuzi.fileexplorer.database.directory.Directory;
 import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
@@ -37,37 +39,45 @@ public class ActionFileCreation extends AAction {
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
 		User u = (User) c.getSessionAttribute("user");
-		File[] files = c.getUploadedFiles();
-		
-		if(files.length <= 0) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : No file uploaded")));
-			return;
-		}
-		
-		// TODO
-		File f = files[0];
-		
-		// Directory & file info
 		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
-		String filename = path.size() > 0 ? path.remove(path.size() - 1) : null;
-		String dirname = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		
 		// Directory retrieving
-		Directory d = DirectoryUtils.getDirectory(u, path, dirname);
-		
+		Directory d = DirectoryUtils.getDirectory(u, new ArrayList<String>(path));
+
 		if(d == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : No directory to upload the file to")));
 			return;	
 		}
 		
-		// Create the file
-		fr.vuzi.fileexplorer.database.file.File file = FileUtils.createFile(u, d, filename, f);
+		List<fr.vuzi.fileexplorer.database.file.File> files = new ArrayList<fr.vuzi.fileexplorer.database.file.File>();
+		
+		for(Entry<String, File> entry : c.getUploadedFiles().entrySet()) {
+			File f = entry.getValue();
+			String filename = entry.getKey();
+			
+			// Test if file already exist
+			if(FileUtils.getFile(u, path, filename) != null) {
+				c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : File '" + filename + "' already exists")));
+				return;	
+			}
+			
+			// Create the file
+			fr.vuzi.fileexplorer.database.file.File file = FileUtils.createFile(u, d, filename, f);
 
-		if(file == null) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : Couldn't create the file " + filename)));
-			return;	
+			if(file == null) {
+				c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : Couldn't create the file " + filename)));
+				return;	
+			}
+			
+			files.add(file);
 		}
 		
-		c.setAttribute("model", file);
+		if(files.size() == 0) {
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : No file uploaded")));
+		} else if(files.size() == 1) {
+			c.setAttribute("model", files.get(0));
+		} else {
+			c.setAttribute("model", files.toArray(new fr.vuzi.fileexplorer.database.file.File[0]));
+		}
 	}
 }
