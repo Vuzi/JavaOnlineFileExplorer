@@ -247,6 +247,9 @@ public class DirectoryUtils {
 	 */
 	public static Directory deleteDirectory(User u, Directory d) {
 
+		if(d.name == null) // Root can't be deleted
+			return d;
+		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
 
 		BasicDBObject query = new BasicDBObject();
@@ -270,7 +273,11 @@ public class DirectoryUtils {
 	 */
 	public static Directory renameDirectory(User u, Directory d, String newName) {
 
+		if(d.name == null) // Root can't be renamed
+			return d;
+		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
+		MongoCollection<Document> collectionFiles = DataBase.getInstance().getCollection("files.files");
 		String newPath = d.path + newName;
 		String oldPath = d.path + d.name;
 
@@ -295,7 +302,8 @@ public class DirectoryUtils {
 			String pathRegex = "^/" + d.name + "/";
 			query.put("path", new BasicDBObject("$regex", pathRegex));
 		}
-		
+
+		// Update directories
 		for(Document doc : collection.find(query)) {
 			query = new BasicDBObject();
 			query.put("_id", doc.getObjectId("_id"));
@@ -304,6 +312,17 @@ public class DirectoryUtils {
 			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
 		
 			collection.updateOne(query, update);
+		}
+		
+		// Update files
+		for(Document doc : collectionFiles.find(query)) {
+			query = new BasicDBObject();
+			query.put("_id", doc.getObjectId("_id"));
+			
+			update = new BasicDBObject();
+			update.append("$set", new BasicDBObject().append("path", newPath + "/"));
+		
+			collectionFiles.updateOne(query, update);
 		}
 		
 		// Return the modified element

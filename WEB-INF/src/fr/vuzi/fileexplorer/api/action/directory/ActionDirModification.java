@@ -1,5 +1,6 @@
 package fr.vuzi.fileexplorer.api.action.directory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import fr.vuzi.fileexplorer.database.directory.Directory;
@@ -116,7 +117,7 @@ public class ActionDirModification extends AAction {
 	
 	private void renameAction(IContext c, User u) {
 		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
-		String newName = c.getParameterUnique("name");
+		String newName = c.getParameterUnique("newName");
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 
 		// Test name
@@ -128,6 +129,12 @@ public class ActionDirModification extends AAction {
 		// Test for root directory
 		if(name == null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Root directory can't be renamed")));
+			return;
+		}
+
+		// Test the name
+		if(DirectoryUtils.getDirectory(u, new ArrayList<String>(path), newName) != null) {
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '" + newName + "' already exist")));
 			return;
 		}
 		

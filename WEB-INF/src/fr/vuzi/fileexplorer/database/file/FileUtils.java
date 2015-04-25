@@ -136,7 +136,7 @@ public class FileUtils {
 		gfsFile.setFilename(name);
 		gfsFile.setContentType(mimeType);
 		gfsFile.put("owner", new ObjectId(u.UID));
-		gfsFile.put("path", d.name == null ? "/" : d.path + "/" + d.name + "/");
+		gfsFile.put("path", d.name == null ? "/" : d.path + d.name + "/");
 		gfsFile.put("creation", now);
 		gfsFile.put("edit", now);
 		gfsFile.put("parent", d.UID == null ? null : new ObjectId(d.UID));
@@ -166,7 +166,7 @@ public class FileUtils {
 		gfsFile.setFilename(filename);
 		gfsFile.setContentType(mimeType);
 		gfsFile.put("owner", new ObjectId(u.UID));
-		gfsFile.put("path", d.name == null ? "/" : d.path + "/" + d.name + "/");
+		gfsFile.put("path", d.name == null ? "/" : d.path + d.name + "/");
 		gfsFile.put("creation", now);
 		gfsFile.put("edit", now);
 		gfsFile.put("parent", d.UID == null ? null : new ObjectId(d.UID));
