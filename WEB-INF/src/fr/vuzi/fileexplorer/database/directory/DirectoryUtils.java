@@ -277,6 +277,7 @@ public class DirectoryUtils {
 		// Change name
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(d.UID));
+		query.put("owner", new ObjectId(u.UID));
 		
 		BasicDBObject update = new BasicDBObject();
 		update.append("$set", new BasicDBObject().append("name", newName));

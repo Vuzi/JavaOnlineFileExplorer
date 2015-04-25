@@ -78,36 +78,37 @@ public class FrontController extends AFrontController {
 		// == API ==
 		// -- User account actions --
 		// Login
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/login/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.ActionLogin"));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/login/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.user.ActionLogin"));
 		
 		// Logout
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/logout/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.ActionLogout"));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/logout/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.user.ActionLogout"));
 		
 		// -- Directory actions --
 		// Listing of a directory content (not recursively)
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShow", new String[] { "path" }));
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir-id/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowByID", new String[] { "id" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.directory.ActionDirShow", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir-id/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.directory.ActionDirShowByID", new String[] { "id" }));
 		
 		// Directory modification
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionDirModification", new String[] { "path" }));
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "PUT", "fr.vuzi.fileexplorer.api.action.ActionDirCreation", new String[] { "path" }));
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "DELETE", "fr.vuzi.fileexplorer.api.action.ActionDirDeletion", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.directory.ActionDirModification", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "PUT", "fr.vuzi.fileexplorer.api.action.directory.ActionDirCreation", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "DELETE", "fr.vuzi.fileexplorer.api.action.directory.ActionDirDeletion", new String[] { "path" }));
 		
 		// Tree of all the user's directories
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionDirShowTree"));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.directory.ActionDirShowTree"));
 
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/test/?$", "GET|POST|PUT|DELETE", "fr.vuzi.webframework.action.ActionDefault"));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/test/?$", "GET|POST|PUT|DELETE", "fr.vuzi.webframework.action.directory.ActionDefault"));
 		
 		
 		// -- File actions --
 		// File download
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionFileShow",  new String[] { "path" }));
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-download/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.ActionFileDownload",  new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileShow",  new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileDownload",  new String[] { "path" }));
 
 		// File upload
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionFileCreation", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileUpload", new String[] { "path" }));
 		
 		// File modification
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileModification", new String[] { "path" }));
 		//rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/(?:dir/(?:[0-9]+)/)?file/([0-9]+)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionFileModification", new String[] { "file-id" }));
 	}
 

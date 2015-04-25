@@ -66,7 +66,8 @@ public class File {
 		this.creationDate = (Date) gfsFile.get("creation");
 		this.modificationDate = (Date) gfsFile.get("edit");
 		this.size = gfsFile.getLength();
-		this.parentUID = gfsFile.get("parent").toString();
+		if(gfsFile.get("parent") != null)
+			this.parentUID = gfsFile.get("parent").toString();
 	}
 
 	public File(GridFSFile gfsFile) {
@@ -77,9 +78,19 @@ public class File {
 		this.creationDate = (Date) gfsFile.get("creation");
 		this.modificationDate = (Date) gfsFile.get("edit");
 		this.size = (Long)gfsFile.get("length");
-		this.parentUID = gfsFile.get("parent").toString();
+		if(gfsFile.get("parent") != null)
+			this.parentUID = gfsFile.get("parent").toString();
 	}
 
 	public File(Document d) {
+		this.UID = d.getObjectId("_id").toString();
+		this.name = d.getString("filename");
+		this.type = d.getString("contentType");
+		this.path = d.getString("path");
+		this.creationDate = d.getDate("creation");
+		this.modificationDate = d.getDate("edit");
+		this.size = d.getLong("length");
+		if(d.getObjectId("parent") != null)
+			this.parentUID = d.getObjectId("parent").toString();
 	}
 }
