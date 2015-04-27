@@ -99,17 +99,22 @@ public class FrontController extends AFrontController {
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/test/?$", "GET|POST|PUT|DELETE", "fr.vuzi.webframework.action.directory.ActionDefault"));
 		
 		
-		// -- File actions --
+		// -- File actions (bin) --
 		// File download
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileShow",  new String[] { "path" }));
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileDownload",  new String[] { "path" }));
 
 		// File upload
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileUpload", new String[] { "path" }));
+
+		// -- File actions (bin) --
+		// File info
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileShow",  new String[] { "path" }));
 		
 		// File modification
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileModification", new String[] { "path" }));
-		//rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/(?:dir/(?:[0-9]+)/)?file/([0-9]+)/?$", "POST", "fr.vuzi.fileexplorer.api.action.ActionFileModification", new String[] { "file-id" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "PUT", "fr.vuzi.fileexplorer.api.action.file.ActionFileCreation", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "DELETE", "fr.vuzi.fileexplorer.api.action.file.ActionFileDeletion", new String[] { "path" }));
+		
 	}
 
 	@Override
