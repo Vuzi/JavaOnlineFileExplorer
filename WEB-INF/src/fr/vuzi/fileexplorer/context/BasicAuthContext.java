@@ -15,6 +15,7 @@ public class BasicAuthContext extends Context {
 
 	@Override
 	public void authentificate(String login, String password) throws Exception {
+		resetSession();
 		User user = UserUtils.getUser(login, password);
 		
 		if(user != null) {
