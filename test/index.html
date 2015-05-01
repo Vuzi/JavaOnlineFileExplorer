@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="main.css">
+		<title>Maquette FileExplorer</title>
+	</head>
+	<body>
+		<div id="global">
+			<div id="tree">
+			</div>
+
+			<div id="right">
+				<div id="options">
+					<nav>
+						<ul class="nav">
+							<li class="nav-item"><a href="#">Accueil</a></li>
+							<li class="nav-item"><a href="#">Menu1</a>
+								<ul  class="sub-nav">                         
+									<li class="sub-nav-item"><a href="#">Sous-Menu1.1</a></li>
+									<li class="sub-nav-item"><a href="#">Sous-Menu1.2</a></li>
+									<li class="sub-nav-item"><a href="#">Sous-Menu1.3</a></li>
+								</ul>
+							</li>
+							<li class="nav-item"><a href="#">Menu2</a></li>
+							<li class="nav-item"><a href="#">Menu3</a></li>
+						</ul>
+					</nav>
+				</div>
+				<div id="content">
+				</div>
+			</div>
+		</div>
+<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script type="text/javascript">
+	
+function authHeader(login, password) {
+	return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
+}
+
+// =======================================================
+//                    Directory tree
+// =======================================================
+
+function DirectoryTree(renderer, folder) {
+	this.renderer = renderer;
+	this.folder = folder;
+}
+
+DirectoryTree.prototype.render = function(data) {
+	var me = this;
+	var html = $('<ul />');
+	var li = $('<span class="root">Root</span>');
+
+	li.on('click', function(e) {
+		if(li.is(e.target)) {
+			me.folder.update(null);
+		}
+	});
+
+	this._render_rec(html, data);
+	this.renderer.empty().append($('<ul></ul>').append(li).append(html));
+}
+
+DirectoryTree.prototype._render_rec = function(html, data) {
+	var me = this;
+
+	data.directories.forEach(function(directory) {
+		var li = $('<li rel="' + directory.UID + '" />')
+		var button = $('<span />').addClass('developped');
+		var name = $('<a href="#" > ' + directory.name + '</a>');
+		var ul = $('<ul />');
+
+		li.append(button).append(name);
+
+		name.on('click', function(e) {
+			me.folder.update(directory.UID);
+		});
+
+		button.on('click', function(e) {
+			if(button.is(e.target)) {
+				ul.slideToggle();
+				button.toggleClass('developped');
+			}
+		});
+
+		me._render_rec(ul, directory);
+
+		html.append(li.append(ul));
+	});
+}
+
+DirectoryTree.prototype.update = function() {
+	var me = this;
+	$.ajax({
+		type: 'GET',
+		url: 'http://localhost:8080/FileExplorer/api/tree',
+		dataType : 'json',
+		headers : authHeader('vuzi', '1234'),
+		success: function(data) {
+			me.render(data.data);
+		},
+		error: function(data) {
+			console.log('Error : ');
+			console.log(data);
+		},
+		fail: function(data) {
+			console.log('Fail : ');
+			console.log(data);
+		}
+	});
+}
+
+// =======================================================
+//                    Directory tree
+// =======================================================
+
+function Folder(renderer) {
+	this.renderer = renderer;
+}
+
+Folder.prototype.update = function(id) {
+	var me = this;
+	var link;
+
+	if(id == null)
+		link = "http://localhost:8080/FileExplorer/api/dir/";
+	else
+		link = 'http://localhost:8080/FileExplorer/api/dir-id/' + id;
+
+	$.ajax({
+		type: 'GET',
+		url: link,
+		dataType : 'json',
+		headers : authHeader('vuzi', '1234'),
+		success: function(data) {
+			me.render(data.data);
+		},
+		error: function(data) {
+			console.log('Error : ');
+			console.log(data);
+		},
+		fail: function(data) {
+			console.log('Fail : ');
+			console.log(data);
+		}
+	});
+}
+
+Folder.prototype.generateTypeIcon = function(mimeType, filename) {
+
+	var icon_src = "icons/default.png";
+
+	switch (mimeType) {
+		case 'application/x-troff-msvideo':
+		case 'video/avi' :
+		case 'video/msvideo' :
+		case 'video/x-msvideo' :
+			// Avi video
+			icon_src = "icons/avi.png";
+			break;
+		case 'text/csv' :
+			// CSV file
+			icon_src = "icons/csv.png";
+			break;
+		case 'application/msword' :
+		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
+			// Doc
+			icon_src = "icons/doc.png";
+			break;
+		case 'folder':
+			// Folder
+			icon_src = "icons/folder.png";
+			break;
+		case 'image/jpeg' :
+			// Jpeg
+			icon_src = "icons/jpg.png";
+			break;
+		case 'audio/mpeg' :
+		case 'audio/mp3' :
+			// MP3
+			icon_src = "icons/mp3.png";
+			break;
+		case 'application/pdf' :
+			// PDF
+			icon_src = "icons/pdf.png";
+			break;
+		case 'image/png' :
+			// PNG
+			icon_src = "icons/png.png";
+			break;
+		case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+		case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
+		case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
+			// Ppt
+			icon_src = "icons/ppt.png";
+			break;
+		case 'application/x-rar-compressed' :
+			// rar
+			icon_src = "icons/rar.png";
+			break;
+		case 'text/plain' :
+			// txt
+			icon_src = "icons/txt.png";
+			break;
+		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
+			// xls
+			icon_src = "icons/xls.png";
+			break;
+		case 'application/zip' :
+			// Zip
+			icon_src = "icons/zip.png";
+			break;
+	}
+
+	return $('<a href="#"><figure><img src="' + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
+}
+
+Folder.prototype.render = function(data) {
+	var me = this;
+	var h1 = $('<h1> Content of ' + (data.name == null ? 'Root' : data.name) + '</h1>');
+	var ul = $('<ul />');
+
+	data.directories.forEach(function(directory) {
+		ul.append($('<li />').append(me.generateTypeIcon('folder', directory.name)));
+	});
+
+	data.files.forEach(function(file) {
+		ul.append($('<li />').append(me.generateTypeIcon(file.type, file.name)));
+	});
+
+	this.renderer.empty().append(h1).append(ul);
+}
+
+var folder = new Folder($('#content'));
+var tree = new DirectoryTree($('#tree'), folder);
+tree.update();
+folder.update(null);
+
+
+</script>
+	</body>
+</html>

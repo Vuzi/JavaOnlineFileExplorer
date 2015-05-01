@@ -1,0 +1,226 @@
+html, body {
+	min-width: 800px;
+	min-height: 600px;
+	margin: 0;
+	height: 100%;
+	#background-color: #1C1C1C;	
+}
+
+#global{
+	height: 100%;
+	color: white;
+	font-family: 'Biryani', sans-serif;
+}
+
+#global a{
+	text-decoration: none;
+	color: white;
+}
+
+#global ul{
+	list-style: none;
+}
+
+#tree{
+	font-size: 0.8vw;
+	width: 15.6%;
+	height: 100%;
+	min-height: 100%;
+	float: left;
+	background-color: #1C1C1C;
+}
+
+#tree .root{
+	padding-left: 3%;
+	font-weight: bold;
+}
+
+#tree li a:hover{
+	font-weight:bold;
+}
+
+#tree h3{
+	font-size: 1.1vw;
+	font-family: 'Roboto Condensed', sans-serif;
+	padding: 0;
+	margin-left: 5%;
+}
+
+#tree ul a:nth-child(2), #tree li a:nth-child(2){
+	position: relative;
+	bottom: 0.2vw;
+}
+
+#tree ul{
+	padding: 0;
+	margin-left: 15%;
+	margin-bottom: 1%;
+}
+
+#tree li{
+	padding: 1%;
+}
+
+#tree li span{
+	display: inline-block;
+	background-image: url(icons/moins-transp.png);
+	background-size: 1vw;
+	border-radius: 50px;
+	width: 1vw;
+	height: 1vw;
+	transition-duration: 0.2s;
+	border: 0.1em solid #1C1C1C;
+	background-color: black;
+	cursor: pointer;
+}
+
+#tree li span.developped{
+	background-image: url(icons/plus-transp.png);
+}
+
+#tree li span:hover{
+	border: 0.1em solid white;
+	border-radius: 50px;
+	width: 1vw;
+	height: 1vw;
+}
+
+#right{
+	padding: 0;
+	margin: 0;
+	display: block;
+	height: 100%;
+}
+
+#options{
+	padding: 0;
+	margin: 0;
+	font-family: 'Roboto Condensed', sans-serif;
+	font-size: 1.1vw;
+	color: white;
+	width: 84.3%;
+	height: 7%;
+	float: right;
+	background-color: #2E2E2E;
+	border-bottom: 0.1em solid #2E93F1;
+}
+
+#options nav{
+	margin: 0;
+	padding: 0;
+}
+
+#options .nav .nav-item a, #options .nav .nav-item .sub-nav .sub-nav-item a{
+	font-size: 1.1vw;
+	padding-top: 1vw;
+	padding-bottom: 0.8vw;
+	padding-left: 2vw;
+	padding-right: 2vw;
+}
+
+#options .nav a:hover {
+    background: black;
+}
+
+#options .nav-item {
+	padding: 0;
+	margin: 0;
+    float: left; /* Pour que les liens s’affichent horizontalement */
+    position: relative; /* Crée un contexte de positionnement pour les sous-listes */
+	padding: 0;
+	margin: 0;
+	display : block;
+}
+
+#options .sub-nav {
+    position: absolute; /* Evite que la dimension du conteneur ne change quand la sous-liste est affichée */
+    white-space: nowrap; /* Pour que le texte ne revienne pas à la ligne */
+	padding: 0;
+	margin: 0;
+}
+
+/* Réduit cette boîte à un carré d’1px de côté, dont le texte est déporté loin à gauche */
+#options .sub-nav-item a {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    float: left; /* Fix WebKit : force la largeur des sous-navigations à s’adapter automatiquement, pour pouvoir l’atteindre à la souris */
+	padding: 0;
+	margin: 0;
+}
+
+#options .nav-item:hover  .sub-nav-item a , #options .nav-item:hover  .nav-item a {
+	padding: 0;
+	margin: 0;
+    position: static;
+    left: auto;
+    width: auto;
+    height: auto;
+    overflow: visible;
+	background-color: black;
+}
+
+#options li, #options menu, #options a{
+	text-align:center;
+	display: inline;
+}
+
+#options a{
+	transition-duration: 0.2s;
+}
+
+#options a:hover{
+	color: #BDDFF6;
+}
+
+#content{
+	overflow-y: scroll;
+	font-size: 1.1vw;
+	width: 84.3%;
+	height: 92.8%;
+	float: right;
+	background-color: #2E2E2E;
+}
+
+#content li{
+	font-size: 0.8vw;
+	display: inline-block;
+	text-align: center;
+}
+
+#content img{
+	width: 90px;
+	height: 90px;
+	padding: 1.5%;
+	transition-duration: 0.5s;
+	border-radius: 50px;
+	border: 0.2em solid #2E2E2E;
+}
+
+#content img:hover{
+	border: 0.2em solid #7CCEFE;
+	border-radius: 50px;
+}
+
+#content::-webkit-scrollbar-track
+{
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+	border-radius: 10px;
+	background-color: #2E2E2E;
+}
+
+#content::-webkit-scrollbar
+{
+	width: 7px;
+	background-color: #2E2E2E;
+}
+
+#content::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+	background-color: #1C1C1C;
+}
