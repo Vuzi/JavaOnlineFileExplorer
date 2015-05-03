@@ -39,6 +39,7 @@ public class ActionDirShow extends AAction {
 	
 		if(d == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory found for '/" + c.getParameterUnique("path") + "'")));
+			c.setStatus(404);
 		} else {
 			d.directories = DirectoryUtils.getDirectoriesContained(u, d);
 			d.files = FileUtils.getFilesContained(u, d);

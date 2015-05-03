@@ -119,7 +119,7 @@ public class FrontController extends AFrontController {
 
 	@Override
 	protected String getRootDirectory() {
-		return "C:/Users/Vuzi/Desktop/JEE/workspace/FileExplorer/";
+		return "C:/Users/Vuzi/Desktop/JEE/workspace/JavaOnlineFileExplorer/";
 	}
 
 	@Override

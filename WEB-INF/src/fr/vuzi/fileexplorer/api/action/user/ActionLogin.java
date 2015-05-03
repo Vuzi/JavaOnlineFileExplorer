@@ -40,10 +40,12 @@ public class ActionLogin extends AActionNoCredentials {
 			} else {
 				// No user with the provided values
 				c.setAttribute("model", new GenericMessage(true, 403, new ErrorMessage(403, "Error : No user found with this login/password")));
+				c.setStatus(403);
 			}
 		} else {
 			// Not all the required value are provided
 			c.setAttribute("model", new GenericMessage(true, 403, new ErrorMessage(403, "Error : Not enought data sended")));
+			c.setStatus(403);
 		}
 		
 	}

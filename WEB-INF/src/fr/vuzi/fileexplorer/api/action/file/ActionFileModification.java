@@ -40,6 +40,7 @@ public class ActionFileModification extends AAction {
 		
 		if(action == null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("path") + "'")));
+			c.setStatus(400);
 			return;
 		}
 		
@@ -64,6 +65,7 @@ public class ActionFileModification extends AAction {
 			break;
 		default:
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("path") + "'")));
+			c.setStatus(400);
 		}
 	}
 
@@ -80,6 +82,7 @@ public class ActionFileModification extends AAction {
 		
 		if(fileBase64 == null || fileBase64.isEmpty()) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No file to upload")));
+			c.setStatus(400);
 			return;	
 		}
 		
@@ -92,12 +95,14 @@ public class ActionFileModification extends AAction {
 		// Test for parent directory
 		if(d == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory to upload the file to")));
+			c.setStatus(404);
 			return;	
 		}
 
 		// Test if file already exist
 		if(FileUtils.getFile(u, path, filename) != null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : File '" + filename + "' already exists")));
+			c.setStatus(400);
 			return;	
 		}
 
@@ -119,6 +124,7 @@ public class ActionFileModification extends AAction {
 
 		if(file == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));
+			c.setStatus(404);
 			return;	
 		}
 
@@ -126,6 +132,7 @@ public class ActionFileModification extends AAction {
 		
 		if(d == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : The file '" + name + "' could not be deleted")));
+			c.setStatus(404);
 			return;	
 		}
 		
@@ -149,11 +156,13 @@ public class ActionFileModification extends AAction {
 
 		if(file == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));
+			c.setStatus(404);
 			return;	
 		}
 		
 		if(newFile != null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : A file named '" + name + "' already exist")));
+			c.setStatus(400);
 			return;	
 		}
 
@@ -177,16 +186,19 @@ public class ActionFileModification extends AAction {
 
 		if(file == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));
+			c.setStatus(404);
 			return;	
 		}
 		
 		if(container == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory '" + c.getParameterUnique("newPath") + "' found")));
+			c.setStatus(404);
 			return;	
 		}
 		
 		if(newFile != null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : A file named '" + name + "' in '" + c.getParameterUnique("newPath") +  "' already exist")));
+			c.setStatus(400);
 			return;	
 		}
 

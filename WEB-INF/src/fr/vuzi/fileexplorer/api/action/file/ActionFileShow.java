@@ -45,6 +45,7 @@ public class ActionFileShow extends AAction {
 		
 		if(file == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));
+			c.setStatus(404);
 			return;	
 		}
 		

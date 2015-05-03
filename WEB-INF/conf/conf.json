@@ -1,6 +1,6 @@
 {
 	"root" : "C:/Users/Vuzi/Desktop/JEE/workspace/VuziWebFramework/",
-	"URI"  : "/FileExplorer",
+	"URI"  : "/JavaOnlineFileExplorer",
 	"actions" : [ 
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogin",
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogout",

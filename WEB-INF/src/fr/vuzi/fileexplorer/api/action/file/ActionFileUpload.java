@@ -46,6 +46,7 @@ public class ActionFileUpload extends AAction {
 
 		if(d == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory to upload the file to")));
+			c.setStatus(404);
 			return;	
 		}
 		
@@ -58,6 +59,7 @@ public class ActionFileUpload extends AAction {
 			// Test if file already exist
 			if(FileUtils.getFile(u, path, filename) != null) {
 				c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : File '" + filename + "' already exists")));
+				c.setStatus(400);
 				return;	
 			}
 			
@@ -66,6 +68,7 @@ public class ActionFileUpload extends AAction {
 
 			if(file == null) {
 				c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Couldn't create the file " + filename)));
+				c.setStatus(400);
 				return;	
 			}
 			
@@ -74,6 +77,7 @@ public class ActionFileUpload extends AAction {
 		
 		if(files.size() == 0) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No file uploaded")));
+			c.setStatus(400);
 		} else if(files.size() == 1) {
 			c.setAttribute("model", files.get(0));
 		} else {
