@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
+		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
+		<link rel="stylesheet" type="text/css" href="main.css">
+		<title>Maquette FileExplorer</title>
+	</head>
+	<body>
+		<div id="pop_up_back"></div>
+		<div id="global">
+			<div id="left">
+				<div id="tree">
+				</div>
+			</div>
+			
+			<div id="right">
+				<div id="options">
+					<menu type="menu">
+						<li><menu label="Fichier"><a href="#">Nouveau fichier</a></menu></li>
+						<li><menu label="Editer"><a href="#">Nouveau dossier</a></menu></li>
+						<li><menu label="Editer"><a href="#">Organisation</a></menu></li>
+						<li><menu label="Editer"><a href="#">Affichage</a></menu></li>
+					</menu>
+				</div>
+				<div id="content">
+				</div>
+			</div>
+		</div>
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript">
+			
+			var global = $('#global');
+			var pop_up_back = $('#pop_up_back');
+			var right = $('#right');
+			
+			function authHeader(login, password) {
+				return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
+			}
+			
+			// =======================================================
+			//                    Directory tree
+			// =======================================================
+			
+			function DirectoryTree(renderer, folder) {
+				this.renderer = renderer;
+				this.folder = folder;
+			}
+			
+			DirectoryTree.prototype.render = function(data) {
+				var me = this;
+				var html = $('<ul />');
+				var span = $('<span class="root">Root</span>');
+				
+				span.on('click', function(e) {
+					if(span.is(e.target) && !me.folder.in_update) {
+						me.folder.update(null);
+					}
+				});
+				
+				this._render_rec(html, data);
+				this.renderer.empty().append(span).append(html);
+			}
+			
+			DirectoryTree.prototype._render_rec = function(html, data) {
+				var me = this;
+				
+				data.directories.forEach(function(directory) {
+					var li = $('<li rel="' + directory.UID + '" />')
+					var button = $('<span />').addClass('developped');
+					var name = $('<a href="#" > ' + directory.name + '</a>');
+					var ul = $('<ul />');
+					
+					li.append(button).append(name);
+					
+					name.on('click', function(e) {
+						if(!me.folder.in_update) {
+							me.folder.update(directory.UID);
+						}
+					});
+					
+					button.on('click', function(e) {
+						if(button.is(e.target)) {
+							ul.slideToggle();
+							button.toggleClass('developped');
+						}
+					});
+					
+					if(directory.directories.length > 0) {
+						me._render_rec(ul, directory);
+						
+						li.append(ul);
+					}
+					
+					html.append(li);
+				});
+			}
+			
+			DirectoryTree.prototype.update = function() {
+				var me = this;
+				$.ajax({
+					type: 'GET',
+					url: 'http://test.vuzi.fr:1992/JavaOnlineFileExplorer/api/tree',
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						me.render(data.data);
+					},
+					error: function(data) {
+						console.log(data);
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+					},
+					fail: function(data) {
+						console.log(data);
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+					}
+				});
+			}
+			
+			// =======================================================
+			//                    Directory content
+			// =======================================================
+			
+			function Folder(renderer) {
+				this.renderer = renderer;
+				this.in_update = false;
+			}
+			
+			Folder.prototype.prepare_update = function() {
+				this.in_update = true;
+				this.renderer.addClass('item-blur');
+				right.addClass('blur');
+			}
+			
+			Folder.prototype.finish_update = function() {
+				this.in_update = false;
+				this.renderer.removeClass('item-blur');
+				right.removeClass('blur');
+			}
+			
+			Folder.prototype.update = function(id) {
+				var me = this;
+				var link;
+				
+				this.prepare_update();
+				
+				if(id == null)
+				link = 'http://test.vuzi.fr:1992/JavaOnlineFileExplorer/api/dir/';
+				else
+				link = 'http://test.vuzi.fr:1992/JavaOnlineFileExplorer/api/dir-id/' + id;
+				
+				$.ajax({
+					type: 'GET',
+					url: link,
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						me.render(data.data);
+						me.finish_update();
+					},
+					error: function(data) {
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					},
+					fail: function(data) {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					}
+				});
+			}
+			
+			Folder.prototype.update_back = function() {
+				var me = this;
+				
+				if(!this.element)
+				return;
+				
+				this.prepare_update();
+				
+				$.ajax({
+					type: 'GET',
+					url: 'http://test.vuzi.fr:1992/JavaOnlineFileExplorer/api/dir/' + this.element.path,
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						me.render(data.data);
+						me.finish_update();
+					},
+					error: function(data) {
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					},
+					fail: function(data) {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					}
+				});
+			}
+			
+			Folder.prototype.render = function(element) {
+				this.element = element;
+				
+				var me = this;
+				var h1 = $('<h1> Content of ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
+				var ul = $('<ul />');
+				
+				// '..' folder
+				if(element.UID != null) {
+					var icon = new Icon(ul, me);
+					icon.update(null);
+				}
+				
+				// Directories
+				element.directories.forEach(function(directory) {
+					var icon = new Icon(ul, me);
+					icon.update(directory);
+				});
+				
+				// Files
+				element.files.forEach(function(file) {
+					var icon = new Icon(ul, me);
+					icon.update(file);
+				});
+				
+				this.renderer.empty().append(h1).append(ul);
+			}
+			
+			// =======================================================
+			//                          Icon
+			// =======================================================
+			
+			function Icon(renderer, folder) {
+				this.renderer = renderer;
+				this.folder = folder;
+			}
+			
+			Icon.prototype.generateTypeIcon = function(mimeType, filename) {
+				
+				var icon_src = "icons/default.png";
+				
+				switch (mimeType) {
+					case 'application/x-troff-msvideo':
+					case 'video/avi' :
+					case 'video/msvideo' :
+					case 'video/x-msvideo' :
+					// Avi video
+					icon_src = "icons/avi.png";
+					break;
+					case 'text/csv' :
+					// CSV file
+					icon_src = "icons/csv.png";
+					break;
+					case 'application/msword' :
+					case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+					case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
+					// Doc
+					icon_src = "icons/doc.png";
+					break;
+					case 'folder':
+					// Folder
+					icon_src = "icons/folder.png";
+					break;
+					case 'image/jpeg' :
+					// Jpeg
+					icon_src = "icons/jpg.png";
+					break;
+					case 'audio/mpeg' :
+					case 'audio/mp3' :
+					// MP3
+					icon_src = "icons/mp3.png";
+					break;
+					case 'application/pdf' :
+					// PDF
+					icon_src = "icons/pdf.png";
+					break;
+					case 'image/png' :
+					// PNG
+					icon_src = "icons/png.png";
+					break;
+					case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+					case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
+					case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
+					// Ppt
+					icon_src = "icons/ppt.png";
+					break;
+					case 'application/x-rar-compressed' :
+					// rar
+					icon_src = "icons/rar.png";
+					break;
+					case 'text/plain' :
+					// txt
+					icon_src = "icons/txt.png";
+					break;
+					case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+					case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
+					// xls
+					icon_src = "icons/xls.png";
+					break;
+					case 'application/zip' :
+					// Zip
+					icon_src = "icons/zip.png";
+					break;
+				}
+				
+				return $('<a href="#"><figure><img src="' + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
+			}
+			
+			Icon.prototype.update = function(element) {
+				this.element = element;
+				var me = this;
+				
+				var icon;
+				
+				if(element == null)  {
+					// '..'
+					icon = this.generateTypeIcon('folder', '..');
+					
+					icon.on('dblclick', function(e) {
+						if(!me.folder.in_update) {
+							me.folder.update_back();
+						}
+						e.preventDefault();
+					});
+					} else if(element.type) {
+					// File
+					icon = this.generateTypeIcon(element.type, element.name);
+					
+					// Load file
+					icon.on('dblclick', function(e) {
+						alert("File " + element.name + " selected");
+						e.preventDefault();
+					});
+					} else {
+					// Directory
+					icon = this.generateTypeIcon('folder', element.name);
+					
+					// Change directory
+					icon.on('dblclick', function(e) {
+						if(!me.folder.in_update) {
+							me.folder.update(element.UID);
+						}
+						e.preventDefault();
+					});
+				}
+				
+				// Select
+				icon.on('click', function(e) {
+					icon.toggleClass('selected');
+					e.preventDefault();
+				});
+				
+				this.renderer.append($('<li />').append(icon));
+			}
+			
+			
+			// =======================================================
+			//                      Pop up handler
+			// =======================================================
+			
+			function Pop_up(title, message, type) {
+				this.title = title;
+				this.message = message;
+				this.type = type || 'info';
+			}
+			
+			Pop_up.prototype.display = function() {
+				var div = $('<div class="pop_up ' + this.type + '"></div>');
+				div.append('<h2>' + this.title + '</h2>');
+				//div.append("<a href='#' class='close'><img src='icons/close_button.png'/>");
+				div.append('<p>' + this.message + '</p>');
+				
+				pop_up_back.fadeIn();
+				global.addClass('blur');
+				pop_up_back.append(div);
+				
+				setTimeout(function() {
+					div.slideToggle(function() {
+						div.remove();
+						if(pop_up_back.is(':empty')) {
+							pop_up_back.fadeOut();
+							global.removeClass('blur');
+						}
+					});
+				}, 3000);
+			}
+			
+			function Pop_up_window(title, content) {
+				this.title = title;
+				this.content = content;
+			}
+			
+			Pop_up_window.prototype.display = function() {
+				var div = $('<div class="pop_up"></div>');
+				div.append('<h2>' + this.title + '</h2>');
+				div.append("<a href='#' class='close'><img src='icons/close_button.png'/>");
+				div.append(content);
+				
+				pop_up_back.fadeIn();
+				global.addClass('blur');
+				pop_up_back.append(div);
+				
+				$('div.pop_up .close').on('click', function(e) {
+					div.slideToggle(function() {
+						div.remove();
+						pop_up_back.fadeOut();
+						global.removeClass('blur');
+					});
+				});
+				
+				/*
+					setTimeout(function() {
+					div.slideToggle(function() {
+					div.remove();
+					if(pop_up_back.is(':empty')) {
+					pop_up_back.fadeOut();
+					global.removeClass('blur');
+					}
+					});
+				}, 3000);*/
+			}
+			
+			var content = $('<p><span>Dossier</span><input type="text" placeholder"Nom du dossier"><br/><span>Chemin</span><input type="text" value="/machin/truc" disabled="disabled"><br/><input type="button" value="Créer"></p>')
+			var title = "Création dossier</a>"
+			
+			new Pop_up_window(title, content).display();
+			
+			$('#options').on('click', function(e) {
+				var pop = new Pop_up("Hello world !", "Message test !", "error");
+				pop.display();				
+				
+				setTimeout(function() {
+					var pop = new Pop_up("Hello world !", "Message test !", "success");
+					pop.display();
+					
+					var pop = new Pop_up("Hello world !", "Message test !", "info");
+					pop.display();
+					
+					var pop = new Pop_up("Hello world !", "Message test !", "warning");
+					pop.display();					
+				}, 1000);
+				
+			});
+			
+			var folder = new Folder($('#content'));
+			var tree = new DirectoryTree($('#tree'), folder);
+			tree.update();
+			folder.update(null);
+			
+		</script>
+		</body>
+	</html>	
