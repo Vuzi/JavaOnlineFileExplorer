@@ -3,7 +3,8 @@
 	<head>
 		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" type="text/css" href="main.css">
+		<link rel="stylesheet" type="text/css" href="style/main.css">
+		<link rel="stylesheet" type="text/css" href="style/icons.css">
 		<style type="text/css">
 
 		.loader-label {
@@ -110,6 +111,7 @@
 						<li><a href="#" action="new_dir">Nouveau dossier</a></li>
 						<li><a href="#">Organisation</a></li>
 						<li><a href="#">Affichage</a></li>
+					<li><a><span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span></a></li>
 					</ul>
 				</nav>
 				<div id="content"></div>
@@ -122,7 +124,7 @@ var global = $('#global');
 var pop_up_back = $('#pop_up_back');
 var right = $('#right');
 
-var endpoint = 'http://localhost:8080/JavaOnlineFileExplorer/';
+var endpoint = 'http://89.87.60.220:1992/JavaOnlineFileExplorer/';
 
 function authHeader(login, password) {
 	return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
@@ -418,6 +420,7 @@ function Icon(renderer, folder, tree) {
 
 Icon.prototype.generateTypeIcon = function(mimeType, filename) {
 
+	var icons_dir = "style/icons/";
 	var icon_src = "icons/default.png";
 
 	switch (mimeType) {
@@ -426,65 +429,65 @@ Icon.prototype.generateTypeIcon = function(mimeType, filename) {
 		case 'video/msvideo' :
 		case 'video/x-msvideo' :
 			// Avi video
-			icon_src = "icons/avi.png";
+			icon_src = "avi.png";
 			break;
 		case 'text/csv' :
 			// CSV file
-			icon_src = "icons/csv.png";
+			icon_src = "csv.png";
 			break;
 		case 'application/msword' :
 		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
 		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
 			// Doc
-			icon_src = "icons/doc.png";
+			icon_src = "doc.png";
 			break;
 		case 'folder':
 			// Folder
-			icon_src = "icons/folder.png";
+			icon_src = "folder.png";
 			break;
 		case 'image/jpeg' :
 			// Jpeg
-			icon_src = "icons/jpg.png";
+			icon_src = "jpg.png";
 			break;
 		case 'audio/mpeg' :
 		case 'audio/mp3' :
 			// MP3
-			icon_src = "icons/mp3.png";
+			icon_src = "mp3.png";
 			break;
 		case 'application/pdf' :
 			// PDF
-			icon_src = "icons/pdf.png";
+			icon_src = "pdf.png";
 			break;
 		case 'image/png' :
 			// PNG
-			icon_src = "icons/png.png";
+			icon_src = "png.png";
 			break;
 		case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
 		case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
 		case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
 			// Ppt
-			icon_src = "icons/ppt.png";
+			icon_src = "ppt.png";
 			break;
 		case 'application/x-rar-compressed' :
 			// rar
-			icon_src = "icons/rar.png";
+			icon_src = "rar.png";
 			break;
 		case 'text/plain' :
 			// txt
-			icon_src = "icons/txt.png";
+			icon_src = "txt.png";
 			break;
 		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
 		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
 			// xls
-			icon_src = "icons/xls.png";
+			icon_src = "xls.png";
 			break;
 		case 'application/zip' :
 			// Zip
-			icon_src = "icons/zip.png";
+			icon_src = "zip.png";
 			break;
 	}
 
-	return $('<a href="#"><figure><img src="' + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
+	return $('<a href="#"><figure><img src="' + icons_dir + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
 }
 
 Icon.prototype.update = function(element, parent) {
