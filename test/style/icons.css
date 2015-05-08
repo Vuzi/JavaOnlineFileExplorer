@@ -13,6 +13,13 @@
     top: 1px;
 }
 
+#context_menu li .glyphicon {
+  margin-left: -22px;
+}
+
+#context_menu li .glyphicon::before {
+  margin-right: 5px;
+}
 
 .glyphicon-trash::before {
     content: "\e020";

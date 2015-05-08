@@ -1,7 +1,5 @@
 html, body {
-	font-size: 14px;
-	font-family: 'Biryani', sans-serif;
-	
+	font-size: 14px;	
 	min-width: 1024px;
 	min-height: 768px;
 	margin: 0;
@@ -350,91 +348,4 @@ div.pop_up.warning h2 {
 
 div.pop_up.error h2 {
 	color: darkred;
-}
-
-.loader-label {
-	margin-top: 50px;
-	width: 100%;
-	text-align: center;
-}
-
-.loader {
-  width: 20px;
-  height: 20px;
-  position: absolute;
-  background-color: #ccc;
-  top: 45%;
-  border-radius: 50%;
-}
-
-.loader:nth-child(1) {
-  background-color: #FF5460;
-  -webkit-animation: move 2s infinite cubic-bezier(.2,.64,.81,.23);
-  animation: move 2s infinite cubic-bezier(.2,.64,.81,.23);
-}
-.loader:nth-child(2) {
-  background-color: #FF9D84;
-  -webkit-animation: move 2s 150ms infinite cubic-bezier(.2,.64,.81,.23);
-  animation: move 2s 150ms infinite cubic-bezier(.2,.64,.81,.23);
-}
-.loader:nth-child(3) {
-  background-color: #F0E797;
-  -webkit-animation: move 2s 300ms infinite cubic-bezier(.2,.64,.81,.23);
-  animation: move 2s 300ms infinite cubic-bezier(.2,.64,.81,.23);
-}
-.loader:nth-child(4) {
-  background-color: #75B08A;
-  -webkit-animation: move 2s 450ms infinite cubic-bezier(.2,.64,.81,.23);
-  animation: move 2s 450ms infinite cubic-bezier(.2,.64,.81,.23);
-}
-
-@-webkit-keyframes move {
-  0% {left: 0%;}
-  100% {left:90%;}
-}
-
-@keyframes move {
-  0% {left: 0%;}
-  100% {left:90%;}
-}
-
-#context_menu {
-	font-family: Calibri;
-
-	position: absolute;
-	top: 200px;
-	left: 400px;
-
-	/*min-width: 300px;*/
-	background-color: white;
-	border: 1px darkgray solid;
-	box-shadow: 2px 2px 5px #111;
-}
-
-#context_menu ul {
-	font-size: 16px;
-	padding: 0;
-	margin: 0;
-	padding: 10px 0;
-
-	border-bottom: 1px lightgray solid;
-}
-
-#context_menu ul li {
-	padding: 2px 30px 3px 30px;
-}
-
-#context_menu ul li:not(.info):hover {
-	background-color: #2E2E2E;
-	color: white;
-	cursor: pointer;
-}
-
-#context_menu ul li.info span:first-child{
-	width: 100px;
-	display: inline-block;
-}
-
-#context_menu ul li.info span:nth-child(2) {
-	color: #888;
 }
