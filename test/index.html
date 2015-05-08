@@ -91,7 +91,6 @@ DirectoryTreeNode.prototype.render = function() {
 
 	name.on('click', function(e) {
 		if(!me.tree.folder.in_update) {
-			me.tree.folder.update(directory.UID); // Update folder
 			me.select(); // Select self
 		}
 	});
@@ -147,6 +146,7 @@ DirectoryTreeNode.prototype.select = function() {
 
 	this.tree.selected = this; // Register as the selected node 
 	this.node.addClass('selected');
+	this.tree.folder.update(this.directory.UID);
 	this.develop(); // Develop on selection
 }
 
@@ -416,7 +416,6 @@ Icon.prototype.update = function(element, parent) {
 
 		icon.on('dblclick', function(e) {
 			if(!me.folder.in_update) {
-				me.folder.update(element.UID);
 				me.tree.select(element.UID);
 			}
 			e.preventDefault();
@@ -437,7 +436,6 @@ Icon.prototype.update = function(element, parent) {
 		// Change directory
 		icon.on('dblclick', function(e) {
 			if(!me.folder.in_update) {
-				me.folder.update(element.UID);
 				me.tree.select(element.UID);
 			}
 			e.preventDefault();
@@ -620,6 +618,73 @@ DirectoryCreationWindow.prototype.action = function() {
 }
 
 // =======================================================
+//                      Folder deletion
+// =======================================================
+
+function DirectoryDeletionWindow(directory) {
+	var me = this;
+
+	this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+	this.title = "Suppression dossier";
+
+	this.content = $('<span><p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p></span>');
+	this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
+	this.cancel = $('<input type="button" value="Annuler"></input>');
+
+	this.content.append($('<span style="text-align : center; display: block" />').append(this.submit).append(this.cancel));
+
+	this.submit.on('click', function(e) {
+		me.action();
+	});
+	this.cancel.on('click', function(e) {
+		me.pop_up.close();
+	});
+}
+
+DirectoryDeletionWindow.prototype.display = function() {
+	this.pop_up = new Pop_up_window(this.title, this.content);
+	this.pop_up.display();
+	this.cancel.focus();
+}
+
+DirectoryDeletionWindow.prototype.action = function() {
+	var dir_path = this.path;
+	var me = this;
+
+	this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+	this.pop_up.toggle_dissmiss();
+
+	$.ajax({
+		type: 'DELETE',
+		url: endpoint + 'api/dir' + dir_path,
+		dataType : 'json',
+		headers : authHeader('vuzi', '1234'),
+		success: function(data) {
+		    var pop = new Pop_up("Suppression du dossier effectuée", "Le dossier '" + dir_path + "' a été supprimé avec succès", "success");
+		    pop.display();
+
+		    me.pop_up.close();
+
+			tree.update();
+		},
+		error: function(data) {
+		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+		    pop.display();
+			console.log(data);
+
+		    me.pop_up.close();
+		},
+		fail: function(data) {
+		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+		    pop.display();
+			console.log(data);
+
+		    me.pop_up.close();
+		}
+	});
+}
+
+// =======================================================
 //                      File creation
 // =======================================================
 
@@ -766,7 +831,6 @@ ContextualMenu.prototype.display = function(element, x, y) {
 		var open = $('<li>Ouvrir le dossier</li>');
 		open.on('click', function() {
 			if(!me.folder.in_update) {
-				me.folder.update(element.UID);
 				me.tree.select(element.UID);
 			}
 			me.content.fadeOut(200);
@@ -774,7 +838,11 @@ ContextualMenu.prototype.display = function(element, x, y) {
 		action.append(open);
 		action.append($('<li>Ouvrir dans une nouvelle fenêtre</li>'));
 		action.append($('<li>Renommer le dossier</li>'));
-		action.append($('<li>Supprimer le dossier</li>'));
+		var deletion = $('<li>Supprimer le dossier</li>');
+		deletion.on('click', function() {
+			new DirectoryDeletionWindow(element).display();
+		});
+		action.append(deletion);
 		this.content.append(action);
 	}
 
@@ -815,7 +883,6 @@ var menu = new ContextualMenu(folder, tree);
 folder.set_tree(tree);
 
 tree.update();
-folder.update(null);
 
 </script>
 	</body>
