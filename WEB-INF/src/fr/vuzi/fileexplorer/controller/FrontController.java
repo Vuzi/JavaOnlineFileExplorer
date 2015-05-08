@@ -32,7 +32,7 @@ public class FrontController extends AFrontController {
 		else
 			context.setAttribute("model", new GenericMessage(true, httpCode, new ErrorMessage(httpCode, "Error : " + cause.getMessage())));
 		
-		context.getResponse().setStatus(httpCode);
+		context.setStatus(httpCode);
 		
 		try {
 			renderer.render(context);
