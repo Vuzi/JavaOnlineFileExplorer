@@ -106,7 +106,7 @@
 			<div id="right">
 				<nav id="options">
 					<ul type="menu">
-						<li><a href="#">Nouveau fichier</a></li>
+						<li><a href="#" action="new_file">Nouveau fichier</a></li>
 						<li><a href="#" action="new_dir">Nouveau dossier</a></li>
 						<li><a href="#">Organisation</a></li>
 						<li><a href="#">Affichage</a></li>
@@ -126,6 +126,10 @@ var endpoint = 'http://localhost:8080/JavaOnlineFileExplorer/';
 
 function authHeader(login, password) {
 	return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
+}
+
+function authHeaderValue(login, password) {
+	return 'Basic ' + btoa(login + ":" + password);
 }
 
 // =======================================================
@@ -698,7 +702,6 @@ DirectoryCreationWindow.prototype.action = function() {
 	});
 }
 
-
 // =======================================================
 //                      File creation
 // =======================================================
@@ -716,11 +719,11 @@ function FileCreationWindow(directory) {
 	this.submit = $('<input type="button" value="Envoyer"></input>');
 
 	this.content.append('<span>Fichier : </span>').append(this.file).append('<br/>').
-	             append('<span>Nom fichier : </span>').append(this.dir_name).append('<br/>').
+	             append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
 	             append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
 
 	this.file.on('change', function() {
-		this.dir_name.val(this.file.val());
+		me.dir_name.val(me.file.val().replace(/.*(\/|\\)/, ''));
 	});
 
 	this.dir_name.on('keypress', function(e) {
@@ -745,42 +748,50 @@ FileCreationWindow.prototype.action = function() {
 	var dir_path = this.dir_path.val().trim();
 	var me = this;
 
+	if(!this.file.val()) {
+		new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
+		return;
+	}
+
 	if(!dir_name || dir_name == "" || dir_name.includes('/')) {
-		new Pop_up("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+		new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
 		return;
 	}
 
 	this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
 	this.pop_up.toggle_dissmiss();
 
-	$.ajax({
-		type: 'PUT',
-		url: endpoint + 'api/dir' + dir_path + dir_name,
-		dataType : 'json',
-		headers : authHeader('vuzi', '1234'),
-		success: function(data) {
-		    var pop = new Pop_up("Création du dossier effectuée", "Le dossier '" + dir_name + "' a été crée avec succès", "success");
+	var file = this.file[0].files[0];
+	var formData = new FormData();
+
+	formData.append(dir_name, file, file.name);
+
+	console.log(file);
+	console.log(formData);
+	console.log(endpoint + 'api/file-bin' + dir_path);
+
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function () {
+	if (xhr.status === 200) {
+		    var pop = new Pop_up("Fichier uploadé", "Le fichier '" + dir_name + "' a été uploadé avec succès", "success");
 		    pop.display();
 
 		    me.pop_up.close();
 
 			tree.update();
-		},
-		error: function(data) {
-		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-		    pop.display();
-			console.log(data);
 
-		    me.pop_up.close();
-		},
-		fail: function(data) {
+			console.log(xhr);
+		} else {
 		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
 		    pop.display();
-			console.log(data);
 
 		    me.pop_up.close();
 		}
-	});
+	};
+	xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
+	xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
+	xhr.send(formData);
+
 }
 
 // =======================================================
@@ -872,6 +883,12 @@ ContextualMenu.prototype.display = function(element, x, y) {
 $('[action=new_dir]').on('click', function(e) {
 	if(tree.selected) {
 		new DirectoryCreationWindow(tree.selected.directory).display();
+	}
+});
+
+$('[action=new_file]').on('click', function(e) {
+	if(tree.selected) {
+		new FileCreationWindow(tree.selected.directory).display();
 	}
 });
 
