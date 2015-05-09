@@ -51,25 +51,25 @@
 }
 
 .glyphicon-share-alt:before {
-	content: "\e095";
+content: "\e095";
 }
 
 .glyphicon-folder-open:before {
-	content: "\e118";
+content: "\e118";
 }
 
 .glyphicon-duplicate:before {
-	content: "\e224";
+content: "\e224";
 }
 
 .glyphicon-pencil:before {
-	content: "\270f";
+content: "\270f";
 }
 
 .glyphicon-new-window:before {
-  content: "\e164";
+content: "\e164";
 }
 
 .glyphicon-log-in:before {
-  content: "\e161";
+content: "\e161";
 }
