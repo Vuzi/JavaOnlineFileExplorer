@@ -14,31 +14,32 @@
 }
 
 #context_menu li .glyphicon {
-  margin-left: -22px;
+	font-size: 14px;
+	margin-left: -20px;
 }
 
-#context_menu li .glyphicon::before {
-  margin-right: 5px;
+#context_menu li .glyphicon:before {
+	margin-right: 6px;
 }
 
-.glyphicon-trash::before {
+.glyphicon-trash:before {
     content: "\e020";
 }
 
 .glyphicon-sort-by-alphabet:before {
-  content: "\e151";
+	content: "\e151";
 }
 
 .glyphicon-sort-by-alphabet-alt:before {
-  content: "\e152";
+	content: "\e152";
 }
 
 .glyphicon-sort-by-attributes:before {
-  content: "\e155";
+	content: "\e155";
 }
 
 .glyphicon-sort-by-attributes-alt:before {
-  content: "\e156";
+	content: "\e156";
 }
 
 .glyphicon-cloud-upload:before {
@@ -46,17 +47,29 @@
 }
 
 .glyphicon-cloud-download:before {
-  content: "\e197";
+	content: "\e197";
 }
 
 .glyphicon-share-alt:before {
-  content: "\e095";
+	content: "\e095";
 }
 
 .glyphicon-folder-open:before {
-  content: "\e118";
+	content: "\e118";
 }
 
 .glyphicon-duplicate:before {
-  content: "\e224";
+	content: "\e224";
+}
+
+.glyphicon-pencil:before {
+	content: "\270f";
+}
+
+.glyphicon-new-window:before {
+  content: "\e164";
+}
+
+.glyphicon-log-in:before {
+  content: "\e161";
 }
