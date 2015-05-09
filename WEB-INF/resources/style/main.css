@@ -236,12 +236,24 @@ ul{
 	
 }
 
-.blur {
+.blurable.blur {
 	filter: blur(3px);
 	-webkit-filter: blur(3px);
 	-moz-filter: blur(3px);
 	-o-filter: blur(3px);
 	-ms-filter: blur(3px);
+	
+	transition: 0.5s;
+	-webkit-transition:0.5s;
+	-moz-transition:0.5s;
+}
+
+.blurable {
+	filter: blur(0px);
+	-webkit-filter: blur(0px);
+	-moz-filter: blur(0px);
+	-o-filter: blur(0px);
+	-ms-filter: blur(0px);
 	
 	transition: 0.5s;
 	-webkit-transition:0.5s;
@@ -267,7 +279,7 @@ ul{
 
 @keyframes bounceInDown { 
 	0% { 
-		opacity: 0; 
+		opacity: 0;
 		transform: translateY(-2000px); 
 	} 
 	60% { 
@@ -282,6 +294,61 @@ ul{
 	} 
 } 
 
+@-webkit-keyframes bounceOutUp {
+    0% {
+        -webkit-transform: translateY(0);
+    } 
+    20% { 
+        opacity: 1; 
+        -webkit-transform: translateY(20px);
+    }
+    80% {
+        opacity: 0;
+        -webkit-transform: translateY(-2000px);
+    }
+    100% {
+        opacity: 0;
+        -webkit-transform: translateY(-2000px);
+    }
+}
+@keyframes bounceOutUp {
+    0% {
+        transform: translateY(0);
+    }
+    20% {
+        opacity: 1;
+        transform: translateY(20px);
+    }
+    80% {
+        opacity: 0;
+        transform: translateY(-2000px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-2000px);
+    }
+}
+
+.bouncy {
+	-webkit-animation-duration: 1.2s;
+	animation-duration: 1.2s;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+
+    -webkit-animation-name: bounceOutUp;
+    animation-name: bounceOutUp;
+}
+
+.bouncy.bounce {
+	-webkit-animation-duration: 1s;
+	animation-duration: 1s;
+	-webkit-animation-fill-mode: both;
+	animation-fill-mode: both;
+
+    -webkit-animation-name: bounceInDown;
+    animation-name: bounceInDown;
+}
+
 div.pop_up {
 	z-index: 9999;
 	width: 500px;
@@ -293,13 +360,6 @@ div.pop_up {
 	border: 2px solid black;
 	border-radius: 5px;
 	box-shadow: 0px 10px 10px #111;
-	
-	-webkit-animation-duration: 1s; 
-	animation-duration: 1s; 
-	-webkit-animation-fill-mode: both; 
-	animation-fill-mode: both; 
-	-webkit-animation-name: bounceInDown; 
-	animation-name: bounceInDown; 
 }
 
 div.pop_up a.close img{
@@ -468,4 +528,8 @@ input[type="button"], .input_file {
 input[type="button"]:hover, .input_file:hover{
 	border: 1px solid #FE1938;
 	background-color: #FE6176;
+}
+
+* {
+	outline-color: red;
 }
