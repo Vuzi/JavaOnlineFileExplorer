@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<meta charset="UTF-8">
 		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="style/main.css">
 		<link rel="stylesheet" type="text/css" href="style/icons.css">
 		<style type="text/css">
-
-
+			
+			
 		</style>
 		<title>Maquette FileExplorer</title>
 	</head>
@@ -17,7 +18,7 @@
 			<div id="left">
 				<div id="tree"></div>
 			</div>
-
+			
 			<div id="right">
 				<nav id="options">
 					<ul type="menu">
@@ -25,865 +26,863 @@
 						<li><a href="#" action="new_dir">Nouveau dossier</a></li>
 						<li><a href="#">Organisation</a></li>
 						<li><a href="#">Affichage</a></li>
-					<li><a><span class="glyphicon glyphicon-sort-by-alphabet" aria-hidden="true"></span></a></li>
 					</ul>
 				</nav>
 				<div id="content"></div>
 			</div>
 		</div>
-<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
-<script type="text/javascript">
-	
-var global = $('#global');
-var pop_up_back = $('#pop_up_back');
-var right = $('#right');
-
-var endpoint = 'http://89.87.60.220:1992/JavaOnlineFileExplorer/';
-
-function authHeader(login, password) {
-	return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
-}
-
-function authHeaderValue(login, password) {
-	return 'Basic ' + btoa(login + ":" + password);
-}
-
-// =======================================================
-//                  Directory tree node
-// =======================================================
-
-function DirectoryTreeNode(parent, tree) {
-	this.tree = tree;
-	this.parent = parent;
-	this.contained = [];
-	this.is_developped = false;
-	this.is_selected = false;
-}
-
-DirectoryTreeNode.prototype.add = function(node) {
-	if(this.contained.length <= 0)
-		this.node.append(this.content); // Only append if the directory is not empty
-
-	this.contained.push(node);
-	this.content.append(node.node);
-}
-
-DirectoryTreeNode.prototype.update = function(directory) {
-	this.directory = directory;
-	this.render();
-}
-
-DirectoryTreeNode.prototype.render = function() {
-	var me = this;
-	var directory = this.directory;
-
-	var li = $('<li rel="' + directory.UID + '" />')
-	var button = $('<span />').addClass('developped');
-	var ul = $('<ul style="display: none"/>');
-
-	if(directory.name) {
-		var name = $('<a href="#" > ' + directory.name + '</a>');
-	} else {
-		var name = $('<a href="#" class="root" > Root </a>');
-	}
-
-	li.append(button).append(name);
-
-	name.on('click', function(e) {
-		if(!me.tree.folder.in_update) {
-			me.select(); // Select self
-		}
-	});
-
-	button.on('click', function(e) {
-		if(button.is(e.target)) {
-			if(me.developped)
-				me.shrink();
-			else
-				me.develop(); // Develop self
-		}
-	});
-
-	this.node = li;
-	this.button = button;
-	this.content = ul;
-}
-
-DirectoryTreeNode.prototype.develop = function(clbk) {
-	this.developped = true;
-
-	var me = this;
-	var f = function() {
-		me.button.removeClass('developped');
-		me.content.slideDown(function() {
-			if(clbk)
-				clbk();
-		});
-	};
-
-	if(this.parent)
-		this.parent.develop(f); // Develop parent before, then self
-	else
-		f(); // Only develop self
-}
-
-DirectoryTreeNode.prototype.shrink = function(clbk) {
-	this.developped = false;
-
-	this.button.addClass('developped');
-	this.content.slideUp(function() {
-		if(clbk)
-			clbk();
-	});
-}
-
-DirectoryTreeNode.prototype.select = function() {
-	this.selected = true;
-
-	if(this.tree.selected) {
-		this.tree.selected.deselect();
-	}
-
-	this.tree.selected = this; // Register as the selected node 
-	this.node.addClass('selected');
-	this.tree.folder.update(this.directory.UID);
-	this.develop(); // Develop on selection
-}
-
-DirectoryTreeNode.prototype.deselect = function() {
-	this.selected = false;
-
-	this.tree.selected = null;
-	this.node.removeClass('selected');
-}
-
-// =======================================================
-//                    Directory tree
-// =======================================================
-
-function DirectoryTree(renderer, folder) {
-	this.renderer = renderer;
-	this.folder = folder;
-	this.nodes = [];
-	this.selected = null;
-}
-
-DirectoryTree.prototype.render = function(data) {
-	var ul = $('<ul />');
-	var root_node = new DirectoryTreeNode(null, this);
-	root_node.update(data);
-
-	this._render_rec(root_node, data);
-	this.renderer.empty().append(ul.append(root_node.node));
-
-	this.nodes[null] = root_node;
-}
-
-DirectoryTree.prototype._render_rec = function(parent, data) {
-	var me = this;
-
-	data.directories.forEach(function(directory) {
-		var node = new DirectoryTreeNode(parent, me);
-		node.update(directory);
-
-		parent.add(node);
-		me.nodes[directory.UID] = node;
-
-		if(directory.directories.length > 0) {
-			me._render_rec(node, directory);
-		}
-	});
-}
-
-DirectoryTree.prototype.select = function(UID) {
-	var node = this.nodes[UID];
-
-	if(!node)
-		return;
-
-	node.select();
-}
-
-DirectoryTree.prototype.update = function() {
-	var me = this;
-	$.ajax({
-		type: 'GET',
-		url: endpoint + 'api/tree',
-		dataType : 'json',
-		headers : authHeader('vuzi', '1234'),
-		success: function(data) {
-			me.render(data.data);
-
-			if(me.selected)
-				me.select(me.selected.directory.UID);
-			else
-				me.select(null);
-		},
-		error: function(data) {
-			console.log(data);
-		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-		    pop.display();
-		},
-		fail: function(data) {
-			console.log(data);
-		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-		    pop.display();
-		}
-	});
-}
-
-// =======================================================
-//                    Directory content
-// =======================================================
-
-function Folder(renderer) {
-	this.renderer = renderer;
-	this.in_update = false;
-}
-
-Folder.prototype.set_tree = function(tree) {
-	this.tree = tree;
-}
-
-Folder.prototype.prepare_update = function() {
-	this.in_update = true;
-	this.renderer.addClass('item-blur');
-	right.addClass('blur');
-}
-
-Folder.prototype.finish_update = function() {
-	this.in_update = false;
-	this.renderer.removeClass('item-blur');
-	right.removeClass('blur');
-}
-
-Folder.prototype.update = function(id) {
-	var me = this;
-	var link;
-
-	this.prepare_update();
-
-	if(id == null)
-		link = endpoint + 'api/dir/';
-	else
-		link = endpoint + 'api/dir-id/' + id;
-
-	$.ajax({
-		type: 'GET',
-		url: link,
-		dataType : 'json',
-		headers : authHeader('vuzi', '1234'),
-		success: function(data) {
-			me.render(data.data);
-			me.finish_update();
-		},
-		error: function(data) {
-		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-		    pop.display();
-			me.finish_update();
-			console.log(data);
-		},
-		fail: function(data) {
-		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-		    pop.display();
-			me.finish_update();
-			console.log(data);
-		}
-	});
-}
-
-Folder.prototype.render = function(element) {
-	this.element = element;
-
-	var me = this;
-	var h1 = $('<h1> Content of ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
-	var ul = $('<ul />');
-
-	// '..' folder
-	if(element.UID != null) {
-		var icon = new Icon(ul, me, me.tree);
-		var node = this.tree.nodes[element.UID];
-
-		icon.update(node.parent.directory, true);
-	}
-
-	// Directories
-	element.directories.forEach(function(directory) {
-		var icon = new Icon(ul, me, me.tree);
-		icon.update(directory);
-	});
-
-	// Files
-	element.files.forEach(function(file) {
-		var icon = new Icon(ul, me, me.tree);
-		icon.update(file);
-	});
-
-	this.renderer.empty().append(h1).append(ul);
-}
-
-// =======================================================
-//                          Icon
-// =======================================================
-
-function Icon(renderer, folder, tree) {
-	this.renderer = renderer;
-	this.folder = folder;
-	this.tree = tree;
-}
-
-Icon.prototype.generateTypeIcon = function(mimeType, filename) {
-
-	var icons_dir = "style/icons/";
-	var icon_src = "icons/default.png";
-
-	switch (mimeType) {
-		case 'application/x-troff-msvideo':
-		case 'video/avi' :
-		case 'video/msvideo' :
-		case 'video/x-msvideo' :
-			// Avi video
-			icon_src = "avi.png";
-			break;
-		case 'text/csv' :
-			// CSV file
-			icon_src = "csv.png";
-			break;
-		case 'application/msword' :
-		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
-		case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
-			// Doc
-			icon_src = "doc.png";
-			break;
-		case 'folder':
-			// Folder
-			icon_src = "folder.png";
-			break;
-		case 'image/jpeg' :
-			// Jpeg
-			icon_src = "jpg.png";
-			break;
-		case 'audio/mpeg' :
-		case 'audio/mp3' :
-			// MP3
-			icon_src = "mp3.png";
-			break;
-		case 'application/pdf' :
-			// PDF
-			icon_src = "pdf.png";
-			break;
-		case 'image/png' :
-			// PNG
-			icon_src = "png.png";
-			break;
-		case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
-		case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
-		case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
-			// Ppt
-			icon_src = "ppt.png";
-			break;
-		case 'application/x-rar-compressed' :
-			// rar
-			icon_src = "rar.png";
-			break;
-		case 'text/plain' :
-			// txt
-			icon_src = "txt.png";
-			break;
-		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
-		case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
-			// xls
-			icon_src = "xls.png";
-			break;
-		case 'application/zip' :
-			// Zip
-			icon_src = "zip.png";
-			break;
-	}
-
-	return $('<a href="#"><figure><img src="' + icons_dir + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
-}
-
-Icon.prototype.update = function(element, parent) {
-	this.element = element;
-	var me = this;
-
-	var icon;
-
-	if(parent)  {
-		// '..'
-		icon = this.generateTypeIcon('folder', '..');
-
-		icon.on('dblclick', function(e) {
-			if(!me.folder.in_update) {
-				me.tree.select(element.UID);
+		<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+		<script type="text/javascript">
+			var global = $('#global');
+			var pop_up_back = $('#pop_up_back');
+			var right = $('#right');
+			
+			var endpoint = 'http://89.87.60.220:1992/JavaOnlineFileExplorer/';
+			
+			function authHeader(login, password) {
+				return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
 			}
-			e.preventDefault();
-		});
-	} else if(element.type) {
-		// File
-		icon = this.generateTypeIcon(element.type, element.name);
-
-		// Load file
-		icon.on('dblclick', function(e) {
-			alert("File " + element.name + " selected");
-			e.preventDefault();
-		});
-	} else {
-		// Directory
-		icon = this.generateTypeIcon('folder', element.name);
-
-		// Change directory
-		icon.on('dblclick', function(e) {
-			if(!me.folder.in_update) {
-				me.tree.select(element.UID);
+			
+			function authHeaderValue(login, password) {
+				return 'Basic ' + btoa(login + ":" + password);
 			}
-			e.preventDefault();
-		});
-	}
-
-	// Context menu
-	icon.bind('contextmenu', function(e) {
-    	e.preventDefault();
-
-    	menu.display(element, e.pageX, e.pageY);
-	});
-
-	// Select
-	icon.on('click', function(e) {
-		icon.toggleClass('selected');
-		e.preventDefault();
-	});
-
-	this.renderer.append($('<li />').append(icon));
-}
-
-
-// =======================================================
-//                      Pop up handler
-// =======================================================
-
-function Pop_up(title, message, type) {
-	this.title = title;
-	this.message = message;
-	this.type = type || 'info';
-}
-
-Pop_up.prototype.display = function() {
-	var div = $('<div class="pop_up ' + this.type + '"></div>');
-	div.append('<h2>' + this.title + '</h2>');
-	div.append('<p>' + this.message + '</p>');
-
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	pop_up_back.append(div);
-
-	setTimeout(function() {
-	    div.slideToggle(function() {
-	    	div.remove();
-	    	if(pop_up_back.is(':empty')) {
-	    		pop_up_back.fadeOut();
-				global.removeClass('blur');
-	    	}
-	    });
-	}, 3000);
-}
-
-
-// =======================================================
-//                      Wiondow handler
-// =======================================================
-
-function Pop_up_window(title, content) {
-	this.title = title;
-	this.content = content;
-}
-
-Pop_up_window.prototype.close = function() {
-	var div = this.div;
-	
-	div.slideToggle(function() {
-		div.remove();
-    	if(pop_up_back.is(':empty')) {
-			pop_up_back.fadeOut();
-			global.removeClass('blur');
-    	}
-	});
-}
-
-Pop_up_window.prototype.toggle_dissmiss = function() {
-	this.dissmiss.toggle();
-}
-
-Pop_up_window.prototype.display = function() {
-	var me = this;
-	var div = $('<div class="pop_up"></div>');
-	var dissmiss = $("<a href='#' class='close'><img src='style/icons/close_button.png'/>");
-	div.append('<h2>' + this.title + '</h2>');
-	div.append(dissmiss);
-	div.append(this.content);
-	this.div = div;
-	this.dissmiss = dissmiss;
-
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	pop_up_back.append(div);
-	
-	$('div.pop_up .close').on('click', function(e) {
-		me.close();
-	});
-
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	pop_up_back.append(div);
-}
-
-
-// =======================================================
-//                      Folder creation
-// =======================================================
-
-function DirectoryCreationWindow(directory) {
-	var me = this;
-
-	this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-	this.title = "Création dossier";
-
-	this.content = $('<p></p>');
-	this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
-	this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-	this.submit = $('<input type="button" value="Créer"></input>');
-
-	this.content.append('<span>Dossier : </span>').append(this.dir_name).append('<br/>').
-	             append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
-
-	this.dir_name.on('keypress', function(e) {
-	    if(e.which == 13) {
-			me.action();
-	    }
-	});
-
-	this.submit.on('click', function(e) {
-		me.action();
-	});
-}
-
-DirectoryCreationWindow.prototype.display = function() {
-	this.pop_up = new Pop_up_window(this.title, this.content);
-	this.pop_up.display();
-	this.dir_name.focus();
-}
-
-DirectoryCreationWindow.prototype.action = function() {
-	var dir_name = this.dir_name.val().trim();
-	var dir_path = this.dir_path.val().trim();
-	var me = this;
-
-	if(!dir_name || dir_name == "" || dir_name.includes('/')) {
-		new Pop_up("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
-		return;
-	}
-
-	this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-	this.pop_up.toggle_dissmiss();
-
-	$.ajax({
-		type: 'PUT',
-		url: endpoint + 'api/dir' + dir_path + dir_name,
-		dataType : 'json',
-		headers : authHeader('vuzi', '1234'),
-		success: function(data) {
-		    var pop = new Pop_up("Création du dossier effectuée", "Le dossier '" + dir_name + "' a été crée avec succès", "success");
-		    pop.display();
-
-		    me.pop_up.close();
-
-			tree.update();
-		},
-		error: function(data) {
-		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-		    pop.display();
-			console.log(data);
-
-		    me.pop_up.close();
-		},
-		fail: function(data) {
-		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-		    pop.display();
-			console.log(data);
-
-		    me.pop_up.close();
-		}
-	});
-}
-
-// =======================================================
-//                      Folder deletion
-// =======================================================
-
-function DirectoryDeletionWindow(directory) {
-	var me = this;
-
-	this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-	this.title = "Suppression dossier";
-
-	this.content = $('<span><p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p></span>');
-	this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
-	this.cancel = $('<input type="button" value="Annuler"></input>');
-
-	this.content.append($('<span style="text-align : center; display: block" />').append(this.submit).append(this.cancel));
-
-	this.submit.on('click', function(e) {
-		me.action();
-	});
-	this.cancel.on('click', function(e) {
-		me.pop_up.close();
-	});
-}
-
-DirectoryDeletionWindow.prototype.display = function() {
-	this.pop_up = new Pop_up_window(this.title, this.content);
-	this.pop_up.display();
-	this.cancel.focus();
-}
-
-DirectoryDeletionWindow.prototype.action = function() {
-	var dir_path = this.path;
-	var me = this;
-
-	this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-	this.pop_up.toggle_dissmiss();
-
-	$.ajax({
-		type: 'DELETE',
-		url: endpoint + 'api/dir' + dir_path,
-		dataType : 'json',
-		headers : authHeader('vuzi', '1234'),
-		success: function(data) {
-		    var pop = new Pop_up("Suppression du dossier effectuée", "Le dossier '" + dir_path + "' a été supprimé avec succès", "success");
-		    pop.display();
-
-		    me.pop_up.close();
-
-			tree.update();
-		},
-		error: function(data) {
-		    var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-		    pop.display();
-			console.log(data);
-
-		    me.pop_up.close();
-		},
-		fail: function(data) {
-		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-		    pop.display();
-			console.log(data);
-
-		    me.pop_up.close();
-		}
-	});
-}
-
-// =======================================================
-//                      File creation
-// =======================================================
-
-function FileCreationWindow(directory) {
-	var me = this;
-
-	this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-	this.title = "Upload fichier";
-
-	this.content = $('<p></p>');
-	this.file = $('<input type="file" placeholder="Fichier"></input>');
-	this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
-	this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-	this.submit = $('<input type="button" value="Envoyer"></input>');
-
-	this.content.append('<span>Fichier : </span>').append(this.file).append('<br/>').
-	             append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
-	             append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
-
-	this.file.on('change', function() {
-		me.dir_name.val(me.file.val().replace(/.*(\/|\\)/, ''));
-	});
-
-	this.dir_name.on('keypress', function(e) {
-	    if(e.which == 13) {
-			me.action();
-	    }
-	});
-
-	this.submit.on('click', function(e) {
-		me.action();
-	});
-}
-
-FileCreationWindow.prototype.display = function() {
-	this.pop_up = new Pop_up_window(this.title, this.content);
-	this.pop_up.display();
-	this.dir_name.focus();
-}
-
-FileCreationWindow.prototype.action = function() {
-	var dir_name = this.dir_name.val().trim();
-	var dir_path = this.dir_path.val().trim();
-	var me = this;
-
-	if(!this.file.val()) {
-		new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
-		return;
-	}
-
-	if(!dir_name || dir_name == "" || dir_name.includes('/')) {
-		new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
-		return;
-	}
-
-	this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-	this.pop_up.toggle_dissmiss();
-
-	var file = this.file[0].files[0];
-	var formData = new FormData();
-
-	formData.append(dir_name, file, file.name);
-
-	console.log(file);
-	console.log(formData);
-	console.log(endpoint + 'api/file-bin' + dir_path);
-
-	var xhr = new XMLHttpRequest();
-	xhr.onload = function () {
-	if (xhr.status === 200) {
-		    var pop = new Pop_up("Fichier uploadé", "Le fichier '" + dir_name + "' a été uploadé avec succès", "success");
-		    pop.display();
-
-		    me.pop_up.close();
-
-			tree.update();
-
-			console.log(xhr);
-		} else {
-		    var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-		    pop.display();
-
-		    me.pop_up.close();
-		}
-	};
-	xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
-	xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
-	xhr.send(formData);
-
-}
-
-// =======================================================
-//                   Contextual menu
-// =======================================================
-
-function ContextualMenu(folder, tree) {
-	var me = this;
-	this.tree = tree;
-	this.folder = folder;
-	this.content = $('<div id="context_menu"></div>');
-
-	this.content.mouseleave(function() {
-		me.content.fadeOut(200);
-	});
-}
-
-ContextualMenu.prototype.display = function(element, x, y) {
-	var me = this;
-	this.content.empty();
-
-	if(element.size) {
-		// File
-
-		// Info
-		var info = $('<ul></ul>');
-		info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
-		info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
-		info.append($('<li class="info"><span>Type</span><span>' + element.type + '</span></li>'));
-		info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creationDate).toLocaleString() + '</span></li>'));
-		info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.modificationDate).toLocaleString() + '</span></li>'));
-		this.content.append(info);
-
-		// Actions
-		var action = $('<ul></ul>');
-		action.append($('<li><span class="glyphicon glyphicon-cloud-download" />Télécharger le fichier</li>'));
-		action.append($('<li>Renommer le fichier</li>'));
-		action.append($('<li><span class="glyphicon glyphicon-share-alt" />Déplacer le fichier</li>'));
-		action.append($('<li>Supprimer le fichier</li>'));
-		this.content.append(action);
-
-	} else {
-		// Directory
-
-		// Info
-		var info = $('<ul></ul>');
-		info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
-		info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
-		info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creation).toLocaleString() + '</span></li>'));
-		info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.edit).toLocaleString() + '</span></li>'));
-		this.content.append(info);
-
-		// Actions
-		var action = $('<ul></ul>');
-		var open = $('<li>Ouvrir le dossier</li>');
-		open.on('click', function() {
-			if(!me.folder.in_update) {
-				me.tree.select(element.UID);
+			
+			// =======================================================
+			//                  Directory tree node
+			// =======================================================
+			
+			function DirectoryTreeNode(parent, tree) {
+				this.tree = tree;
+				this.parent = parent;
+				this.contained = [];
+				this.is_developped = false;
+				this.is_selected = false;
 			}
-			me.content.fadeOut(200);
-		});
-		action.append(open);
-		action.append($('<li>Ouvrir dans une nouvelle fenêtre</li>'));
-		action.append($('<li>Renommer le dossier</li>'));
-		var deletion = $('<li>Supprimer le dossier</li>');
-		deletion.on('click', function() {
-			new DirectoryDeletionWindow(element).display();
-		});
-		action.append(deletion);
-		this.content.append(action);
-	}
-
-	$('body').append(this.content);
-
-	var height = this.content.height();
-	var window_height = $(document).height();
-
-	var width = this.content.width();
-	var window_width = $(document).width();
-
-	if(y + height > window_height)
-		y = window_height - height;
-
-	if(x + width > window_width)
-		x = window_width - width;
-
-	this.content.css({ left : x - 5, top : y - 5});
-	this.content.fadeIn(200);
-}
-
-
-$('[action=new_dir]').on('click', function(e) {
-	if(tree.selected) {
-		new DirectoryCreationWindow(tree.selected.directory).display();
-	}
-});
-
-$('[action=new_file]').on('click', function(e) {
-	if(tree.selected) {
-		new FileCreationWindow(tree.selected.directory).display();
-	}
-});
-
-var folder = new Folder($('#content'));
-var tree = new DirectoryTree($('#tree'), folder);
-var menu = new ContextualMenu(folder, tree);
-folder.set_tree(tree);
-
-tree.update();
-
-</script>
+			
+			DirectoryTreeNode.prototype.add = function(node) {
+				if(this.contained.length <= 0)
+				this.node.append(this.content); // Only append if the directory is not empty
+				
+				this.contained.push(node);
+				this.content.append(node.node);
+			}
+			
+			DirectoryTreeNode.prototype.update = function(directory) {
+				this.directory = directory;
+				this.render();
+			}
+			
+			DirectoryTreeNode.prototype.render = function() {
+				var me = this;
+				var directory = this.directory;
+				
+				var li = $('<li rel="' + directory.UID + '" />')
+				var button = $('<span />').addClass('developped');
+				var ul = $('<ul style="display: none"/>');
+				
+				if(directory.name) {
+					var name = $('<a href="#" > ' + directory.name + '</a>');
+					} else {
+					var name = $('<a href="#" class="root" > Root </a>');
+				}
+				
+				li.append(button).append(name);
+				
+				name.on('click', function(e) {
+					if(!me.tree.folder.in_update) {
+						me.select(); // Select self
+					}
+				});
+				
+				button.on('click', function(e) {
+					if(button.is(e.target)) {
+						if(me.developped)
+						me.shrink();
+						else
+						me.develop(); // Develop self
+					}
+				});
+				
+				this.node = li;
+				this.button = button;
+				this.content = ul;
+			}
+			
+			DirectoryTreeNode.prototype.develop = function(clbk) {
+				this.developped = true;
+				
+				var me = this;
+				var f = function() {
+					me.button.removeClass('developped');
+					me.content.slideDown(function() {
+						if(clbk)
+						clbk();
+					});
+				};
+				
+				if(this.parent)
+				this.parent.develop(f); // Develop parent before, then self
+				else
+				f(); // Only develop self
+			}
+			
+			DirectoryTreeNode.prototype.shrink = function(clbk) {
+				this.developped = false;
+				
+				this.button.addClass('developped');
+				this.content.slideUp(function() {
+					if(clbk)
+					clbk();
+				});
+			}
+			
+			DirectoryTreeNode.prototype.select = function() {
+				this.selected = true;
+				
+				if(this.tree.selected) {
+					this.tree.selected.deselect();
+				}
+				
+				this.tree.selected = this; // Register as the selected node 
+				this.node.addClass('selected');
+				this.tree.folder.update(this.directory.UID);
+				this.develop(); // Develop on selection
+			}
+			
+			DirectoryTreeNode.prototype.deselect = function() {
+				this.selected = false;
+				
+				this.tree.selected = null;
+				this.node.removeClass('selected');
+			}
+			
+			// =======================================================
+			//                    Directory tree
+			// =======================================================
+			
+			function DirectoryTree(renderer, folder) {
+				this.renderer = renderer;
+				this.folder = folder;
+				this.nodes = [];
+				this.selected = null;
+			}
+			
+			DirectoryTree.prototype.render = function(data) {
+				var ul = $('<ul />');
+				var root_node = new DirectoryTreeNode(null, this);
+				root_node.update(data);
+				
+				this._render_rec(root_node, data);
+				this.renderer.empty().append(ul.append(root_node.node));
+				
+				this.nodes[null] = root_node;
+			}
+			
+			DirectoryTree.prototype._render_rec = function(parent, data) {
+				var me = this;
+				
+				data.directories.forEach(function(directory) {
+					var node = new DirectoryTreeNode(parent, me);
+					node.update(directory);
+					
+					parent.add(node);
+					me.nodes[directory.UID] = node;
+					
+					if(directory.directories.length > 0) {
+						me._render_rec(node, directory);
+					}
+				});
+			}
+			
+			DirectoryTree.prototype.select = function(UID) {
+				var node = this.nodes[UID];
+				
+				if(!node)
+				return;
+				
+				node.select();
+			}
+			
+			DirectoryTree.prototype.update = function() {
+				var me = this;
+				$.ajax({
+					type: 'GET',
+					url: endpoint + 'api/tree',
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						me.render(data.data);
+						
+						if(me.selected)
+						me.select(me.selected.directory.UID);
+						else
+						me.select(null);
+					},
+					error: function(data) {
+						console.log(data);
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+					},
+					fail: function(data) {
+						console.log(data);
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+					}
+				});
+			}
+			
+			// =======================================================
+			//                    Directory content
+			// =======================================================
+			
+			function Folder(renderer) {
+				this.renderer = renderer;
+				this.in_update = false;
+			}
+			
+			Folder.prototype.set_tree = function(tree) {
+				this.tree = tree;
+			}
+			
+			Folder.prototype.prepare_update = function() {
+				this.in_update = true;
+				this.renderer.addClass('item-blur');
+				right.addClass('blur');
+			}
+			
+			Folder.prototype.finish_update = function() {
+				this.in_update = false;
+				this.renderer.removeClass('item-blur');
+				right.removeClass('blur');
+			}
+			
+			Folder.prototype.update = function(id) {
+				var me = this;
+				var link;
+				
+				this.prepare_update();
+				
+				if(id == null)
+				link = endpoint + 'api/dir/';
+				else
+				link = endpoint + 'api/dir-id/' + id;
+				
+				$.ajax({
+					type: 'GET',
+					url: link,
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						me.render(data.data);
+						me.finish_update();
+					},
+					error: function(data) {
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					},
+					fail: function(data) {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						me.finish_update();
+						console.log(data);
+					}
+				});
+			}
+			
+			Folder.prototype.render = function(element) {
+				this.element = element;
+				
+				var me = this;
+				var h1 = $('<h1> Content of ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
+				var ul = $('<ul />');
+				
+				// '..' folder
+				if(element.UID != null) {
+					var icon = new Icon(ul, me, me.tree);
+					var node = this.tree.nodes[element.UID];
+					
+					icon.update(node.parent.directory, true);
+				}
+				
+				// Directories
+				element.directories.forEach(function(directory) {
+					var icon = new Icon(ul, me, me.tree);
+					icon.update(directory);
+				});
+				
+				// Files
+				element.files.forEach(function(file) {
+					var icon = new Icon(ul, me, me.tree);
+					icon.update(file);
+				});
+				
+				this.renderer.empty().append(h1).append(ul);
+			}
+			
+			// =======================================================
+			//                          Icon
+			// =======================================================
+			
+			function Icon(renderer, folder, tree) {
+				this.renderer = renderer;
+				this.folder = folder;
+				this.tree = tree;
+			}
+			
+			Icon.prototype.generateTypeIcon = function(mimeType, filename) {
+				
+				var icons_dir = "style/icons/";
+				var icon_src = "icons/default.png";
+				
+				switch (mimeType) {
+					case 'application/x-troff-msvideo':
+					case 'video/avi' :
+					case 'video/msvideo' :
+					case 'video/x-msvideo' :
+					// Avi video
+					icon_src = "avi.png";
+					break;
+					case 'text/csv' :
+					// CSV file
+					icon_src = "csv.png";
+					break;
+					case 'application/msword' :
+					case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+					case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
+					// Doc
+					icon_src = "doc.png";
+					break;
+					case 'folder':
+					// Folder
+					icon_src = "folder.png";
+					break;
+					case 'image/jpeg' :
+					// Jpeg
+					icon_src = "jpg.png";
+					break;
+					case 'audio/mpeg' :
+					case 'audio/mp3' :
+					// MP3
+					icon_src = "mp3.png";
+					break;
+					case 'application/pdf' :
+					// PDF
+					icon_src = "pdf.png";
+					break;
+					case 'image/png' :
+					// PNG
+					icon_src = "png.png";
+					break;
+					case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+					case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
+					case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
+					// Ppt
+					icon_src = "ppt.png";
+					break;
+					case 'application/x-rar-compressed' :
+					// rar
+					icon_src = "rar.png";
+					break;
+					case 'text/plain' :
+					// txt
+					icon_src = "txt.png";
+					break;
+					case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+					case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
+					// xls
+					icon_src = "xls.png";
+					break;
+					case 'application/zip' :
+					// Zip
+					icon_src = "zip.png";
+					break;
+				}
+				
+				return $('<a href="#"><figure><img src="' + icons_dir + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
+			}
+			
+			Icon.prototype.update = function(element, parent) {
+				this.element = element;
+				var me = this;
+				
+				var icon;
+				
+				if(parent)  {
+					// '..'
+					icon = this.generateTypeIcon('folder', '..');
+					
+					icon.on('dblclick', function(e) {
+						if(!me.folder.in_update) {
+							me.tree.select(element.UID);
+						}
+						e.preventDefault();
+					});
+					} else if(element.type) {
+					// File
+					icon = this.generateTypeIcon(element.type, element.name);
+					
+					// Load file
+					icon.on('dblclick', function(e) {
+						alert("File " + element.name + " selected");
+						e.preventDefault();
+					});
+					} else {
+					// Directory
+					icon = this.generateTypeIcon('folder', element.name);
+					
+					// Change directory
+					icon.on('dblclick', function(e) {
+						if(!me.folder.in_update) {
+							me.tree.select(element.UID);
+						}
+						e.preventDefault();
+					});
+				}
+				
+				// Context menu
+				icon.bind('contextmenu', function(e) {
+					e.preventDefault();
+					
+					menu.display(element, e.pageX, e.pageY);
+				});
+				
+				// Select
+				icon.on('click', function(e) {
+					icon.toggleClass('selected');
+					e.preventDefault();
+				});
+				
+				this.renderer.append($('<li />').append(icon));
+			}
+			
+			
+			// =======================================================
+			//                      Pop up handler
+			// =======================================================
+			
+			function Pop_up(title, message, type) {
+				this.title = title;
+				this.message = message;
+				this.type = type || 'info';
+			}
+			
+			Pop_up.prototype.display = function() {
+				var div = $('<div class="pop_up ' + this.type + '"></div>');
+				div.append('<h2>' + this.title + '</h2>');
+				div.append('<p>' + this.message + '</p>');
+				
+				pop_up_back.fadeIn();
+				global.addClass('blur');
+				pop_up_back.append(div);
+				
+				setTimeout(function() {
+					div.slideToggle(function() {
+						div.remove();
+						if(pop_up_back.is(':empty')) {
+							pop_up_back.fadeOut();
+							global.removeClass('blur');
+						}
+					});
+				}, 3000);
+			}
+			
+			
+			// =======================================================
+			//                      Wiondow handler
+			// =======================================================
+			
+			function Pop_up_window(title, content) {
+				this.title = title;
+				this.content = content;
+			}
+			
+			Pop_up_window.prototype.close = function() {
+				var div = this.div;
+				
+				div.slideToggle(function() {
+					div.remove();
+					if(pop_up_back.is(':empty')) {
+						pop_up_back.fadeOut();
+						global.removeClass('blur');
+					}
+				});
+			}
+			
+			Pop_up_window.prototype.toggle_dissmiss = function() {
+				this.dissmiss.toggle();
+			}
+			
+			Pop_up_window.prototype.display = function() {
+				var me = this;
+				var div = $('<div class="pop_up"></div>');
+				var dissmiss = $("<a href='#' class='close'><img src='style/icons/close_button.png'/>");
+				div.append('<h2>' + this.title + '</h2>');
+				div.append(dissmiss);
+				div.append(this.content);
+				this.div = div;
+				this.dissmiss = dissmiss;
+				
+				pop_up_back.fadeIn();
+				global.addClass('blur');
+				pop_up_back.append(div);
+				
+				$('div.pop_up .close').on('click', function(e) {
+					me.close();
+				});
+				
+				pop_up_back.fadeIn();
+				global.addClass('blur');
+				pop_up_back.append(div);
+			}
+			
+			
+			// =======================================================
+			//                      Folder creation
+			// =======================================================
+			
+			function DirectoryCreationWindow(directory) {
+				var me = this;
+				
+				this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+				this.title = "Création dossier";
+				
+				this.content = $('<p></p>');
+				this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
+				this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+				this.submit = $('<input type="button" value="Créer"></input>');
+				
+				this.content.append('<span>Dossier : </span>').append(this.dir_name).append('<br/>').
+				append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+				
+				this.dir_name.on('keypress', function(e) {
+					if(e.which == 13) {
+						me.action();
+					}
+				});
+				
+				this.submit.on('click', function(e) {
+					me.action();
+				});
+			}
+			
+			DirectoryCreationWindow.prototype.display = function() {
+				this.pop_up = new Pop_up_window(this.title, this.content);
+				this.pop_up.display();
+				this.dir_name.focus();
+			}
+			
+			DirectoryCreationWindow.prototype.action = function() {
+				var dir_name = this.dir_name.val().trim();
+				var dir_path = this.dir_path.val().trim();
+				var me = this;
+				
+				if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0) {
+					new Pop_up("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+					return;
+				}
+				
+				this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+				this.pop_up.toggle_dissmiss();
+				
+				$.ajax({
+					type: 'PUT',
+					url: endpoint + 'api/dir' + dir_path + dir_name,
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						var pop = new Pop_up("Création du dossier effectuée", "Le dossier '" + dir_name + "' a été crée avec succès", "success");
+						pop.display();
+						
+						me.pop_up.close();
+						
+						tree.update();
+					},
+					error: function(data) {
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						console.log(data);
+						
+						me.pop_up.close();
+					},
+					fail: function(data) {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						console.log(data);
+						
+						me.pop_up.close();
+					}
+				});
+			}
+			
+			// =======================================================
+			//                      Folder deletion
+			// =======================================================
+			
+			function DirectoryDeletionWindow(directory) {
+				var me = this;
+				
+				this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+				this.title = "Suppression dossier";
+				
+				this.content = $('<span><p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p></span>');
+				this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
+				this.cancel = $('<input type="button" value="Annuler"></input>');
+				
+				this.content.append($('<span style="text-align : center; display: block" />').append(this.submit).append(this.cancel));
+				
+				this.submit.on('click', function(e) {
+					me.action();
+				});
+				this.cancel.on('click', function(e) {
+					me.pop_up.close();
+				});
+			}
+			
+			DirectoryDeletionWindow.prototype.display = function() {
+				this.pop_up = new Pop_up_window(this.title, this.content);
+				this.pop_up.display();
+				this.cancel.focus();
+			}
+			
+			DirectoryDeletionWindow.prototype.action = function() {
+				var dir_path = this.path;
+				var me = this;
+				
+				this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+				this.pop_up.toggle_dissmiss();
+				
+				$.ajax({
+					type: 'DELETE',
+					url: endpoint + 'api/dir' + dir_path,
+					dataType : 'json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						var pop = new Pop_up("Suppression du dossier effectuée", "Le dossier '" + dir_path + "' a été supprimé avec succès", "success");
+						pop.display();
+						
+						me.pop_up.close();
+						
+						tree.update();
+					},
+					error: function(data) {
+						var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						console.log(data);
+						
+						me.pop_up.close();
+					},
+					fail: function(data) {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						console.log(data);
+						
+						me.pop_up.close();
+					}
+				});
+			}
+			
+			// =======================================================
+			//                      File creation
+			// =======================================================
+			
+			function FileCreationWindow(directory) {
+				var me = this;
+				
+				this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+				this.title = "Upload fichier";
+				
+				this.content = $('<p></p>');
+				this.file = $('<label class="input_file">Parcourir<input type="file" name="file" hidden="true"/></label>');
+				this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
+				this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+				this.submit = $('<input type="button" value="Envoyer"></input>');
+				
+				this.content.append('<span>Fichier : </span>').append(this.file).append('<br/>').
+				append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
+				append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+				
+				this.file.on('change', function() {
+					me.dir_name.val(me.file.val().replace(/.*(\/|\\)/, ''));
+				});
+				
+				this.dir_name.on('keypress', function(e) {
+					if(e.which == 13) {
+						me.action();
+					}
+				});
+				
+				this.submit.on('click', function(e) {
+					me.action();
+				});
+			}
+			
+			FileCreationWindow.prototype.display = function() {
+				this.pop_up = new Pop_up_window(this.title, this.content);
+				this.pop_up.display();
+				this.dir_name.focus();
+			}
+			
+			FileCreationWindow.prototype.action = function() {
+				var dir_name = this.dir_name.val().trim();
+				var dir_path = this.dir_path.val().trim();
+				var me = this;
+				
+				if(!this.file.val()) {
+					new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
+					return;
+				}
+				
+				if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0) {
+					new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+					return;
+				}
+				
+				this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+				this.pop_up.toggle_dissmiss();
+				
+				var file = this.file[0].files[0];
+				var formData = new FormData();
+				
+				formData.append(dir_name, file, file.name);
+				
+				console.log(file);
+				console.log(formData);
+				console.log(endpoint + 'api/file-bin' + dir_path);
+				
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function () {
+					if (xhr.status === 200) {
+						var pop = new Pop_up("Fichier uploadé", "Le fichier '" + dir_name + "' a été uploadé avec succès", "success");
+						pop.display();
+						
+						me.pop_up.close();
+						
+						tree.update();
+						
+						console.log(xhr);
+						} else {
+						var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+						pop.display();
+						
+						me.pop_up.close();
+					}
+				};
+				xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
+				xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
+				xhr.send(formData);
+				
+			}
+			
+			// =======================================================
+			//                   Contextual menu
+			// =======================================================
+			
+			function ContextualMenu(folder, tree) {
+				var me = this;
+				this.tree = tree;
+				this.folder = folder;
+				this.content = $('<div id="context_menu"></div>');
+				
+				this.content.mouseleave(function() {
+					me.content.fadeOut(200);
+				});
+			}
+			
+			ContextualMenu.prototype.display = function(element, x, y) {
+				var me = this;
+				this.content.empty();
+				
+				if(element.size) {
+					// File
+					
+					// Info
+					var info = $('<ul></ul>');
+					info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
+					info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
+					info.append($('<li class="info"><span>Type</span><span>' + element.type + '</span></li>'));
+					info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creationDate).toLocaleString() + '</span></li>'));
+					info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.modificationDate).toLocaleString() + '</span></li>'));
+					this.content.append(info);
+					
+					// Actions
+					var action = $('<ul></ul>');
+					action.append($('<li><span class="glyphicon glyphicon-cloud-download" />Télécharger le fichier</li>'));
+					action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le fichier</li>'));
+					action.append($('<li><span class="glyphicon glyphicon-share-alt" />Déplacer le fichier</li>'));
+					action.append($('<li><span class="glyphicon glyphicon-trash" />Supprimer le fichier</li>'));
+					this.content.append(action);
+					
+					} else {
+					// Directory
+					
+					// Info
+					var info = $('<ul></ul>');
+					info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
+					info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
+					info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creation).toLocaleString() + '</span></li>'));
+					info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.edit).toLocaleString() + '</span></li>'));
+					this.content.append(info);
+					
+					// Actions
+					var action = $('<ul></ul>');
+					var open = $('<li><span class="glyphicon glyphicon-log-in" />Ouvrir le dossier</li>');
+					open.on('click', function() {
+						if(!me.folder.in_update) {
+							me.tree.select(element.UID);
+						}
+						me.content.fadeOut(200);
+					});
+					action.append(open);
+					action.append($('<li><span class="glyphicon glyphicon-new-window" />Ouvrir dans une nouvelle fenêtre</li>'));
+					action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le dossier</li>'));
+					var deletion = $('<li><span class="glyphicon glyphicon-trash" />Supprimer le dossier</li>');
+					deletion.on('click', function() {
+						new DirectoryDeletionWindow(element).display();
+					});
+					action.append(deletion);
+					this.content.append(action);
+				}
+				
+				$('body').append(this.content);
+				
+				var height = this.content.height();
+				var window_height = $(window).height();
+				
+				var width = this.content.width();
+				var window_width = $(window).width();
+				
+				if(y + height > window_height)
+				y = window_height - height;
+				
+				if(x + width > window_width)
+				x = window_width - width;
+				
+				this.content.css({ left : x - 5, top : y - 5});
+				this.content.fadeIn(200);
+			}
+			
+			
+			$('[action=new_dir]').on('click', function(e) {
+				if(tree.selected) {
+					new DirectoryCreationWindow(tree.selected.directory).display();
+				}
+			});
+			
+			$('[action=new_file]').on('click', function(e) {
+				if(tree.selected) {
+					new FileCreationWindow(tree.selected.directory).display();
+				}
+			});
+			
+			var folder = new Folder($('#content'));
+			var tree = new DirectoryTree($('#tree'), folder);
+			var menu = new ContextualMenu(folder, tree);
+			folder.set_tree(tree);
+			
+			tree.update();
+			
+		</script>
 	</body>
 </html>
