@@ -361,80 +361,104 @@
 		this.folder = folder;
 		this.tree = tree;
 	}
-	
-	Icon.prototype.generateTypeIcon = function(mimeType, filename) {
+
+	Icon.prototype.generateTypeIcon = function(mimeType, filename, path) {
 		
 		var icons_dir = "resources/style/icons/";
 		var icon_src = "default.png";
+		var me = this;
 		
 		switch (mimeType) {
 			case 'application/x-troff-msvideo':
 			case 'video/avi' :
 			case 'video/msvideo' :
 			case 'video/x-msvideo' :
-			// Avi video
-			icon_src = "avi.png";
-			break;
+				// Avi video
+				icon_src = "avi.png";
+				break;
 			case 'text/csv' :
-			// CSV file
-			icon_src = "csv.png";
-			break;
+				// CSV file
+				icon_src = "csv.png";
+				break;
 			case 'application/msword' :
 			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
 			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
-			// Doc
-			icon_src = "doc.png";
-			break;
+				// Doc
+				icon_src = "doc.png";
+				break;
 			case 'parent':
-			icon_src = "parent.png";
-			break;
+				icon_src = "parent.png";
+				break;
 			case 'folder':
-			// Folder
-			icon_src = "folder.png";
-			break;
+				// Folder
+				icon_src = "folder.png";
+				break;
 			case 'image/jpeg' :
-			// Jpeg
-			icon_src = "jpg.png";
-			break;
+				// Jpeg
+				icon_src = "jpg.png";
+				break;
 			case 'audio/mpeg' :
 			case 'audio/mp3' :
-			// MP3
-			icon_src = "mp3.png";
-			break;
+				// MP3
+				icon_src = "mp3.png";
+				break;
 			case 'application/pdf' :
-			// PDF
-			icon_src = "pdf.png";
-			break;
+				// PDF
+				icon_src = "pdf.png";
+				break;
 			case 'image/png' :
-			// PNG
-			icon_src = "png.png";
-			break;
+				// PNG
+				icon_src = "png.png";
+				break;
 			case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
 			case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
 			case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
-			// Ppt
-			icon_src = "ppt.png";
-			break;
+				// Ppt
+				icon_src = "ppt.png";
+				break;
 			case 'application/x-rar-compressed' :
-			// rar
-			icon_src = "rar.png";
-			break;
+				// rar
+				icon_src = "rar.png";
+				break;
 			case 'text/plain' :
-			// txt
-			icon_src = "txt.png";
-			break;
+				// txt
+				icon_src = "txt.png";
+				break;
 			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
 			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
-			// xls
-			icon_src = "xls.png";
-			break;
+				// xls
+				icon_src = "xls.png";
+				break;
 			case 'application/zip' :
-			// Zip
-			icon_src = "zip.png";
-			break;
+				// Zip
+				icon_src = "zip.png";
+				break;
+		}
+
+		var icon_path = endpoint + icons_dir + icon_src;
+		this.image = $('<div style="background-image: url(' + icon_path + ');"/>');
+
+		if(mimeType.match("^image")) {
+			var image_path = endpoint + 'api/file-bin' + path + filename;
+
+			this.image.on('mouseover', function() {
+				me.image.css('background-image', 'url(' + image_path + ')');
+			});
+			this.image.on('mouseout', function() {
+				me.image.css('background-image', 'url(' + icon_path + ')');
+			});
+
+			return $('<a href="#"></a>').
+						append($('<figure class="image" ></figure>').
+							append(this.image).
+							append($('<figcaption>' + filename + '</figcaption>')));
+		} else {
+			return $('<a href="#"></a>').
+						append($('<figure></figure>').
+							append(this.image).
+							append($('<figcaption>' + filename + '</figcaption>')));
 		}
 		
-		return $('<a href="#"><figure><img src="' + endpoint + icons_dir + icon_src + '"/><figcaption>' + filename + '</figcaption></figure></a>');
 	}
 	
 	Icon.prototype.update = function(element, parent) {
@@ -455,7 +479,7 @@
 			});
 			} else if(element.type) {
 			// File
-			icon = this.generateTypeIcon(element.type, element.name);
+			icon = this.generateTypeIcon(element.type, element.name, element.path);
 			
 			// Load file
 			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
@@ -464,7 +488,7 @@
 			});
 			} else {
 			// Directory
-			icon = this.generateTypeIcon('folder', element.name);
+			icon = this.generateTypeIcon('folder', element.name, element.path);
 			
 			// Change directory
 			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
@@ -523,7 +547,7 @@
 						pop_up_back.fadeOut();
 					}
 				});
-			}, 500);
+			}, 200);
 		}, 2000);
 	}
 	
@@ -550,7 +574,7 @@
 					pop_up_back.fadeOut();
 				}
 			});
-		}, 500);
+		}, 200);
 	}
 	
 	Pop_up_window.prototype.toggle_dissmiss = function() {
@@ -816,14 +840,14 @@
 				tree.update();
 				
 				console.log(xhr);
-				} else {
+			} else {
 				var val = JSON.parse(xhr.responseText);
 				console.log(val);
 				
 				if(val && val.data && val.data. message)
-		    	var pop = new Pop_up("Erreur " + val.data.status, val.data.message, "error");
+		    		var pop = new Pop_up("Erreur " + val.data.status, val.data.message, "error");
 				else
-		    	var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+		    		var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
 				pop.display();
 				
 				me.pop_up.close();
@@ -921,10 +945,10 @@
 		var window_width = $(window).width();
 		
 		if(y + height > window_height)
-		y = window_height - height;
+			y = window_height - height;
 		
 		if(x + width > window_width)
-		x = window_width - width;
+			x = window_width - width;
 		
 		this.content.css({ left : x - 5, top : y - 5});
 		this.content.fadeIn(200);
@@ -940,7 +964,7 @@
 		tree.update(function() {
 			tree.select_path("$context.getParameterUnique('path')");
 		});
-		#else
+	#else
 		tree.update();
 	#end
 	

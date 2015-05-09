@@ -185,7 +185,12 @@ ul{
 	width: 98px;
 }
 
-#content li img{
+#content li div{
+	background-color: #1C1C1C;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+
 	width: 90px;
 	height: 90px;
 	padding: 1px;
@@ -194,11 +199,11 @@ ul{
 	border: 3px solid #2E2E2E;
 }
 
-#content li a.selected img{
+#content li a.selected div{
 	border: 3px solid #FE6176;
 }
 
-#content li a img:hover{
+#content li a div:hover{
 	//border: 3px solid #7CCEFE;
 	border: 3px solid #FE1938;
 }
