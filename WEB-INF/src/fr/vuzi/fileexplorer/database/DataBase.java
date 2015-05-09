@@ -15,7 +15,8 @@ public class DataBase {
 	/**
 	 * The database client instance
 	 */
-	private static MongoClient mongoClient;
+	private static MongoDatabase mongoDatabase;
+	private static DB mongoDb;
 	
 	/**
 	 * Singleton : no public constructor
@@ -25,9 +26,14 @@ public class DataBase {
 	/**
 	 * Initialize the database singleton
 	 */
+	@SuppressWarnings("deprecation")
 	public static void init() {
-		if(mongoClient == null)
-			mongoClient = new MongoClient( "localhost" , 27017 );
+		if(mongoDatabase == null)
+			mongoDatabase = new MongoClient( "localhost" , 27017 ).getDatabase("mydb");
+
+		// Used to store files
+		if(mongoDb == null)
+			mongoDb = new Mongo("localhost", 27017).getDB("mydb");
 	}
 
 	/**
@@ -35,21 +41,16 @@ public class DataBase {
 	 * @return the database instance
 	 */
 	public static MongoDatabase getInstance() {
-		return mongoClient.getDatabase("mydb");
+		return mongoDatabase;
 	}
 
 	/**
 	 * Return the database instance
 	 * @return the database instance
 	 */
-	@SuppressWarnings("deprecation")
 	public static DB getInstanceDb() {
 		// Used to store files
-		Mongo mongo = new Mongo("localhost", 27017);
-		DB db = mongo.getDB("mydb");
-		//db.setWriteConcern(WriteConcern.SAFE) ;
-		
-		return db;
+		return mongoDb;
 	}
 
 }
