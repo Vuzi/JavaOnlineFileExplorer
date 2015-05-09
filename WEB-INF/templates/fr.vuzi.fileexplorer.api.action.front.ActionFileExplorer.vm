@@ -17,7 +17,7 @@
 		<div id="content"></div>
 	</div>
 </div>
-<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="$context.getRequestAddr()resources/js/jquery-2.1.4.min.js"></script>
 <script type="text/javascript">
 	
 var global = $('#global');

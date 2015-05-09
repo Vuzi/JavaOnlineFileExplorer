@@ -2,8 +2,6 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
-		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/main.css">
 		<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/icons.css">
 		<title>Online File Explorer</title>
