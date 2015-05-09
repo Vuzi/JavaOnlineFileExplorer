@@ -95,9 +95,6 @@ public class FrontController extends AFrontController {
 		
 		// Tree of all the user's directories
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/tree/?$", "GET", "fr.vuzi.fileexplorer.api.action.directory.ActionDirShowTree"));
-
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/test/?$", "GET|POST|PUT|DELETE", "fr.vuzi.webframework.action.directory.ActionDefault"));
-		
 		
 		// -- File actions (bin) --
 		// File download
@@ -106,7 +103,7 @@ public class FrontController extends AFrontController {
 		// File upload
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileUpload", new String[] { "path" }));
 
-		// -- File actions (bin) --
+		// -- File actions --
 		// File info
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileShow",  new String[] { "path" }));
 		
@@ -115,6 +112,10 @@ public class FrontController extends AFrontController {
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "PUT", "fr.vuzi.fileexplorer.api.action.file.ActionFileCreation", new String[] { "path" }));
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file/(.*)/?$", "DELETE", "fr.vuzi.fileexplorer.api.action.file.ActionFileDeletion", new String[] { "path" }));
 		
+		// -- Front --
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/resources/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionGetResource", new String[] { "path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/(?:~(.*))?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",  new String[] { "path" }, "velocity"));
+
 	}
 
 	@Override

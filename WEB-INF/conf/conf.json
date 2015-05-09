@@ -15,14 +15,9 @@
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileUpload",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileModification",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileCreation",
-					"fr.vuzi.fileexplorer.api.action.file.ActionFileDeletion"
+					"fr.vuzi.fileexplorer.api.action.file.ActionFileDeletion",
+					"fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",
+					"fr.vuzi.fileexplorer.api.action.front.ActionGetResource"
 				],
-	"velocity_priority" : {
-							"jwf.template.velocity.VelocityHeaderView" : true,
-							"jwf.template.velocity.VelocityMainView" : {
-								"jwf.template.velocity.VelocityLeftPanelView" : true,
-								"__CURRENT__" : true
-							},
-							"jwf.template.velocity.VelocityFooterView" : true
-						  }
+	"velocity_priority" : { "__CURRENT__" : true }
 }
