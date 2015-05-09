@@ -1,3 +1,20 @@
+
+@font-face {
+	font-family: 'Biryani';
+	font-style: normal;
+	font-weight: 400;
+	src: url(font/biryani.woff2) format('woff2'), url(font/biryani.ttf);
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+@font-face {
+	font-family: 'Roboto Condensed';
+	font-style: normal;
+	font-weight: 700;
+	src: url(font/roboto_condensed.woff2) format('woff2'), url(font/roboto_condensed.ttf);
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
 html, body {
 	font-size: 14px;
 	font-family: 'Biryani', sans-serif;
@@ -14,22 +31,6 @@ html, body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-}
-
-@font-face {
-	font-family: 'Biryani';
-	font-style: normal;
-	font-weight: 400;
-	src: url(font/biryani.woff2) format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
-}
-
-@font-face {
-	font-family: 'Roboto Condensed';
-	font-style: normal;
-	font-weight: 700;
-	src: url(font/roboto_condensed.woff2) format('woff2');
-	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
 
 #global{
