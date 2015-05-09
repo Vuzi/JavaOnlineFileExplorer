@@ -445,7 +445,7 @@
 				me.image.css('background-image', 'url(' + image_path + ')');
 			});
 			this.image.on('mouseout', function() {
-				me.image.css('background-image', 'url(' + icon_path + ')');
+				//me.image.css('background-image', 'url(' + icon_path + ')');
 			});
 
 			return $('<a href="#"></a>').
