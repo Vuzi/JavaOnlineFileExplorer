@@ -83,6 +83,9 @@ public class FrontController extends AFrontController {
 		// Logout
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/logout/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.user.ActionLogout"));
 		
+		// -- Search --
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/search/(.*)/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.search.ActionSearch", new String[] { "path" }));
+		
 		// -- Directory actions --
 		// Listing of a directory content (not recursively)
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/dir/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.directory.ActionDirShow", new String[] { "path" }));
@@ -120,8 +123,8 @@ public class FrontController extends AFrontController {
 
 	@Override
 	protected String getRootDirectory() {
-		return "D:/DEV/JAVA/WORKSPACES/workspace-jee/JavaOnlineFileExplorer/";
-		//return "C:/Users/Vuzi/Desktop/JEE/workspace/JavaOnlineFileExplorer/";
+		//return "D:/DEV/JAVA/WORKSPACES/workspace-jee/JavaOnlineFileExplorer/";
+		return "C:/Users/Vuzi/Desktop/JEE/workspace/JavaOnlineFileExplorer/";
 	}
 
 	@Override

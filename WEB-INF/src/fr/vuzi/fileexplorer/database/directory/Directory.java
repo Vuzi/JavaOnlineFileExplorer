@@ -66,6 +66,13 @@ public class Directory {
 	
 	private List<String> pathList;
 	
+	public String getInnerPath() {
+		if(UID == null)
+			return "/";
+		else
+			return path + name + "/";
+	}
+	
 	public List<String> getPathList() {
 		if(pathList == null)
 			pathList = DirectoryUtils.getPath(path);

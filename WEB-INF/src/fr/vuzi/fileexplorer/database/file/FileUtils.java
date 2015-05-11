@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -16,12 +17,14 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.gridfs.GridFS;
 import com.mongodb.gridfs.GridFSDBFile;
 import com.mongodb.gridfs.GridFSInputFile;
 
 import fr.vuzi.fileexplorer.database.DataBase;
+import fr.vuzi.fileexplorer.database.SortType;
 import fr.vuzi.fileexplorer.database.directory.Directory;
 import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.user.User;
@@ -260,5 +263,72 @@ public class FileUtils {
 		f.parentUID = newContainer.UID;
 
 		return f;
+	}
+	
+	public static List<File> searchFiles(User u, String regex, Directory container) {
+		return searchFiles(u, regex, container, false, SortType.NAME_ASC);
+	}
+	
+	/**
+	 * Return the list of found files
+	 * @param u
+	 * @param regex
+	 * @param container
+	 * @return
+	 */
+	public static List<File> searchFiles(User u, String regex, Directory container, boolean recursive, SortType sort) {
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("files.files");
+		ArrayList<File> files = new ArrayList<File>();
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("owner", new ObjectId(u.UID));
+		query.put("filename", new BasicDBObject("$regex", regex));
+		if(recursive)
+			query.put("path", new BasicDBObject("$regex", "^" + container.getInnerPath() ));
+		else
+			query.put("path", new BasicDBObject("$regex", "^" + container.getInnerPath() + "$" ));
+		
+		FindIterable<Document> results = collection.find(query);
+		
+		// Sort (from mongodb)
+		switch(sort) {
+		case SIZE_ASC:
+			results = results.sort(new BasicDBObject("size", 1));
+			break;
+		case SIZE_DSC:
+			results = results.sort(new BasicDBObject("size", -1));
+			break;
+		case NONE:
+		default:
+			break;
+		}
+		
+		for(Document d : results) {
+			files.add(new File(d));
+		}
+
+		// Sort (not handled by mongodb)
+		switch(sort) {
+		case NAME_ASC:
+			files.sort(new Comparator<File>() {
+				@Override
+				public int compare(File f1, File f2) {
+					return String.CASE_INSENSITIVE_ORDER.compare(f1.name, f2.name);
+				}
+			});
+			break;
+		case NAME_DSC:
+			files.sort(new Comparator<File>() {
+				@Override
+				public int compare(File f1, File f2) {
+					return String.CASE_INSENSITIVE_ORDER.compare(f2.name, f1.name);
+				}
+			});
+			break;
+		default:
+			break;
+		}
+		
+		return files;
 	}
 }

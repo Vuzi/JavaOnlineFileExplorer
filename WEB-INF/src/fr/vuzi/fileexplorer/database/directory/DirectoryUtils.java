@@ -1,6 +1,7 @@
 package fr.vuzi.fileexplorer.database.directory;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
@@ -9,9 +10,11 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 
 import fr.vuzi.fileexplorer.database.DataBase;
+import fr.vuzi.fileexplorer.database.SortType;
 import fr.vuzi.fileexplorer.database.user.User;
 
 /**
@@ -329,5 +332,56 @@ public class DirectoryUtils {
 		d.name = newName;
 		return d;
 	}
+	
+	/**
+	 * Return the list of found directories
+	 * @param u
+	 * @param regex
+	 * @param container
+	 * @return
+	 */
+	public static List<Directory> searchDirectories(User u, String regex, Directory container, boolean recursive, SortType sort) {
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
+		ArrayList<Directory> directories = new ArrayList<Directory>();
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("owner", new ObjectId(u.UID));
+		query.put("name", new BasicDBObject("$regex", regex));
+		if(recursive)
+			query.put("path", new BasicDBObject("$regex", "^" + container.getInnerPath() ));
+		else
+			query.put("path", new BasicDBObject("$regex", "^" + container.getInnerPath() + "$" ));
 
+		FindIterable<Document> results = collection.find(query);
+		
+		// Sort
+		// No sort from mongodb
+		
+		for(Document d : results) {
+			directories.add(new Directory(d));
+		}
+
+		// Sort (not handled by mongodb)
+		switch(sort) {
+		case NAME_ASC:
+			directories.sort(new Comparator<Directory>() {
+				@Override
+				public int compare(Directory d1, Directory d2) {
+					return String.CASE_INSENSITIVE_ORDER.compare(d1.name, d2.name);
+				}
+			});
+			break;
+		case NAME_DSC:
+			directories.sort(new Comparator<Directory>() {
+				@Override
+				public int compare(Directory d1, Directory d2) {
+					return String.CASE_INSENSITIVE_ORDER.compare(d2.name, d1.name);
+				}
+			});
+			break;
+		default:
+			break;
+		}
+		return directories;
+	}
 }
