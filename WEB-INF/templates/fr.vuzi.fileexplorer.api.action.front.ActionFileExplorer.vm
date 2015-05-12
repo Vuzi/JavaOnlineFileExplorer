@@ -17,6 +17,11 @@
 	</div>
 </div>
 <script src="$context.getRequestAddr()resources/js/jquery-2.1.4.min.js"></script>
+<script src="$context.getRequestAddr()resources/js/utils.js"></script>
+<script src="$context.getRequestAddr()resources/js/folder.js"></script>
+<script src="$context.getRequestAddr()resources/js/tree.js"></script>
+<script src="$context.getRequestAddr()resources/js/menu.js"></script>
+<script src="$context.getRequestAddr()resources/js/popup.js"></script>
 <script type="text/javascript">
 	
 	var global = $('#global');
@@ -24,593 +29,10 @@
 	var right = $('#right');
 	
 	var endpoint = '$context.getRequestAddr()';
-
-	window.onMobile = function() {
-		var check = false;
-		(function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
-		return check;
-	}
-
-	function authHeader(login, password) {
-		return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
-	}
-	
-	function authHeaderValue(login, password) {
-		return 'Basic ' + btoa(login + ":" + password);
-	}
 	
 	if(window.onMobile()) {
 		$(".blurable").removeClass('blurable');
 	}
-
-	// =======================================================
-	//                  Directory tree node
-	// =======================================================
-	
-	function DirectoryTreeNode(parent, tree) {
-		this.tree = tree;
-		this.parent = parent;
-		this.contained = [];
-		this.is_developped = false;
-		this.is_selected = false;
-	}
-	
-	DirectoryTreeNode.prototype.add = function(node) {
-		if(this.contained.length <= 0)
-		this.node.append(this.content); // Only append if the directory is not empty
-		
-		this.contained.push(node);
-		this.content.append(node.node);
-	}
-	
-	DirectoryTreeNode.prototype.update = function(directory) {
-		this.directory = directory;
-		this.render();
-	}
-	
-	DirectoryTreeNode.prototype.render = function() {
-		var me = this;
-		var directory = this.directory;
-		
-		var li = $('<li rel="' + directory.UID + '" />')
-		var button = $('<span />').addClass('developped');
-		var ul = $('<ul style="display: none"/>');
-		
-		if(directory.name) {
-			var name = $('<a href="#" > ' + directory.name + '</a>');
-			} else {
-			var name = $('<a href="#" class="root" > Root </a>');
-		}
-		
-		li.append(button).append(name);
-		
-		name.on('click', function(e) {
-			if(!me.tree.folder.in_update) {
-				me.select(); // Select self
-			}
-		});
-		
-		button.on('click', function(e) {
-			if(button.is(e.target)) {
-				if(me.developped)
-				me.shrink();
-				else
-				me.develop(); // Develop self
-			}
-		});
-		
-		// Context menu
-		name.bind('contextmenu', function(e) {
-			e.preventDefault();
-			
-			menu.display(directory, e.pageX, e.pageY);
-		});
-		
-		this.node = li;
-		this.button = button;
-		this.content = ul;
-	}
-	
-	DirectoryTreeNode.prototype.develop = function(clbk) {
-		this.developped = true;
-		
-		var me = this;
-		var f = function() {
-			me.button.removeClass('developped');
-			me.content.slideDown(function() {
-				if(clbk)
-				clbk();
-			});
-		};
-		
-		if(this.parent)
-		this.parent.develop(f); // Develop parent before, then self
-		else
-		f(); // Only develop self
-	}
-	
-	DirectoryTreeNode.prototype.shrink = function(clbk) {
-		this.developped = false;
-		
-		this.button.addClass('developped');
-		this.content.slideUp(function() {
-			if(clbk)
-			clbk();
-		});
-	}
-	
-	DirectoryTreeNode.prototype.select = function(ignorePushState) {
-		this.selected = true;
-		
-		ignorePushState = ignorePushState || false;
-		
-		if(this.tree.selected) {
-			this.tree.selected.deselect();
-		}
-		
-		if(!ignorePushState) {
-			if(this.directory.name)
-			window.history.pushState(this.directory, "Title", endpoint + '~' + this.directory.path + this.directory.name);
-			else
-			window.history.pushState(this.directory, "Title", endpoint + '~/');
-		}
-		
-		this.tree.selected = this; // Register as the selected node 
-		this.node.addClass('selected');
-		this.tree.folder.update(this.directory.UID);
-		this.develop(); // Develop on selection
-	}
-	
-	DirectoryTreeNode.prototype.deselect = function() {
-		this.selected = false;
-		
-		this.tree.selected = null;
-		this.node.removeClass('selected');
-	}
-	
-	// =======================================================
-	//                    Directory tree
-	// =======================================================
-	
-	function DirectoryTree(renderer, folder) {
-		this.renderer = renderer;
-		this.folder = folder;
-		this.nodes = [];
-		this.selected = null;
-	}
-	
-	DirectoryTree.prototype.render = function(data) {
-		var ul = $('<ul />');
-		var root_node = new DirectoryTreeNode(null, this);
-		root_node.update(data);
-		
-		this._render_rec(root_node, data);
-		this.renderer.empty().append(ul.append(root_node.node));
-		
-		this.nodes[null] = root_node;
-	}
-	
-	DirectoryTree.prototype._render_rec = function(parent, data) {
-		var me = this;
-		
-		data.directories.forEach(function(directory) {
-			var node = new DirectoryTreeNode(parent, me);
-			node.update(directory);
-			
-			parent.add(node);
-			me.nodes[directory.UID] = node;
-			
-			if(directory.directories.length > 0) {
-				me._render_rec(node, directory);
-			}
-		});
-	}
-	
-	DirectoryTree.prototype.select_path = function(path, pushState) {
-		if(!path || path == '/')
-		this.select(null, pushState);
-		
-		
-		for (node in this.nodes) {
-			node = this.nodes[node];
-			
-			var path_test = node.directory.path + node.directory.name;
-			
-			if(path_test == path || (path_test + '/') == path) {
-				node.select(pushState);
-				break;
-			}
-			
-		}
-	}
-	
-	DirectoryTree.prototype.select = function(UID, pushState) {
-		var node = this.nodes[UID];
-		
-		if(!node)
-		return;
-		
-		node.select(pushState);
-	}
-	
-	DirectoryTree.prototype.update = function(clbk) {
-		var me = this;
-		$.ajax({
-			type: 'GET',
-			url: endpoint + 'api/tree',
-			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
-			success: function(data) {
-				me.render(data.data);
-				
-				if(me.selected)
-				me.select(me.selected.directory.UID);
-				else
-				me.select(null);
-				
-				if(clbk)
-				clbk(me);
-			},
-			error: function(data) {
-				console.log(data);
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-			},
-			fail: function(data) {
-				console.log(data);
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-				pop.display();
-			}
-		});
-	}
-	
-	// =======================================================
-	//                    Directory content
-	// =======================================================
-	
-	function Folder(renderer) {
-		this.renderer = renderer;
-		this.in_update = false;
-	}
-	
-	Folder.prototype.set_tree = function(tree) {
-		this.tree = tree;
-	}
-	
-	Folder.prototype.prepare_update = function() {
-		this.in_update = true;
-		right.addClass('blur');
-	}
-	
-	Folder.prototype.finish_update = function() {
-		this.in_update = false;
-		right.removeClass('blur');
-	}
-	
-	Folder.prototype.update = function(id) {
-		var me = this;
-		var link;
-		
-		this.prepare_update();
-		
-		if(id == null)
-		link = endpoint + 'api/dir/';
-		else
-		link = endpoint + 'api/dir-id/' + id;
-		
-		$.ajax({
-			type: 'GET',
-			url: link,
-			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
-			success: function(data) {
-				me.render(data.data);
-				me.finish_update();
-			},
-			error: function(data) {
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-				me.finish_update();
-				console.log(data);
-			},
-			fail: function(data) {
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-				pop.display();
-				me.finish_update();
-				console.log(data);
-			}
-		});
-	}
-	
-	Folder.prototype.render = function(element) {
-		this.element = element;
-		
-		var me = this;
-		var h1 = $('<h1> Content of ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
-		var ul = $('<ul />');
-		
-		// '..' folder
-		if(element.UID != null) {
-			var icon = new Icon(ul, me, me.tree);
-			var node = this.tree.nodes[element.UID];
-			
-			icon.update(node.parent.directory, true);
-		}
-		
-		// Directories
-		element.directories.forEach(function(directory) {
-			var icon = new Icon(ul, me, me.tree);
-			icon.update(directory);
-		});
-		
-		// Files
-		element.files.forEach(function(file) {
-			var icon = new Icon(ul, me, me.tree);
-			icon.update(file);
-		});
-		
-		this.renderer.empty().append(h1).append(ul);
-	}
-	
-	// =======================================================
-	//                          Icon
-	// =======================================================
-	
-	function Icon(renderer, folder, tree) {
-		this.renderer = renderer;
-		this.folder = folder;
-		this.tree = tree;
-	}
-
-	Icon.prototype.generateTypeIcon = function(mimeType, filename, path) {
-		
-		var icons_dir = "resources/style/icons/";
-		var icon_src = "default.png";
-		var me = this;
-		
-		switch (mimeType) {
-			case 'application/x-troff-msvideo':
-			case 'video/avi' :
-			case 'video/msvideo' :
-			case 'video/x-msvideo' :
-				// Avi video
-				icon_src = "avi.png";
-				break;
-			case 'text/csv' :
-				// CSV file
-				icon_src = "csv.png";
-				break;
-			case 'application/msword' :
-			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
-			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
-				// Doc
-				icon_src = "doc.png";
-				break;
-			case 'parent':
-				icon_src = "parent.png";
-				break;
-			case 'folder':
-				// Folder
-				icon_src = "folder.png";
-				break;
-			case 'image/jpeg' :
-				// Jpeg
-				icon_src = "jpg.png";
-				break;
-			case 'audio/mpeg' :
-			case 'audio/mp3' :
-				// MP3
-				icon_src = "mp3.png";
-				break;
-			case 'application/pdf' :
-				// PDF
-				icon_src = "pdf.png";
-				break;
-			case 'image/png' :
-				// PNG
-				icon_src = "png.png";
-				break;
-			case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
-			case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
-			case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
-				// Ppt
-				icon_src = "ppt.png";
-				break;
-			case 'application/x-rar-compressed' :
-				// rar
-				icon_src = "rar.png";
-				break;
-			case 'text/plain' :
-				// txt
-				icon_src = "txt.png";
-				break;
-			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
-			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
-				// xls
-				icon_src = "xls.png";
-				break;
-			case 'application/zip' :
-				// Zip
-				icon_src = "zip.png";
-				break;
-		}
-
-		var icon_path = endpoint + icons_dir + icon_src;
-		this.image = $('<div style="background-image: url(' + icon_path + ');"/>');
-
-		if(mimeType.match("^image")) {
-			var image_path = endpoint + 'api/file-bin' + path + filename;
-
-			this.image.on('mouseover', function() {
-				me.image.css('background-image', 'url(' + image_path + ')');
-			});
-			this.image.on('mouseout', function() {
-				me.image.css('background-image', 'url(' + icon_path + ')');
-			});
-
-			return $('<a href="#"></a>').
-						append($('<figure class="image" ></figure>').
-							append(this.image).
-							append($('<figcaption>' + filename + '</figcaption>')));
-		} else {
-			return $('<a href="#"></a>').
-						append($('<figure></figure>').
-							append(this.image).
-							append($('<figcaption>' + filename + '</figcaption>')));
-		}
-		
-	}
-	
-	Icon.prototype.update = function(element, parent) {
-		this.element = element;
-		var me = this;
-		
-		var icon;
-		
-		if(parent)  {
-			// '..'
-			icon = this.generateTypeIcon('parent', '..');
-			
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				if(!me.folder.in_update) {
-					me.tree.select(element.UID);
-				}
-				e.preventDefault();
-			});
-			} else if(element.type) {
-			// File
-			icon = this.generateTypeIcon(element.type, element.name, element.path);
-			
-			// Load file
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				alert("File " + element.name + " selected");
-				e.preventDefault();
-			});
-			} else {
-			// Directory
-			icon = this.generateTypeIcon('folder', element.name, element.path);
-			
-			// Change directory
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				if(!me.folder.in_update) {
-					me.tree.select(element.UID);
-				}
-				e.preventDefault();
-			});
-		}
-		
-		// Context menu
-		icon.bind('contextmenu', function(e) {
-			e.preventDefault();
-			
-			menu.display(element, e.pageX, e.pageY);
-		});
-		
-		// Select
-		icon.on('click', function(e) {
-			icon.toggleClass('selected');
-			e.preventDefault();
-		});
-		
-		this.renderer.append($('<li />').append(icon));
-	}
-	
-	
-	// =======================================================
-	//                      Pop up handler
-	// =======================================================
-	
-	function Pop_up(title, message, type) {
-		this.title = title;
-		this.message = message;
-		this.type = type || 'info';
-	}
-	
-	Pop_up.prototype.display = function() {
-		var div = $('<div class="pop_up ' + this.type + ' bouncy"></div>');
-		div.append('<h2>' + this.title + '</h2>');
-		div.append('<p>' + this.message + '</p>');
-		
-		pop_up_back.fadeIn();
-		global.addClass('blur');
-		div.addClass('bounce');
-		pop_up_back.append(div);
-		
-		setTimeout(function() {
-			div.removeClass('bounce');
-
-			setTimeout(function() {
-				div.slideUp(400, function() {
-					div.remove();
-					if(pop_up_back.is(':empty')) {
-						global.removeClass('blur');
-						pop_up_back.fadeOut();
-					}
-				});
-			}, 200);
-		}, 2000);
-	}
-	
-	
-	// =======================================================
-	//                      Wiondow handler
-	// =======================================================
-	
-	function Pop_up_window(title, content) {
-		this.title = title;
-		this.content = content;
-	}
-	
-	Pop_up_window.prototype.close = function() {
-		var div = this.div;
-		
-		div.removeClass('bounce');
-
-		setTimeout(function() {
-			div.slideUp(400, function() {
-				div.remove();
-				if(pop_up_back.is(':empty')) {
-					global.removeClass('blur');
-					pop_up_back.fadeOut();
-				}
-			});
-		}, 200);
-	}
-	
-	Pop_up_window.prototype.toggle_dissmiss = function() {
-		this.dissmiss.toggle();
-	}
-	
-	Pop_up_window.prototype.display = function() {
-		var me = this;
-		var div = $('<div class="pop_up bouncy"></div>');
-		var dissmiss = $("<a href='#' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
-		div.append('<h2>' + this.title + '</h2>');
-		div.append(dissmiss);
-		div.append(this.content);
-		this.div = div;
-		this.dissmiss = dissmiss;
-		
-		pop_up_back.fadeIn();
-		global.addClass('blur');
-		div.addClass('bounce');
-		pop_up_back.append(div);
-		
-		div.on('keyup', function(e) {
-			if(e.which == 27) {
-				me.close();
-			}
-		});
-
-		dissmiss.on('click', function(e) {
-			me.close();
-		});
-		
-		pop_up_back.fadeIn();
-		global.addClass('blur');
-		pop_up_back.append(div);
-	}
-	
 	
 	// =======================================================
 	//                      Folder creation
@@ -690,6 +112,23 @@
 		});
 	}
 	
+	function ImagePreviewWindow(file) {
+		var me = this;
+		
+		this.title = file.name;
+		
+		this.content = $('<span><p></p></span>');
+		this.img = $('<img src="' + endpoint + 'api/file-bin' + file.path + file.name + '" />');
+		this.a = $('<a href="' + endpoint + "api/file-bin" + file.path + file.name + '"></a>');
+		
+		this.content.append(this.a.append(this.img));
+	}
+
+	ImagePreviewWindow.prototype.display = function() {
+		this.pop_up = new Pop_up_window(this.title, this.content);
+		this.pop_up.display();
+	}
+
 	// =======================================================
 	//                      Folder deletion
 	// =======================================================
@@ -859,106 +298,128 @@
 		
 	}
 	
-	// =======================================================
-	//                   Contextual menu
-	// =======================================================
-	
-	function ContextualMenu(folder, tree) {
-		var me = this;
-		this.tree = tree;
-		this.folder = folder;
-		this.content = $('<div id="context_menu"></div>');
-		
-		this.content.mouseleave(function() {
-			me.content.fadeOut(200);
-		});
-	}
-	
-	ContextualMenu.prototype.display = function(element, x, y) {
-		var me = this;
-		this.content.empty();
-		
-		if(element.size) {
-			// File
-			
-			// Info
-			var info = $('<ul></ul>');
-			info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
-			info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
-			info.append($('<li class="info"><span>Type</span><span>' + element.type + '</span></li>'));
-			info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creationDate).toLocaleString() + '</span></li>'));
-			info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.modificationDate).toLocaleString() + '</span></li>'));
-			this.content.append(info);
-			
-			// Actions
-			var action = $('<ul></ul>');
-			action.append($('<li><span class="glyphicon glyphicon-cloud-download" />Télécharger le fichier</li>'));
-			action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le fichier</li>'));
-			action.append($('<li><span class="glyphicon glyphicon-share-alt" />Déplacer le fichier</li>'));
-			action.append($('<li><span class="glyphicon glyphicon-trash" />Supprimer le fichier</li>'));
-			this.content.append(action);
-			
-			} else {
-			// Directory
-			
-			// Info
-			var info = $('<ul></ul>');
-			info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
-			info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
-			info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creation).toLocaleString() + '</span></li>'));
-			info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.edit).toLocaleString() + '</span></li>'));
-			this.content.append(info);
-			
-			// Actions
-			var action = $('<ul></ul>');
-			var open = $('<li><span class="glyphicon glyphicon-log-in" />Ouvrir le dossier</li>');
-			open.on('click', function() {
-				if(!me.folder.in_update) {
-					me.tree.select(element.UID);
+	// Elements creation
+	var folder;  // Folder view (left panel)
+	var tree;    // Tree (right panel)
+	var menu;    // Contextual menu
+
+	var contructContextualMenu = function(element, e) {
+
+		if(!element.name) {
+			var folder_nb = 0;
+			var file_nb = 0;
+			var file_total = 0;
+			var reference;
+
+			$.each(element, function(UID, value) {
+				if(value.size) {
+					file_nb++;
+					file_total += value.size;
+				} else {
+					folder_nb++;
 				}
-				me.content.fadeOut(200);
+
+				if(!reference)
+					reference = value;
 			});
-			action.append(open);
-			var open_new = $('<li><span class="glyphicon glyphicon-new-window" />Ouvrir dans une nouvelle fenêtre</li>');
-			open_new.on('click', function() {
-				if(!me.folder.in_update) {
-					window.open(endpoint + "~" + element.path + element.name, "_blank");
+
+			menu.display( [
+				{ info : true, name : "Selection", value : (folder_nb + file_nb) + " élément(s) sélectionné(s)" },
+				{ info : true, name : "Chemin", value : reference.path },
+				{ info : true, name : "Taille (totale)", value : sizeFormat(file_total) },
+
+				( file_nb > 0 ?   { button : true, name : "Télécharger les fichiers (" + file_nb + ")", icon : "cloud-download" } : {}),
+				( folder_nb > 0 ? { button : true, name : "Ouvrir les dossiers (" + folder_nb + ")", icon : "log-in" } : {}),
+				{ button : true, name : "Déplacer la sélection", icon : "share-alt" },
+				{ button : true, name : "Supprimer la sélection", icon : "trash" }
+			], e.pageX, e.pageY);
+		} else if(element.size) {
+			menu.display( [
+				{ info : true, name : "Nom", value : element.name },
+				{ info : true, name : "Chemin", value : element.path },
+				{ info : true, name : "Type", value : element.type },
+				{ info : true, name : "Taille", value : sizeFormat(element.size) },
+				{ info : true, name : "Création", value : new Date(element.creationDate).toLocaleString() },
+				{ info : true, name : "Modification", value : new Date(element.modificationDate).toLocaleString() },
+
+				{ button : true, name : "Télécharger le fichier", icon : "cloud-download", action :
+					function() {
+						if(!folder.in_update)
+							window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+					}
+				},
+				{ button : true, name : "Renommer le fichier", icon : "pencil" },
+				{ button : true, name : "Déplacer le fichier", icon : "share-alt" },
+				{ button : true, name : "Supprimer le fichier", icon : "trash" }
+			], e.pageX, e.pageY);
+		} else {
+			menu.display( [
+				{ info : true, name : "Nom", value : element.name },
+				{ info : true, name : "Chemin", value : element.path },
+				{ info : true, name : "Création", value : new Date(element.creation).toLocaleString() },
+				{ info : true, name : "Modification", value : new Date(element.edit).toLocaleString() },
+
+				{ button : true, name : "Ouvrir le dossier", icon : "log-in", action :
+					function() {
+						if(!folder.in_update)
+							tree.select(element.UID);
+					}
+				},
+				{ button : true, name : "Ouvrir dans une nouvelle fenêtre", icon : "new-window", action :
+					function() {
+						if(!folder.in_update)
+							window.open(endpoint + "~" + element.path + element.name, "_blank");
+					}
+				},
+				{ button : true, name : "Renommer le dossier", icon : "pencil", action :
+					function() {
+						//TODO
+					}
+				},
+				{ button : true, name : "Supprimer le dossier", icon : "trash", action :
+					function() {
+						if(!folder.in_update)
+							new DirectoryDeletionWindow(element).display();
+					}
 				}
-				me.content.fadeOut(200);
-			});
-			action.append(open_new);
-			action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le dossier</li>'));
-			var deletion = $('<li><span class="glyphicon glyphicon-trash" />Supprimer le dossier</li>');
-			deletion.on('click', function() {
-				new DirectoryDeletionWindow(element).display();
-			});
-			action.append(deletion);
-			this.content.append(action);
+			], e.pageX, e.pageY);
 		}
-		
-		$('body').append(this.content);
-		
-		var height = this.content.height();
-		var window_height = $(window).height();
-		
-		var width = this.content.width();
-		var window_width = $(window).width();
-		
-		if(y + height > window_height)
-			y = window_height - height;
-		
-		if(x + width > window_width)
-			x = window_width - width;
-		
-		this.content.css({ left : x - 5, top : y - 5});
-		this.content.fadeIn(200);
 	}
-	
-	
-	var folder = new Folder($('#content'));
-	var tree = new DirectoryTree($('#tree'), folder);
-	var menu = new ContextualMenu(folder, tree);
-	folder.set_tree(tree);
+
+	// Construct the tree view
+	tree = new DirectoryTree($('#tree'),
+		// Left click action
+		function(element, node, e) {
+			folder.update(element, node.parent ? node.parent.directory : null);
+		},
+
+		// Right click action
+		function(element, node, e) {
+			contructContextualMenu(element, e);
+		}
+	);
+
+	// Construct the folder view
+	folder = new Folder($('#content'), 
+		// Left/Double click action
+		function(element, e) {
+			if(isFile(element)) {
+				if(element.type.match("^image"))
+					new ImagePreviewWindow(element).display();
+				else
+					window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+			} else
+				tree.select(element.UID);
+		},
+
+		// Right click action
+		function(element, e) {
+			contructContextualMenu(element, e);
+		}
+	);
+
+	// Construct the contextual menu
+	menu = new ContextualMenu(folder, tree);
 	
 	#if ( $context.getParameterUnique('path') )
 		tree.update(function() {
@@ -968,6 +429,7 @@
 		tree.update();
 	#end
 	
+	// Event binding
 	$('[action=new_dir]').on('click', function(e) {
 		if(tree.selected) {
 			new DirectoryCreationWindow(tree.selected.directory).display();
@@ -980,6 +442,7 @@
 		}
 	});
 	
+	// Back button handling
 	window.onpopstate = function(e) {
 		var folder = e.state;
 		
