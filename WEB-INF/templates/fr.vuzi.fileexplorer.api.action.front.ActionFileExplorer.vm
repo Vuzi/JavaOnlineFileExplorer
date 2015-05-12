@@ -31,6 +31,13 @@
 		return check;
 	}
 
+	function sizeFormat(bytes) {
+	    var exp = Math.log(bytes) / Math.log(1024) | 0;
+	    var result = (bytes / Math.pow(1024, exp)).toFixed(2);
+
+	    return result + ' ' + (exp == 0 ? 'bytes': 'KMGTPEZY'[exp - 1] + 'o');
+	}
+
 	function authHeader(login, password) {
 		return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
 	}
@@ -85,17 +92,17 @@
 		li.append(button).append(name);
 		
 		name.on('click', function(e) {
-			if(!me.tree.folder.in_update) {
-				me.select(); // Select self
-			}
+			me.tree.select(directory.UID);
+
+			e.preventDefault();
 		});
 		
 		button.on('click', function(e) {
 			if(button.is(e.target)) {
 				if(me.developped)
-				me.shrink();
+					me.shrink();
 				else
-				me.develop(); // Develop self
+					me.develop(); // Develop self
 			}
 		});
 		
@@ -150,14 +157,16 @@
 		
 		if(!ignorePushState) {
 			if(this.directory.name)
-			window.history.pushState(this.directory, "Title", endpoint + '~' + this.directory.path + this.directory.name);
+				window.history.pushState(this.directory, "Title", endpoint + '~' + this.directory.path + this.directory.name);
 			else
-			window.history.pushState(this.directory, "Title", endpoint + '~/');
+				window.history.pushState(this.directory, "Title", endpoint + '~/');
 		}
 		
-		this.tree.selected = this; // Register as the selected node 
 		this.node.addClass('selected');
-		this.tree.folder.update(this.directory.UID);
+
+		this.tree.selected = this;         // Register as the selected node 
+		this.tree._action(this.directory); // Actions
+
 		this.develop(); // Develop on selection
 	}
 	
@@ -172,9 +181,9 @@
 	//                    Directory tree
 	// =======================================================
 	
-	function DirectoryTree(renderer, folder) {
+	function DirectoryTree(renderer, action) {
 		this.renderer = renderer;
-		this.folder = folder;
+		this.action = action;
 		this.nodes = [];
 		this.selected = null;
 	}
@@ -228,9 +237,14 @@
 		var node = this.nodes[UID];
 		
 		if(!node)
-		return;
+			return;
 		
 		node.select(pushState);
+	}
+
+	DirectoryTree.prototype._action = function(element, event) {
+		if(this.action)
+			this.action(element, this.selected, event);
 	}
 	
 	DirectoryTree.prototype.update = function(clbk) {
@@ -244,12 +258,12 @@
 				me.render(data.data);
 				
 				if(me.selected)
-				me.select(me.selected.directory.UID);
+					me.select(me.selected.directory.UID);
 				else
-				me.select(null);
+					me.select(null);
 				
 				if(clbk)
-				clbk(me);
+					clbk(me);
 			},
 			error: function(data) {
 				console.log(data);
@@ -268,8 +282,9 @@
 	//                    Directory content
 	// =======================================================
 	
-	function Folder(renderer) {
+	function Folder(renderer, action) {
 		this.renderer = renderer;
+		this.action = action;
 		this.in_update = false;
 	}
 	
@@ -287,16 +302,16 @@
 		right.removeClass('blur');
 	}
 	
-	Folder.prototype.update = function(id) {
+	Folder.prototype.update = function(element, parent) {
 		var me = this;
 		var link;
 		
 		this.prepare_update();
 		
-		if(id == null)
-		link = endpoint + 'api/dir/';
+		if(element.UID == null)
+			link = endpoint + 'api/dir/';
 		else
-		link = endpoint + 'api/dir-id/' + id;
+			link = endpoint + 'api/dir-id/' + element.UID;
 		
 		$.ajax({
 			type: 'GET',
@@ -304,7 +319,7 @@
 			dataType : 'json',
 			headers : authHeader('vuzi', '1234'),
 			success: function(data) {
-				me.render(data.data);
+				me.render(data.data, parent);
 				me.finish_update();
 			},
 			error: function(data) {
@@ -321,8 +336,15 @@
 			}
 		});
 	}
+
+	Folder.prototype._action = function(element, event) {
+		if(!this.in_update) {
+			if(this.action)
+				this.action(element, event);
+		}
+	}
 	
-	Folder.prototype.render = function(element) {
+	Folder.prototype.render = function(element, parent) {
 		this.element = element;
 		
 		var me = this;
@@ -330,23 +352,18 @@
 		var ul = $('<ul />');
 		
 		// '..' folder
-		if(element.UID != null) {
-			var icon = new Icon(ul, me, me.tree);
-			var node = this.tree.nodes[element.UID];
-			
-			icon.update(node.parent.directory, true);
+		if(element.UID != null && parent) {
+			new Icon(ul, function(element, e) { me._action(parent, e) }).update(parent, 'parent', '...');
 		}
 		
 		// Directories
 		element.directories.forEach(function(directory) {
-			var icon = new Icon(ul, me, me.tree);
-			icon.update(directory);
+			new Icon(ul, function(element, e) { me._action(element, e) }).update(directory, 'folder');
 		});
 		
 		// Files
 		element.files.forEach(function(file) {
-			var icon = new Icon(ul, me, me.tree);
-			icon.update(file);
+			new Icon(ul, function(element, e) { me._action(element, e) }).update(file);
 		});
 		
 		this.renderer.empty().append(h1).append(ul);
@@ -356,10 +373,9 @@
 	//                          Icon
 	// =======================================================
 	
-	function Icon(renderer, folder, tree) {
+	function Icon(renderer, action) {
 		this.renderer = renderer;
-		this.folder = folder;
-		this.tree = tree;
+		this.action = action;
 	}
 
 	Icon.prototype.generateTypeIcon = function(mimeType, filename, path) {
@@ -461,44 +477,18 @@
 		
 	}
 	
-	Icon.prototype.update = function(element, parent) {
+	Icon.prototype.update = function(element, type, name) {
 		this.element = element;
+
 		var me = this;
-		
-		var icon;
-		
-		if(parent)  {
-			// '..'
-			icon = this.generateTypeIcon('parent', '..');
-			
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				if(!me.folder.in_update) {
-					me.tree.select(element.UID);
-				}
-				e.preventDefault();
-			});
-			} else if(element.type) {
-			// File
-			icon = this.generateTypeIcon(element.type, element.name, element.path);
-			
-			// Load file
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				alert("File " + element.name + " selected");
-				e.preventDefault();
-			});
-			} else {
-			// Directory
-			icon = this.generateTypeIcon('folder', element.name, element.path);
-			
-			// Change directory
-			icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-				if(!me.folder.in_update) {
-					me.tree.select(element.UID);
-				}
-				e.preventDefault();
-			});
-		}
-		
+		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path);
+
+		icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
+			if(me.action)
+				me.action(element, e);
+			e.preventDefault();
+		});
+
 		// Context menu
 		icon.bind('contextmenu', function(e) {
 			e.preventDefault();
@@ -540,7 +530,7 @@
 			div.removeClass('bounce');
 
 			setTimeout(function() {
-				div.slideUp(400, function() {
+				div.slideUp(200, function() {
 					div.remove();
 					if(pop_up_back.is(':empty')) {
 						global.removeClass('blur');
@@ -567,7 +557,7 @@
 		div.removeClass('bounce');
 
 		setTimeout(function() {
-			div.slideUp(400, function() {
+			div.slideUp(200, function() {
 				div.remove();
 				if(pop_up_back.is(':empty')) {
 					global.removeClass('blur');
@@ -886,19 +876,27 @@
 			info.append($('<li class="info"><span>Nom</span><span>' + element.name + '</span></li>'));
 			info.append($('<li class="info"><span>Chemin</span><span>' + element.path + '</span></li>'));
 			info.append($('<li class="info"><span>Type</span><span>' + element.type + '</span></li>'));
+			info.append($('<li class="info"><span>Taille</span><span>' + sizeFormat(element.size) + '</span></li>'));
 			info.append($('<li class="info"><span>Création</span><span>' + new Date(element.creationDate).toLocaleString() + '</span></li>'));
 			info.append($('<li class="info"><span>Modification</span><span>' + new Date(element.modificationDate).toLocaleString() + '</span></li>'));
 			this.content.append(info);
 			
 			// Actions
 			var action = $('<ul></ul>');
-			action.append($('<li><span class="glyphicon glyphicon-cloud-download" />Télécharger le fichier</li>'));
+			var download = $('<li><span class="glyphicon glyphicon-cloud-download" />Télécharger le fichier</li>');
+			download.on('click', function() {
+				if(!me.folder.in_update) {
+					window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+				}
+				me.content.fadeOut(0);
+			});
+			action.append(download);
 			action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le fichier</li>'));
 			action.append($('<li><span class="glyphicon glyphicon-share-alt" />Déplacer le fichier</li>'));
 			action.append($('<li><span class="glyphicon glyphicon-trash" />Supprimer le fichier</li>'));
 			this.content.append(action);
 			
-			} else {
+		} else {
 			// Directory
 			
 			// Info
@@ -924,7 +922,7 @@
 				if(!me.folder.in_update) {
 					window.open(endpoint + "~" + element.path + element.name, "_blank");
 				}
-				me.content.fadeOut(200);
+				me.content.fadeOut(0);
 			});
 			action.append(open_new);
 			action.append($('<li><span class="glyphicon glyphicon-pencil" />Renommer le dossier</li>'));
@@ -954,11 +952,17 @@
 		this.content.fadeIn(200);
 	}
 	
-	
-	var folder = new Folder($('#content'));
-	var tree = new DirectoryTree($('#tree'), folder);
+	// Elements creation
+	var folder;
+	var tree = new DirectoryTree($('#tree'), function(element, node) {
+		folder.update(element, node.parent ? node.parent.directory : null);
+	});
+
+	folder = new Folder($('#content'), function(element) {
+		tree.select(element.UID);
+	});
+
 	var menu = new ContextualMenu(folder, tree);
-	folder.set_tree(tree);
 	
 	#if ( $context.getParameterUnique('path') )
 		tree.update(function() {
@@ -968,6 +972,7 @@
 		tree.update();
 	#end
 	
+	// Event binding
 	$('[action=new_dir]').on('click', function(e) {
 		if(tree.selected) {
 			new DirectoryCreationWindow(tree.selected.directory).display();
@@ -980,6 +985,7 @@
 		}
 	});
 	
+	// Back button handling
 	window.onpopstate = function(e) {
 		var folder = e.state;
 		
