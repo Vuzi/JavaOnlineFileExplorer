@@ -2,6 +2,7 @@
 <div id="global" class="blurable">
 	<div id="left">
 		<div id="tree"></div>
+		<div id="tree_cursor"></div>
 	</div>
 	
 	<div id="right">
@@ -27,6 +28,8 @@
 	var global = $('#global');
 	var pop_up_back = $('#pop_up_back');
 	var right = $('#right');
+	var left = $('#left');
+	var tree_cursor = $('#tree_cursor');
 	
 	var endpoint = '$context.getRequestAddr()';
 	
@@ -445,6 +448,29 @@
 			new FileCreationWindow(tree.selected.directory).display();
 		}
 	});
+
+	var clicked = false;
+	var last = null;
+	tree_cursor.on('mousedown', function(e) {
+		console.log("click!");
+		clicked = true;
+		last = e;
+	});
+
+	global.on('mouseup', function(e) {
+		clicked = false;
+	});
+
+	global.on('mousemove', function(e) {
+		if(clicked) {
+			var x = e.pageX - last.pageX;
+
+			left.width(left.width() + x);
+
+			console.log("moved ("+x+")!");
+			last = e;
+		}
+	});
 	
 	// Back button handling
 	window.onpopstate = function(e) {
@@ -454,5 +480,7 @@
 			tree.select(folder.UID, true);
 		}
 	}
+
+
 	
 </script>

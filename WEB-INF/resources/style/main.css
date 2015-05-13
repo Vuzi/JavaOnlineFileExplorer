@@ -19,7 +19,7 @@ html, body {
 	font-size: 14px;
 	font-family: 'Biryani', sans-serif;
 	
-	min-width: 1024px;
+	min-width: 800px;
 	margin: 0;
 	padding: 0;
 	height: 100%;
@@ -55,13 +55,40 @@ ul{
 	height: 100%;
 	float: left;
 	background-color: #1C1C1C;
+    overflow: hidden;
+    position: relative;
+}
+
+#tree_cursor{
+	width: 10px;
+	height: 100%;
+	float: right;
+	position: absolute;
+	right: 0;
+	top: 0;
+
+	float: right;
+	cursor: w-resize;
+
+	border-right: 3px solid #1C1C1C;
+
+	-webkit-transition: background-color 2s ease-out;
+	-moz-transition: background-color 2s ease-out;
+	-o-transition: background-color 2s ease-out;
+	transition: background-color 0.5s ease;
+}
+
+#tree_cursor:hover{
+	background-color: #2E2E2E;
 }
 
 #tree{
 	padding: 10px;
-	width: auto;
+	width: 100%;
 	height: auto;
 	background-color: #1C1C1C;
+
+	float: left;
 }
 
 #tree .root{
@@ -72,11 +99,13 @@ ul{
 
 #tree ul{
 	padding: 5px;
-	padding-left: 5%;
+	padding-left: 8px;
 }
 
 #tree ul li{
-	padding-left: 10%;
+	padding-left: 12px;
+	overflow:hidden;
+	white-space:nowrap;
 }
 
 #tree ul li a:hover{
@@ -119,7 +148,6 @@ ul{
 #right{
 	height: 100%;
 	width: auto;
-	margin-left: 300px;
 	display: block;	
 	//background-color: #2E2E2E;
 	//background-color:#BDBDBD;
@@ -134,7 +162,6 @@ ul{
 	font-size: 18px;
 	color: white;
 	width: auto;
-	height: 25px;
 	padding: 10px;
 	//border-bottom: 2px solid #2E93F1;
 	border-bottom: 2px solid #FE1938;
@@ -144,11 +171,17 @@ ul{
 #options li, #options a, #options ul{
 	text-align:center;
 	display: inline;
-	margin-right: 20px;
+	padding-left: 0px;
+}
+
+
+#options a{
+	white-space: pre;
 }
 
 #options a{
 	transition-duration: 0.2s;
+	margin-left: 20px;
 }
 
 #options a:hover{
@@ -182,6 +215,8 @@ ul{
 	overflow:hidden;
 	white-space:nowrap;
 	text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
 	width: 98px;
 }
 
@@ -367,6 +402,12 @@ div.pop_up {
 	border: 2px solid black;
 	border-radius: 5px;
 	box-shadow: 0px 10px 10px #111;
+
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
 }
 
 div.pop_up img{
@@ -422,6 +463,12 @@ div.pop_up h2 {
 	font-size: 18px;
 	font-family: 'Roboto Condensed', sans-serif;
 	margin-top: 0;
+
+	overflow:hidden;
+	white-space:nowrap;
+	text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
 }
 
 div.pop_up.success h2{
@@ -497,6 +544,7 @@ div.pop_up.error h2 {
 	background-color: white;
 	border: 1px darkgray solid;
 	box-shadow: 2px 2px 5px #111;
+
 }
 
 #context_menu ul {
@@ -510,6 +558,12 @@ div.pop_up.error h2 {
 
 #context_menu ul li {
 	padding: 2px 30px 3px 30px;
+	white-space: nowrap;
+	overflow: hidden;
+	max-width: 500px;
+	text-overflow: ellipsis;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
 }
 
 #context_menu ul li:not(.info):hover {
