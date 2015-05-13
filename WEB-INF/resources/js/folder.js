@@ -95,7 +95,7 @@ Folder.prototype.render = function(element, parent) {
 	this.element = element;
 	
 	var me = this;
-	var h1 = $('<h1> Content of ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
+	var h1 = $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
 	var ul = $('<ul />');
 	
 	// '..' folder

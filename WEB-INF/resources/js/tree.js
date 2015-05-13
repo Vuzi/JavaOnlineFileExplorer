@@ -35,7 +35,7 @@ DirectoryTreeNode.prototype.render = function() {
 	if(directory.name) {
 		var name = $('<a href="#" > ' + directory.name + '</a>');
 	} else {
-		var name = $('<a href="#" class="root" > Root </a>');
+		var name = $('<a href="#" class="root" > Racine </a>');
 	}
 	
 	li.append(button).append(name);
