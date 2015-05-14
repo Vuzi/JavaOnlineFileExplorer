@@ -1,94 +1,366 @@
 
 // =======================================================
-//                      Pop up handler
+//                      Pop up base class
 // =======================================================
 
-function Pop_up(title, message, type) {
-	this.title = title;
-	this.message = message;
-	this.type = type || 'info';
-}
+var PopUp = CallbackHandler.extend({
+	init : function(title, message) {
+		this._super();
+		this.title = title;
+		this.message = message;
+	},
+	render : function() {
+		this.content = $('<div class="pop_up bouncy"></div>');
+		this.content.append($('<h2></h2>').append(this.title));
+		this.content.append($('<p></p>').append(this.message));
 
-Pop_up.prototype.display = function() {
-	var div = $('<div class="pop_up ' + this.type + ' bouncy"></div>');
-	div.append('<h2>' + this.title + '</h2>');
-	div.append('<p>' + this.message + '</p>');
-	
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	div.addClass('bounce');
-	pop_up_back.append(div);
-	
-	setTimeout(function() {
-		div.removeClass('bounce');
+		return this.content;
+	},
+	display : function() {
+		this.render();
+
+		pop_up_back.fadeIn();
+		global.addClass('blur');
+		this.content.addClass('bounce');
+		pop_up_back.append(this.content);
+
+		this.fireEvent('display', this);
+	},
+	dissmiss : function(timer) {
+		timer = timer || 0;
+		var me = this;
 
 		setTimeout(function() {
-			div.slideUp(200, function() {
-				div.remove();
-				if(pop_up_back.is(':empty')) {
-					global.removeClass('blur');
-					pop_up_back.fadeOut();
-				}
-			});
-		}, 200);
-	}, 2000);
-}
+			me.content.removeClass('bounce');
+
+			setTimeout(function() {
+				me.content.slideUp(200, function() {
+					me.content.remove();
+					me.fireEvent('dissmiss', me);
+
+					if(pop_up_back.is(':empty')) {
+						global.removeClass('blur');
+						pop_up_back.fadeOut();
+					}
+				});
+			}, 200);
+		}, timer || 0);
+	}
+});
 
 // =======================================================
-//                      Wiondow handler
+//                      Toast
 // =======================================================
 
-function Pop_up_window(title, content) {
-	this.title = title;
-	this.content = content;
-}
+var Toast = PopUp.extend({
+	init : function(title, message, type) {
+		this._super(title, message);
+		this.type = type ||'info';
+	},
+	render : function() {
+		return this._super().addClass(this.type);
+	},
+	display : function(timer) {
+		this._super();
+		this.dissmiss(timer || 2000);
+	}
+});
 
-Pop_up_window.prototype.close = function() {
-	var div = this.div;
-	
-	div.removeClass('bounce');
+// =======================================================
+//                   Cancelable window
+// =======================================================
 
-	setTimeout(function() {
-		div.slideUp(200, function() {
-			div.remove();
-			if(pop_up_back.is(':empty')) {
-				global.removeClass('blur');
-				pop_up_back.fadeOut();
+var PopUpCancelable = PopUp.extend({
+	render : function() {
+		var me = this;
+		this.cancel_button = $("<a href='#' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
+		
+		this.cancel_button.on('click', function(e) {
+			me.fireEvent('cancel', me, e);
+			me.dissmiss();
+		});
+
+		this._super().append(this.cancel_button);
+
+		this.content.on('keyup', function(e) {
+			if(me.cancel_button.is(":visible") && e.which == 27) {
+				me.dissmiss();
 			}
 		});
-	}, 200);
-}
 
-Pop_up_window.prototype.toggle_dissmiss = function() {
-	this.dissmiss.toggle();
-}
+		return this.content;
+	},
+	toggle_dissmiss : function() {
+		this.cancel_button.toggle();
+	}
+});
 
-Pop_up_window.prototype.display = function() {
-	var me = this;
-	var div = $('<div class="pop_up bouncy"></div>');
-	var dissmiss = $("<a href='#' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
-	div.append('<h2>' + this.title + '</h2>');
-	div.append(dissmiss);
-	div.append(this.content);
-	this.div = div;
-	this.dissmiss = dissmiss;
-	
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	div.addClass('bounce');
-	pop_up_back.append(div);
-	
-	div.on('keyup', function(e) {
-		if(e.which == 27) {
-			me.close();
+// =======================================================
+//                Cancelable action window
+// =======================================================
+
+var PopUpAction = PopUpCancelable.extend({
+	action : function(type, URI, values) {
+		var me = this;
+
+		// Show a loading animation
+		var tmp = this.content.contents();
+		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		this.toggle_dissmiss();
+
+		// Perform the request
+		$.ajax({
+			type: type,
+			url: endpoint + URI,
+			dataType : 'json',
+			processData : false,
+			data : JSON.stringify(values),
+			contentType : 'application/json',
+			headers : authHeader('vuzi', '1234'),
+			success: function(data) {
+				me.dissmiss();
+				me.fireEvent('success', me, data.data);
+			},
+			error: function(data) {
+
+				if(!data.responseJSON) {
+					this.fail(data);
+					return;
+				}
+
+				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+				pop.display();
+				
+				me.fireEvent('error', me, data.responseJSON.data);
+				me.dissmiss();
+			},
+			fail: function(data) {
+				var pop = new Toast("Erreur ", "La requête a échouée", "error");
+				pop.display();
+
+				me.fireEvent('fail', me);
+				me.dissmiss();
+			}
+		});
+	}
+});
+
+// =======================================================
+//                     Image preview
+// =======================================================
+// 
+var ImagePreviewWindow = PopUpCancelable.extend({
+	init : function(file) {
+		this.img = $('<img src="' + endpoint + 'api/file-bin' + file.path + file.name + '" />');
+		this.a = $('<a href="' + endpoint + "api/file-bin" + file.path + file.name + '"></a>');
+
+		this._super(file.name, this.a.append(this.img));
+	}
+});
+
+
+// =======================================================
+//                Directory creation
+// =======================================================
+
+var DirectoryCreationWindow = PopUpAction.extend({
+	init : function(directory) {
+		var me = this;
+
+		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+
+		var message = $('<p></p>');
+		this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
+		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+		this.submit = $('<input type="button" value="Créer"></input>');
+
+		message.append($('<span>Dossier : </span>')).append(this.dir_name).append($('<br/>')).
+		append($('<span>Chemin : </span>')).append(this.dir_path).append($('<br/>')).append(this.submit);
+
+		this._super("Création dossier", message);
+
+		// Enter pressed
+		this.dir_name.on('keypress', function(e) {
+			if(e.which == 13) {
+				me.action();
+			}
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Création du dossier effectuée", "Le dossier '" + me.dir_name.val() + "' a été crée avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		this._super();
+		this.dir_name.focus();
+	},
+	action : function() {
+		var dir_name = this.dir_name.val().trim();
+		var dir_path = this.dir_path.val().trim();
+		var me = this;
+		
+		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
+			new Toast("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			return;
 		}
-	});
 
-	dissmiss.on('click', function(e) {
-		me.close();
-	});
-	
-	pop_up_back.fadeIn();
-	global.addClass('blur');
-	pop_up_back.append(div);
-}
+		this._super('PUT', 'api/dir' + dir_path + dir_name, {});
+	}
+})
+
+
+// =======================================================
+//                Directory deletion
+// =======================================================
+
+var DirectoryDeletionWindow = PopUpAction.extend({
+	init : function(directory) {
+		var me = this;
+
+		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+		
+		var message = $('<div>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</div>');
+		this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
+		this.cancel = $('<input type="button" value="Annuler"></input>');
+		
+		message.append($('<div style="text-align : center; display: block; margin-top: 10px;" />').append(this.submit).append(this.cancel));
+		
+		this._super("Suppression dossier", message);
+
+		// Cancel button
+		this.cancel.on('click', function(e) {
+			me.dissmiss();
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Suppression du dossier effectuée", "Le dossier '" + this.path + "' a été supprimé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		this._super();
+		this.cancel.focus();
+	},
+	action : function() {
+		this._super('DELETE', 'api/dir' + this.path, {});
+	}
+})
+
+
+// =======================================================
+//                    File creation
+// =======================================================
+
+var FileCreationWindow = PopUpAction.extend({
+	init : function(directory) {
+		var me = this;
+
+		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+		
+		var message = $('<div></div>');
+		this.file = $('<input type="file" name="file" hidden="true"/>');
+		this.label = $('<label class="input_file">Parcourir</label>');
+		this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
+		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+		this.submit = $('<input type="button" value="Envoyer"></input>');
+		
+		message.append('<span>Fichier : </span>').append(this.label.append(this.file)).append('<br/>').
+		append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
+		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+
+		this._super("Upload fichier", message);
+
+		// File change
+		this.file.on('change', function() {
+			me.dir_name.val(me.file.val().replace(/.*(\/|\\)/, ''));
+		});
+
+		// On enter
+		this.dir_name.on('keypress', function(e) {
+			if(e.which == 13) {
+				me.action();
+			}
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Fichier uploadé", "Le fichier '" + me.dir_name.val() + "' a été uploadé avec succès", "success");
+			toast.display();
+		});
+	},
+	action : function() {
+		var dir_name = this.dir_name.val().trim();
+		var dir_path = this.dir_path.val().trim();
+		var me = this;
+
+		if(!this.file.val()) {
+			new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
+			return;
+		}
+
+		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
+			new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			return;
+		}
+
+		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		this.toggle_dissmiss();
+		
+		var file = this.file[0].files[0];
+		var formData = new FormData();
+		
+		formData.append(dir_name, file, file.name);
+		
+		var xhr = new XMLHttpRequest();
+		xhr.onerror = function(error) {
+			var toast = new Toast("Erreur ", "La requête a échouée", "error");
+			toast.display();
+
+			me.fireEvent('fail', me);
+			me.dissmiss();
+		}
+		xhr.onload = function () {
+			var val = JSON.parse(xhr.responseText);
+
+			if (xhr.status === 200) {
+				me.fireEvent('success', me, val || {});
+				me.dissmiss();
+			} else {
+				var val = JSON.parse(xhr.responseText);
+				
+				if(val && val.data && val.data.message) {
+		    		var toast = new Toast("Erreur " + val.data.status, val.data.message, "error");
+					me.fireEvent('error', me, val.data);
+				} else {
+		    		var toast = new Toast("Erreur ", "La requête a échouée", "error");
+					me.fireEvent('error', me, {});
+				}
+
+				toast.display();
+				me.dissmiss();
+			}
+		};
+		xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
+		xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
+		xhr.send(formData);
+	}
+})
+

@@ -49,9 +49,6 @@ public class ActionGetResource extends AAction {
 		}
 		
 		DataInputStream in = new DataInputStream(new FileInputStream(ressource));
-
-		String path = c.getRequest().getScheme() + "://" + c.getRequest().getServerName() + ":" + c.getRequest().getServerPort();
-		System.out.println(path);
 		
 		// Prepare headers
 		c.getResponse().setContentLength((int)ressource.length());
