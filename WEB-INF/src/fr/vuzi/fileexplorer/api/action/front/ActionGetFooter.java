@@ -4,7 +4,7 @@ import fr.vuzi.webframework.action.AActionNoCredentials;
 import fr.vuzi.webframework.action.IAction;
 import fr.vuzi.webframework.context.IContext;
 
-public class ActionGetResourceFooter extends AActionNoCredentials {
+public class ActionGetFooter extends AActionNoCredentials {
 	@Override
 	public int getPriority() {
 		return 0;
@@ -12,7 +12,7 @@ public class ActionGetResourceFooter extends AActionNoCredentials {
 	
 	@Override
 	public IAction cloneAction(IContext context) {
-		IAction action = new ActionGetResourceFooter();
+		IAction action = new ActionGetFooter();
 		action.setActionContext(context);
 		
 		return action;

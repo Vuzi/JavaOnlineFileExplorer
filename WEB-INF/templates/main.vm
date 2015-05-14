@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetResourceHeader")
+		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetHeader")
 	</head>
 	<body>
 		$context.getFragment("__CURRENT__")
-		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetResourceFooter")
+		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetFooter")
 	</body>
 </html>
