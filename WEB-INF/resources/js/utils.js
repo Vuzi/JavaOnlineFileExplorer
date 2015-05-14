@@ -23,6 +23,133 @@ function authHeaderValue(login, password) {
 function isDir(element) {
 	return element.name && !element.size;
 }
+
 function isFile(element) {
 	return element.name && element.size;
 }
+
+var Class = function() {}
+
+Class.extend = function(prop) {
+	var _super = this.prototype;
+
+    this.prototype.ignore = true;
+    var prototype = new this();
+    delete this.prototype.ignore;
+
+    var _supers = {};
+
+	for(var name in prop) {
+		if(typeof prop[name] == 'function' && typeof _super[name] == 'function') {
+			prototype[name] = (function(name, fn, _super) {
+				return function() {
+					this._super = _super;
+					return fn.apply(this, arguments);
+				}
+			})(name, prop[name], _super[name]);
+		} else
+			prototype[name] = prop[name];
+	}
+
+    function Class() {
+    	if (!this.ignore && this.init) {
+    		this.init.apply(this, arguments);
+    	}
+    }
+
+    Class.prototype = prototype;
+    Class.prototype.constructor = Class;
+    Class.extend = arguments.callee;
+
+    return Class;
+}
+
+var CallbackHandler = Class.extend({
+	init : function() {
+		this.actions = {};
+	},
+	on : function(target, clbk, fireOnce) {
+		if(this.actions[target] instanceof Array)
+			this.actions[target].push(clbk);
+		else
+			this.actions[target] = [ clbk ];
+
+		clbk._fireOnce = fireOnce || false;
+		return this;
+	},
+	remove : function(target, toRemove) {
+		if(this.actions[target] instanceof Array) {
+			var index = this.actions[target].indexOf(toRemove);
+			if(index >= 0)
+				this.actions[target].splice(index, 1);
+		}
+
+		return this;
+	},
+	clear : function(target) {
+		if(this.actions[target] instanceof Array) {
+			this.actions[target] = [];
+		}
+		return this;
+	},
+	fireEvent : function(target) {
+		var event_args = Array.prototype.slice.call(arguments, 1);
+		var me = this;
+
+		if(this.actions[target] instanceof Array) {
+			for (var i = 0; i < this.actions[target].length; i++) {
+				this.actions[target][i].apply(this, event_args);
+
+				if(this.actions[target][i]._fireOnce)
+					this.actions[target].remove(i--);
+			}
+		}
+		return this;
+	}
+});
+
+/*
+var A = Class.extend({
+	init: function(a, b) {
+		this.a = a;
+		this.b = b;
+	},
+	hello: function() {
+		console.log("hello from A : " + this.a);
+	},
+	goodbye: function() {
+		console.log("goodbye from A");
+	}
+})
+
+var B = A.extend({
+	init: function(a, b) {
+		this.a = a + 1;
+		this.b = b + 1;
+	},
+	hello: function() {
+		this._super();
+		console.log("hello from B : " + this.a);
+	}
+})
+
+var C = B.extend({
+	hello: function() {
+		this._super();
+		console.log("hello from C : " + this.a);
+	}
+})
+
+var b = new B(1, 2);
+var c = new C(1, 2);
+
+b.hello();
+b.goodbye();
+
+c.hello();
+c.goodbye();
+
+console.log(c instanceof A); // true
+console.log(b instanceof A); // true
+console.log(b instanceof C); // false
+*/

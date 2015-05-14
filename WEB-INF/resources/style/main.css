@@ -433,6 +433,10 @@ div.pop_up .close img:hover{
 	background-color: #FE6176;
 }
 
+div.pop_up p{
+	margin-bottom: 0;
+}
+
 div.pop_up p span{
 	display: inline-block;
 	width: 75px;

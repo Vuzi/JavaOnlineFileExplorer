@@ -14,7 +14,7 @@
 				<li><a href="#">Affichage</a></li>
 			</ul>
 		</nav>
-		<div id="content"></div>
+		<div id="content" class="blurable"></div>
 	</div>
 </div>
 <script src="$context.getRequestAddr()resources/js/jquery-2.1.4.min.js"></script>
@@ -25,6 +25,7 @@
 <script src="$context.getRequestAddr()resources/js/popup.js"></script>
 <script type="text/javascript">
 	
+	// Variables
 	var global = $('#global');
 	var pop_up_back = $('#pop_up_back');
 	var right = $('#right');
@@ -33,276 +34,9 @@
 	
 	var endpoint = '$context.getRequestAddr()';
 	
+	// Mobile performance fix
 	if(window.onMobile()) {
 		$(".blurable").removeClass('blurable');
-	}
-	
-	// =======================================================
-	//                      Folder creation
-	// =======================================================
-	
-	function DirectoryCreationWindow(directory) {
-		var me = this;
-		
-		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-		this.title = "Création dossier";
-		
-		this.content = $('<p></p>');
-		this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
-		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="button" value="Créer"></input>');
-		
-		this.content.append('<span>Dossier : </span>').append(this.dir_name).append('<br/>').
-		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
-		
-		this.dir_name.on('keypress', function(e) {
-			if(e.which == 13) {
-				me.action();
-			}
-		});
-		
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-	}
-	
-	DirectoryCreationWindow.prototype.display = function() {
-		this.pop_up = new Pop_up_window(this.title, this.content);
-		this.pop_up.display();
-		this.dir_name.focus();
-	}
-	
-	DirectoryCreationWindow.prototype.action = function() {
-		var dir_name = this.dir_name.val().trim();
-		var dir_path = this.dir_path.val().trim();
-		var me = this;
-		
-		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
-			return;
-		}
-		
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-		this.pop_up.toggle_dissmiss();
-		
-		$.ajax({
-			type: 'PUT',
-			url: endpoint + 'api/dir' + dir_path + dir_name,
-			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
-			success: function(data) {
-				var pop = new Pop_up("Création du dossier effectuée", "Le dossier '" + dir_name + "' a été crée avec succès", "success");
-				pop.display();
-				
-				me.pop_up.close();
-				
-				tree.update();
-			},
-			error: function(data) {
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-				console.log(data);
-				
-				me.pop_up.close();
-			},
-			fail: function(data) {
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-				pop.display();
-				console.log(data);
-				
-				me.pop_up.close();
-			}
-		});
-	}
-	
-	// =======================================================
-	//                      Image preview
-	// =======================================================
-	
-	function ImagePreviewWindow(file) {
-		var me = this;
-		
-		this.title = file.name;
-		
-		this.content = $('<span><p></p></span>');
-		this.img = $('<img src="' + endpoint + 'api/file-bin' + file.path + file.name + '" />');
-		this.a = $('<a href="' + endpoint + "api/file-bin" + file.path + file.name + '"></a>');
-		
-		this.content.append(this.a.append(this.img));
-	}
-
-	ImagePreviewWindow.prototype.display = function() {
-		this.pop_up = new Pop_up_window(this.title, this.content);
-		this.pop_up.display();
-	}
-
-	// =======================================================
-	//                      Folder deletion
-	// =======================================================
-	
-	function DirectoryDeletionWindow(directory) {
-		var me = this;
-		
-		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-		this.title = "Suppression dossier";
-		
-		this.content = $('<span><p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p></span>');
-		this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
-		this.cancel = $('<input type="button" value="Annuler"></input>');
-		
-		this.content.append($('<span style="text-align : center; display: block" />').append(this.submit).append(this.cancel));
-		
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-		this.cancel.on('click', function(e) {
-			me.pop_up.close();
-		});
-	}
-	
-	DirectoryDeletionWindow.prototype.display = function() {
-		this.pop_up = new Pop_up_window(this.title, this.content);
-		this.pop_up.display();
-		this.cancel.focus();
-	}
-	
-	DirectoryDeletionWindow.prototype.action = function() {
-		var dir_path = this.path;
-		var me = this;
-		
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-		this.pop_up.toggle_dissmiss();
-		
-		$.ajax({
-			type: 'DELETE',
-			url: endpoint + 'api/dir' + dir_path,
-			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
-			success: function(data) {
-				var pop = new Pop_up("Suppression du dossier effectuée", "Le dossier '" + dir_path + "' a été supprimé avec succès", "success");
-				pop.display();
-				
-				me.pop_up.close();
-				
-				console.log(data);
-				
-				tree.select(data.data.UID)
-				tree.update();
-			},
-			error: function(data) {
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-				console.log(data);
-				
-				me.pop_up.close();
-			},
-			fail: function(data) {
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-				pop.display();
-				console.log(data);
-				
-				me.pop_up.close();
-			}
-		});
-	}
-	
-	// =======================================================
-	//                      File creation
-	// =======================================================
-	
-	function FileCreationWindow(directory) {
-		var me = this;
-		
-		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-		this.title = "Upload fichier";
-		
-		this.content = $('<p></p>');
-		this.file = $('<input type="file" name="file" hidden="true"/>');
-		this.label = $('<label class="input_file">Parcourir</label>');
-		this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
-		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="button" value="Envoyer"></input>');
-		
-		this.content.append('<span>Fichier : </span>').append(this.label.append(this.file)).append('<br/>').
-		append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
-		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
-		
-		this.file.on('change', function() {
-			me.dir_name.val(me.file.val().replace(/.*(\/|\\)/, ''));
-		});
-		
-		this.dir_name.on('keypress', function(e) {
-			if(e.which == 13) {
-				me.action();
-			}
-		});
-		
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-	}
-	
-	FileCreationWindow.prototype.display = function() {
-		this.pop_up = new Pop_up_window(this.title, this.content);
-		this.pop_up.display();
-		this.dir_name.focus();
-	}
-	
-	FileCreationWindow.prototype.action = function() {
-		var dir_name = this.dir_name.val().trim();
-		var dir_path = this.dir_path.val().trim();
-		var me = this;
-		
-		if(!this.file.val()) {
-			new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
-			return;
-		}
-		
-		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
-			return;
-		}
-		
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-		this.pop_up.toggle_dissmiss();
-		
-		var file = this.file[0].files[0];
-		var formData = new FormData();
-		
-		formData.append(dir_name, file, file.name);
-		
-		console.log(file);
-		console.log(formData);
-		console.log(endpoint + 'api/file-bin' + dir_path);
-		
-		var xhr = new XMLHttpRequest();
-		xhr.onload = function () {
-			if (xhr.status === 200) {
-				var pop = new Pop_up("Fichier uploadé", "Le fichier '" + dir_name + "' a été uploadé avec succès", "success");
-				pop.display();
-				
-				me.pop_up.close();
-				
-				tree.update();
-				
-				console.log(xhr);
-			} else {
-				var val = JSON.parse(xhr.responseText);
-				console.log(val);
-				
-				if(val && val.data && val.data. message)
-		    		var pop = new Pop_up("Erreur " + val.data.status, val.data.message, "error");
-				else
-		    		var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
-				pop.display();
-				
-				me.pop_up.close();
-			}
-		};
-		xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
-		xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
-		xhr.send(formData);
-		
 	}
 	
 	// Elements creation
@@ -385,8 +119,12 @@
 				},
 				{ button : true, name : "Supprimer le dossier", icon : "trash", action :
 					function() {
-						if(!folder.in_update)
-							new DirectoryDeletionWindow(element).display();
+						if(!folder.in_update) {
+							new DirectoryDeletionWindow(element).on('success', function(popUp, data) {
+								tree.select(data.UID)
+								tree.update();
+							}).display();
+						}
 					}
 				}
 			], e.pageX, e.pageY);
@@ -394,36 +132,35 @@
 	}
 
 	// Construct the tree view
-	tree = new DirectoryTree($('#tree'),
-		// Left click action
-		function(element, node, e) {
-			folder.update(element, node.parent ? node.parent.directory : null);
-		},
+	tree = new DirectoryTree($('#tree'));
+	tree.on('select', function(element, node, ignorePushState) {
+		folder.update(element, node.parent ? node.parent.directory : null);
 
-		// Right click action
-		function(element, node, e) {
-			contructContextualMenu(element, e);
+		if(!ignorePushState) {
+			if(element.name)
+				window.history.pushState(element, "node", endpoint + '~' + element.path + element.name);
+			else	
+				window.history.pushState(element, "node", endpoint + '~/');
 		}
-	);
+	});
+	tree.on('select_contextual', function(element, node, e) {
+		contructContextualMenu(element, e);
+	});
 
 	// Construct the folder view
-	folder = new Folder($('#content'), 
-		// Left/Double click action
-		function(element, e) {
-			if(isFile(element)) {
-				if(element.type.match("^image"))
-					new ImagePreviewWindow(element).display();
-				else
-					window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
-			} else
-				tree.select(element.UID);
-		},
-
-		// Right click action
-		function(element, e) {
-			contructContextualMenu(element, e);
-		}
-	);
+	folder = new Folder($('#content'));
+	folder.on('select', function(element) {
+		if(isFile(element)) {
+			if(element.type.match("^image"))
+				new ImagePreviewWindow(element).display();
+			else
+				window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+		} else
+			tree.select(element.UID);
+	});
+	folder.on('select_context', function(element, e) {
+		contructContextualMenu(element, e);
+	});
 
 	// Construct the contextual menu
 	menu = new ContextualMenu(folder, tree);
@@ -439,16 +176,21 @@
 	// Event binding
 	$('[action=new_dir]').on('click', function(e) {
 		if(tree.selected) {
-			new DirectoryCreationWindow(tree.selected.directory).display();
+			new DirectoryCreationWindow(tree.selected.directory).on('success', function() {
+				tree.update();
+			}).display();
 		}
 	});
 	
 	$('[action=new_file]').on('click', function(e) {
 		if(tree.selected) {
-			new FileCreationWindow(tree.selected.directory).display();
+			new FileCreationWindow(tree.selected.directory).on('success', function() {
+				tree.update();
+			}).display();
 		}
 	});
 
+	// Draggable left panel
 	var clicked = false;
 	var last = null;
 	tree_cursor.on('mousedown', function(e) {
@@ -463,11 +205,7 @@
 
 	global.on('mousemove', function(e) {
 		if(clicked) {
-			var x = e.pageX - last.pageX;
-
-			left.width(left.width() + x);
-
-			console.log("moved ("+x+")!");
+			left.width(left.width() + (e.pageX - last.pageX));
 			last = e;
 		}
 	});
@@ -481,6 +219,4 @@
 		}
 	}
 
-
-	
 </script>
