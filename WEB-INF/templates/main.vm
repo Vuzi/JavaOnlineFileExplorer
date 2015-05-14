@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="UTF-8">
-		<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/main.css">
-		<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/icons.css">
-		<title>Online File Explorer</title>
+		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetResourceHeader")
 	</head>
 	<body>
 		$context.getFragment("__CURRENT__")
+		$context.getFragment("fr.vuzi.fileexplorer.api.action.front.ActionGetResourceFooter")
 	</body>
 </html>

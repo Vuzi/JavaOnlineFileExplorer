@@ -18,7 +18,13 @@
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileDeletion",
 					"fr.vuzi.fileexplorer.api.action.search.ActionSearch",
 					"fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",
-					"fr.vuzi.fileexplorer.api.action.front.ActionGetResource"
+					"fr.vuzi.fileexplorer.api.action.front.ActionGetResource",
+					"fr.vuzi.fileexplorer.api.action.front.ActionGetResourceHeader",
+					"fr.vuzi.fileexplorer.api.action.front.ActionGetResourceFooter"
 				],
-	"velocity_priority" : { "__CURRENT__" : true }
+	"velocity_priority" : { 
+		"__CURRENT__" : true,
+		"fr.vuzi.fileexplorer.api.action.front.ActionGetResourceHeader" : true,
+		"fr.vuzi.fileexplorer.api.action.front.ActionGetResourceFooter" : true 
+	}
 }
