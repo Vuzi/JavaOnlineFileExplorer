@@ -72,7 +72,7 @@ var Folder = CallbackHandler.extend({
 		// '..' folder
 		if(element.UID != null && parent) {
 			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, event);
+				me.fireEvent('select', element, e);
 			}).on('click_context', function(element, icon, e) {
 				me._action_context(element, e);
 			}).on('select', function(element, icon, e) {
@@ -83,7 +83,7 @@ var Folder = CallbackHandler.extend({
 		// Directories
 		element.directories.forEach(function(directory) {
 			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, event);
+				me.fireEvent('select', element, e);
 			}).on('click_context', function(element, icon, e) {
 				me._action_context(element, e);
 			}).on('select', function(element, icon, e) {
@@ -94,7 +94,7 @@ var Folder = CallbackHandler.extend({
 		// Files
 		element.files.forEach(function(file) {
 			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, event);
+				me.fireEvent('select', element, e);
 			}).on('click_context', function(element, icon, e) {
 				me._action_context(element, e);
 			}).on('select', function(element, icon, e) {
@@ -221,12 +221,12 @@ var Icon = CallbackHandler.extend({
 			return $('<a href="#"></a>').
 						append($('<figure class="image" ></figure>').
 							append(this.image).
-							append($('<figcaption>' + filename + '</figcaption>')));
+							append($('<figcaption><p>' + filename + '</p></figcaption>')));
 		} else {
 			return $('<a href="#"></a>').
 						append($('<figure></figure>').
 							append(this.image).
-							append($('<figcaption>' + filename + '</figcaption>')));
+							append($('<figcaption><p>' + filename + '</p></figcaption>')));
 		}
 	},
 	update : function(element, type, name) {

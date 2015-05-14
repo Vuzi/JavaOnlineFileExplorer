@@ -211,12 +211,13 @@ ul{
 }
 
 #content li a figure figcaption{
+	display:block;
 	color: black;
 	overflow:hidden;
 	white-space:nowrap;
-	text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
+	text-overflow: ellipsis;
 	width: 98px;
 }
 
@@ -228,7 +229,6 @@ ul{
 
 	width: 90px;
 	height: 90px;
-	padding: 1px;
 	transition-duration: 0.5s;
 	border-radius: 90px;
 	border: 3px solid #2E2E2E;

@@ -1,5 +1,6 @@
-<meta charset="UTF-8">
-<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/main.css">
-<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/icons.css">
+<meta charset="UTF-8"/>
+<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/main.css"/>
+<link rel="stylesheet" type="text/css" href="$context.getRequestAddr()resources/style/icons.css"/>
+<link rel="icon" type="image/png" href="$context.getRequestAddr()resources/style/icons/folder.png"/>
 <title>Online File Explorer</title>
 
