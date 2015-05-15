@@ -308,24 +308,24 @@ public class DirectoryUtils {
 
 		// Update directories
 		for(Document doc : collection.find(query)) {
-			query = new BasicDBObject();
-			query.put("_id", doc.getObjectId("_id"));
+			BasicDBObject dirQuery = new BasicDBObject();
+			dirQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
 			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
 		
-			collection.updateOne(query, update);
+			collection.updateOne(dirQuery, update);
 		}
 		
 		// Update files
 		for(Document doc : collectionFiles.find(query)) {
-			query = new BasicDBObject();
-			query.put("_id", doc.getObjectId("_id"));
+			BasicDBObject fileQuery = new BasicDBObject();
+			fileQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
-			update.append("$set", new BasicDBObject().append("path", newPath + "/"));
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
 		
-			collectionFiles.updateOne(query, update);
+			collectionFiles.updateOne(fileQuery, update);
 		}
 		
 		// Return the modified element
