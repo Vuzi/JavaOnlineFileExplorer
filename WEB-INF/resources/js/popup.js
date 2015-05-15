@@ -73,6 +73,7 @@ var Toast = PopUp.extend({
 var PopUpCancelable = PopUp.extend({
 	render : function() {
 		var me = this;
+		this.cancelable = true;
 		this.cancel_button = $("<a href='#' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
 		
 		this.cancel_button.on('click', function(e) {
@@ -83,7 +84,8 @@ var PopUpCancelable = PopUp.extend({
 		this._super().append(this.cancel_button);
 
 		this.content.on('keyup', function(e) {
-			if(me.cancel_button.is(":visible") && e.which == 27) {
+			if(me.cancelable && e.keyCode == 27) {
+				me.fireEvent('cancel', me, e);
 				me.dissmiss();
 			}
 		});
@@ -92,6 +94,7 @@ var PopUpCancelable = PopUp.extend({
 	},
 	toggle_dissmiss : function() {
 		this.cancel_button.toggle();
+		this.cancelable = false;
 	}
 });
 
@@ -273,7 +276,7 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 		var message = $('<div></div>');
 		this.dir_name = $('<input type="text" value="' + directory.name + '" placeholder="Nom du fichier"></input>');
 		this.dir_path = $('<input type="text" value="' + directory.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="button" value="Modifier le nom"></input>');
+		this.submit = $('<input type="submit" value="Modifier le nom"></input>');
 		
 		message.append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
 		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
@@ -361,6 +364,10 @@ var FileCreationWindow = PopUpAction.extend({
 			var toast = new Toast("Fichier uploadé", "Le fichier '" + me.dir_name.val() + "' a été uploadé avec succès", "success");
 			toast.display();
 		});
+	},
+	display : function() {
+		this._super();
+		this.dir_name.focus();
 	},
 	action : function() {
 		var dir_name = this.dir_name.val().trim();
