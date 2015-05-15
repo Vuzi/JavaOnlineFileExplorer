@@ -52,7 +52,10 @@ public class ActionGetResource extends AAction {
 		
 		// Prepare headers
 		c.getResponse().setContentLength((int)ressource.length());
-		c.getResponse().setHeader("Content-Type", Files.probeContentType(Paths.get(ressource.getAbsolutePath())));
+		if(ressource.getName().endsWith(".js"))
+			c.getResponse().setHeader("Content-Type", "application/javascript");
+		else
+			c.getResponse().setHeader("Content-Type", Files.probeContentType(Paths.get(ressource.getAbsolutePath())));
 
 		// Write the file to the output
 		OutputStream out = c.getResponse().getOutputStream();
