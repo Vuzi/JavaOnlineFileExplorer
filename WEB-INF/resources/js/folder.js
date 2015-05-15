@@ -68,12 +68,22 @@ var Folder = CallbackHandler.extend({
 		var me = this;
 		var h1 = $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
 		var ul = $('<ul />');
+
+		// Self
+		/*
+		this.renderer.on('contextmenu', function(e) {
+			if(me.element.is(e.target)) {
+				me._action_context(me.element, e);
+				e.preventDefault();
+			}
+		})*/
 		
 		// '..' folder
 		if(element.UID != null && parent) {
 			new Icon(ul).on('click', function(element, icon, e) {
 				me.fireEvent('select', element, e);
 			}).on('click_context', function(element, icon, e) {
+				console.log(me.parent)
 				me._action_context(element, e);
 			}).on('select', function(element, icon, e) {
 				me._action_select(element, e);
@@ -221,12 +231,12 @@ var Icon = CallbackHandler.extend({
 			return $('<a href="#"></a>').
 						append($('<figure class="image" ></figure>').
 							append(this.image).
-							append($('<figcaption><p>' + filename + '</p></figcaption>')));
+							append($('<figcaption>' + filename + '</figcaption>')));
 		} else {
 			return $('<a href="#"></a>').
 						append($('<figure></figure>').
 							append(this.image).
-							append($('<figcaption><p>' + filename + '</p></figcaption>')));
+							append($('<figcaption>' + filename + '</figcaption>')));
 		}
 	},
 	update : function(element, type, name) {

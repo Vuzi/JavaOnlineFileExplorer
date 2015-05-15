@@ -64,7 +64,7 @@ public class ActionFileDownload extends AAction {
 		c.getResponse().setContentType("application/octet-stream");
 		c.getResponse().setContentLength((int)file.size);
 		c.getResponse().setHeader("Content-Type", file.type);
-		c.getResponse().setHeader("Content-Disposition","attachment;filename=\"" + c.getParameterUnique("path") + "\"");
+		c.getResponse().setHeader("Content-Disposition","attachment;filename=\"" + name + "\"");
 
 		// Write the file to the output
 		OutputStream out = c.getResponse().getOutputStream();

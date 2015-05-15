@@ -217,7 +217,7 @@ var DirectoryCreationWindow = PopUpAction.extend({
 
 
 // =======================================================
-//                Directory deletion
+//                   Directory deletion
 // =======================================================
 
 var DirectoryDeletionWindow = PopUpAction.extend({
@@ -259,6 +259,62 @@ var DirectoryDeletionWindow = PopUpAction.extend({
 	}
 })
 
+
+// =======================================================
+//                  Directory renaming
+// =======================================================
+
+var DirectoryRenamingWindow = PopUpAction.extend({
+	init : function(directory) {
+		var me = this;
+
+		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+		
+		var message = $('<div></div>');
+		this.dir_name = $('<input type="text" value="' + directory.name + '" placeholder="Nom du fichier"></input>');
+		this.dir_path = $('<input type="text" value="' + directory.path + '" disabled="disabled"></input>');
+		this.submit = $('<input type="button" value="Modifier le nom"></input>');
+		
+		message.append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
+		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+
+		this._super("Changement de nom dossier", message);
+
+		// On enter
+		this.dir_name.on('keypress', function(e) {
+			if(e.which == 13) {
+				me.action();
+			}
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Dossier modifié", "Le dossier '" + me.dir_name.val() + "' a été renommé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		this._super();
+		this.dir_name.focus();
+	},
+	action : function() {
+		var dir_name = this.dir_name.val().trim();
+		var dir_path = this.dir_path.val().trim();
+		var me = this;
+
+		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
+			new Pop_up("Impossible de changer le nom", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			return;
+		}
+
+		this._super('POST', 'api/dir' + this.path, { action : "rename", name : dir_name });
+	}
+});
 
 // =======================================================
 //                    File creation

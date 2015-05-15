@@ -125,7 +125,7 @@ public class ActionDirModification extends AAction {
 	
 	private void renameAction(IContext c, User u) {
 		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
-		String newName = c.getParameterUnique("newName");
+		String newName = c.getParameterUnique("name");
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 
 		// Test name

@@ -47,7 +47,7 @@
 
 	var contructContextualMenu = function(element, e) {
 
-		if(!element.name) {
+		if(!element.path) {
 			var folder_nb = 0;
 			var file_nb = 0;
 			var file_total = 0;
@@ -96,10 +96,10 @@
 			], e.pageX, e.pageY);
 		} else {
 			menu.display( [
-				{ info : true, name : "Nom", value : element.name },
+				(element.name ? { info : true, name : "Nom", value : element.name } : 0 ),
 				{ info : true, name : "Chemin", value : element.path },
-				{ info : true, name : "Création", value : new Date(element.creation).toLocaleString() },
-				{ info : true, name : "Modification", value : new Date(element.edit).toLocaleString() },
+				(element.name ? { info : true, name : "Création", value : new Date(element.creation).toLocaleString() } : 0 ),
+				(element.name ? { info : true, name : "Modification", value : new Date(element.edit).toLocaleString() } : 0 ),
 
 				{ button : true, name : "Ouvrir le dossier", icon : "log-in", action :
 					function() {
@@ -113,12 +113,16 @@
 							window.open(endpoint + "~" + element.path + element.name, "_blank");
 					}
 				},
-				{ button : true, name : "Renommer le dossier", icon : "pencil", action :
+				(element.name ? { button : true, name : "Renommer le dossier", icon : "pencil", action :
 					function() {
-						//TODO
+						if(!folder.in_update)
+							new DirectoryRenamingWindow(element).on('success', function(popUp, data) {
+								tree.select(tree.selected.UID)
+								tree.update();
+							}).display();
 					}
-				},
-				{ button : true, name : "Supprimer le dossier", icon : "trash", action :
+				} : 0),
+				(element.name ? { button : true, name : "Supprimer le dossier", icon : "trash", action :
 					function() {
 						if(!folder.in_update) {
 							new DirectoryDeletionWindow(element).on('success', function(popUp, data) {
@@ -127,7 +131,7 @@
 							}).display();
 						}
 					}
-				}
+				} : 0)
 			], e.pageX, e.pageY);
 		}
 	}
