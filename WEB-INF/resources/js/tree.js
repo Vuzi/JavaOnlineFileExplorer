@@ -95,7 +95,7 @@ var DirectoryTreeNode = CallbackHandler.extend({
 	},
 	select : function(e, pushState) {
 		this.selected = true;
-		
+
 		this.node.addClass('selected');
 		this.fireEvent('select', this.directory, this, e, pushState);
 		this.develop(); // Develop on selection
@@ -130,10 +130,12 @@ var DirectoryTree = CallbackHandler.extend({
 		root_node.on('select', function(element, node, e, pushState) {
 
 			if(me.selected && me.selected != node)
-				me.selected.deselect();
+				me.selected.deselect(null);
 
 			me.selected = node;
 			me.fireEvent('select', element, node, e, pushState);
+		}).on('deselect', function(element, node, e) {
+			me.selected = null;
 		}).on('select_contextual', function(element, node, e) {
 			me.fireEvent('select_contextual', element, node, e);
 		});
@@ -149,13 +151,15 @@ var DirectoryTree = CallbackHandler.extend({
 		data.directories.forEach(function(directory) {
 			var node = new DirectoryTreeNode(parent);
 			node.update(directory);
-			node.on('select', function(element, node, e) {
+			node.on('select', function(element, node, e, pushState) {
 
 				if(me.selected && me.selected != node)
-					me.selected.deselect();
+					me.selected.deselect(null);
 
 				me.selected = node;
-				me.fireEvent('select', element, node, e);
+				me.fireEvent('select', element, node, e, pushState);
+			}).on('deselect', function(element, node, e) {
+				me.selected = null;
 			}).on('select_contextual', function(element, node, e) {
 				me.fireEvent('select_contextual', element, node, e);
 			});
@@ -189,7 +193,11 @@ var DirectoryTree = CallbackHandler.extend({
 		if(!node)
 			return;
 		
-		node.select(pushState);
+		node.select(null, pushState);
+	},
+	deselect : function() {
+		if(this.selected)
+			this.selected.deselect();
 	},
 	update : function(clbk) {
 		var me = this;

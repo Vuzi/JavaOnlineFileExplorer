@@ -427,3 +427,45 @@ var FileCreationWindow = PopUpAction.extend({
 	}
 })
 
+// =======================================================
+//                   File deletion
+// =======================================================
+
+var FileDeletionWindow = PopUpAction.extend({
+	init : function(file) {
+		var me = this;
+
+		this.path = file.name ? file.path + file.name + '/' : file.path;
+		
+		var message = $('<p>Êtes vous certain de vouloir supprimer le fichier "' + file.name + '" ?</p>');
+		this.submit = $('<input type="submit" value="Supprimer" style="display: inline-block; margin-right: 10px;"></input>');
+		this.cancel = $('<input type="submit" value="Annuler" style="display: inline-block;"></input>');
+		
+		message.append($('<div style="text-align: center;"></div>').append(this.submit).append(this.cancel));
+		
+		this._super("Suppression fichier", message);
+
+		// Cancel button
+		this.cancel.on('click', function(e) {
+			me.dissmiss();
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Suppression du fichier effectuée", "Le fichier '" + file.name + "' a été supprimé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		this._super();
+		this.cancel.focus();
+	},
+	action : function() {
+		this._super('DELETE', 'api/file' + this.path, {});
+	}
+})

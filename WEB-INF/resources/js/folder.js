@@ -21,6 +21,18 @@ var Folder = CallbackHandler.extend({
 
 		this.fireEvent('update', this.element);
 	},
+	updateFrom : function(elements, values) {
+		var tmp = { files : [], directories : [] };
+
+		elements.forEach(function(element) {
+			if(element.size)
+				tmp.files.push(element);
+			else
+				tmp.directories.push(element);
+		});
+
+		this.render(tmp, null, values);
+	},
 	update : function(element, parent) {
 		var me = this;
 		var link;
@@ -62,21 +74,13 @@ var Folder = CallbackHandler.extend({
 			}
 		});
 	},
-	render : function(element, parent) {
+	render : function(element, parent, search) {
 		this.element = element;
 		
 		var me = this;
-		var h1 = $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>');
+		var h1 = (search ? $('<h1> Résultat de la recherche "' + search.search + '" dans "' + search.path + '" </h1>')
+			             : $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>'));
 		var ul = $('<ul />');
-
-		// Self
-		/*
-		this.renderer.on('contextmenu', function(e) {
-			if(me.element.is(e.target)) {
-				me._action_context(me.element, e);
-				e.preventDefault();
-			}
-		})*/
 		
 		// '..' folder
 		if(element.UID != null && parent) {

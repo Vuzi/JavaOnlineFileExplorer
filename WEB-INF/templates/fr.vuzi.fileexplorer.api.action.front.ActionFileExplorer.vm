@@ -2,6 +2,7 @@
 <div id="global" class="blurable">
 	<div id="left">
 		<div id="tree"></div>
+		<div id="searchs"></div>
 		<div id="tree_cursor"></div>
 	</div>
 	
@@ -12,7 +13,7 @@
 				<li><a href="#" action="new_dir">Nouveau dossier</a></li>
 				<li><a href="#">Organisation</a></li>
 				<li><a href="#">Affichage</a></li>
-				<li><a  class="glyphicon glyphicon-search" href="#"><input type="text"/></a></li>
+				<li><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
 			</ul>
 		</nav>
 		<div id="content" class="blurable"></div>
@@ -24,6 +25,7 @@
 <script src="$context.getRequestAddr()resources/js/tree.js"></script>
 <script src="$context.getRequestAddr()resources/js/menu.js"></script>
 <script src="$context.getRequestAddr()resources/js/popup.js"></script>
+<script src="$context.getRequestAddr()resources/js/search.js"></script>
 <script type="text/javascript">
 	
 	// Variables
@@ -41,9 +43,10 @@
 	}
 	
 	// Elements creation
-	var folder;  // Folder view (left panel)
-	var tree;    // Tree (right panel)
-	var menu;    // Contextual menu
+	var folder;     // Folder view (left panel)
+	var tree;       // Tree (right panel)
+	var menu;       // Contextual menu
+	var searchList; // Search list (left panel)
 
 	var contructContextualMenu = function(element, e) {
 
@@ -92,7 +95,16 @@
 				},
 				{ button : true, name : "Renommer le fichier", icon : "pencil" },
 				{ button : true, name : "Déplacer le fichier", icon : "share-alt" },
-				{ button : true, name : "Supprimer le fichier", icon : "trash" }
+				{ button : true, name : "Supprimer le fichier", icon : "trash", action :
+					function() {
+						if(!folder.in_update) {
+							new FileDeletionWindow(element).on('success', function(popUp, data) {
+								tree.select(data.UID)
+								tree.update();
+							}).display();
+						}
+					}
+				}
 			], e.pageX, e.pageY);
 		} else {
 			menu.display( [
@@ -138,7 +150,8 @@
 
 	// Construct the tree view
 	tree = new DirectoryTree($('#tree'));
-	tree.on('select', function(element, node, ignorePushState) {
+	tree.on('select', function(element, node, e, ignorePushState) {
+		searchList.deselect();
 		folder.update(element, node.parent ? node.parent.directory : null);
 
 		if(!ignorePushState) {
@@ -150,6 +163,18 @@
 	});
 	tree.on('select_contextual', function(element, node, e) {
 		contructContextualMenu(element, e);
+	});
+
+	// Construct search list
+	searchList = new SearchList($('#searchs'));
+	searchList.on('select', function(element, e) {
+		folder.updateFrom(element.results, element.value);
+		console.log(element);
+		tree.deselect();
+
+		// Ugly, to change
+		searchList.deselect();
+		element.li.addClass('selected');
 	});
 
 	// Construct the folder view
@@ -177,8 +202,9 @@
 	#else
 		tree.update();
 	#end
+	searchList.update();
 	
-	// Event binding
+	// Event binding (Option menu)
 	$('[action=new_dir]').on('click', function(e) {
 		if(tree.selected) {
 			new DirectoryCreationWindow(tree.selected.directory).on('success', function() {
@@ -195,11 +221,24 @@
 		}
 	});
 
+	$('#search').on('keypress', function(e) {
+		if (e.which == 13) {
+			$('[action=search]').trigger('click');
+		}
+	});
+
+	$('[action=search]').on('click', function(e) {
+
+		var val = $('#search').val();
+		$('#search').val('');
+
+		performSearch(val, tree, folder, searchList);
+	});
+
 	// Draggable left panel
 	var clicked = false;
 	var last = null;
 	tree_cursor.on('mousedown', function(e) {
-		console.log("click!");
 		clicked = true;
 		last = e;
 	});
@@ -218,10 +257,15 @@
 	// Back button handling
 	window.onpopstate = function(e) {
 		var folder = e.state;
+		var title = e.title;
 		
-		if(folder) {
-			tree.select(folder.UID, true);
-		}
+		//if(title == 'node') {
+			if(folder) {
+				tree.select(folder.UID, true);
+			}
+		//} else if(title == 'search') {
+		//	// TODO
+		//}
 	}
 
 </script>

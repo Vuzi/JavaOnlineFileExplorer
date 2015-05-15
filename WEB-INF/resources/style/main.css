@@ -145,6 +145,35 @@ ul{
 	background-color: white;
 }
 
+#searchs {
+	width: 100%;
+	min-height: 250px;
+	float: left;
+}
+
+#searchs ul {
+	border-top: 2px rgb(46, 46, 46) solid;
+	margin-left: 29px;
+	margin-right: 29px;
+	padding-left: 15px;
+	padding-top: 10px;
+}
+
+#searchs ul li.selected {
+	margin-right: 15px;
+	font-weight: bold;
+	color: #FE6176;
+}
+
+#searchs ul li span {
+	margin-right: 15px;
+}
+
+#searchs ul li:hover {
+	font-weight: bold;
+	cursor: pointer;
+}
+
 #right{
 	height: 100%;
 	width: auto;
