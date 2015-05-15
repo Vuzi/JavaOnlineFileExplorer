@@ -73,3 +73,7 @@
 .glyphicon-log-in:before {
 	content: "\e161";
 }
+
+.glyphicon-search:before {
+	content: "\e003";
+}

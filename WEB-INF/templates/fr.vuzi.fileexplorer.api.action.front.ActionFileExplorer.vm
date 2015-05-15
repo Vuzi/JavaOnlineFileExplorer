@@ -12,6 +12,7 @@
 				<li><a href="#" action="new_dir">Nouveau dossier</a></li>
 				<li><a href="#">Organisation</a></li>
 				<li><a href="#">Affichage</a></li>
+				<li><a  class="glyphicon glyphicon-search" href="#"><input type="text"/></a></li>
 			</ul>
 		</nav>
 		<div id="content" class="blurable"></div>

@@ -172,7 +172,7 @@ var DirectoryCreationWindow = PopUpAction.extend({
 		var message = $('<p></p>');
 		this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
 		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="button" value="Créer"></input>');
+		this.submit = $('<input type="submit" value="Créer"></input>');
 
 		message.append($('<span>Dossier : </span>')).append(this.dir_name).append($('<br/>')).
 		append($('<span>Chemin : </span>')).append(this.dir_path).append($('<br/>')).append(this.submit);
@@ -226,11 +226,11 @@ var DirectoryDeletionWindow = PopUpAction.extend({
 
 		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
 		
-		var message = $('<div>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</div>');
-		this.submit = $('<input type="button" value="Supprimer" style="margin-right: 10px;"></input>');
-		this.cancel = $('<input type="button" value="Annuler"></input>');
+		var message = $('<p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p>');
+		this.submit = $('<input type="submit" value="Supprimer" style="display: inline-block; margin-right: 10px;"></input>');
+		this.cancel = $('<input type="submit" value="Annuler" style="display: inline-block;"></input>');
 		
-		message.append($('<div style="text-align : center; display: block; margin-top: 10px;" />').append(this.submit).append(this.cancel));
+		message.append($('<div style="text-align: center;"></div>').append(this.submit).append(this.cancel));
 		
 		this._super("Suppression dossier", message);
 
@@ -275,7 +275,7 @@ var FileCreationWindow = PopUpAction.extend({
 		this.label = $('<label class="input_file">Parcourir</label>');
 		this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
 		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="button" value="Envoyer"></input>');
+		this.submit = $('<input type="submit" value="Envoyer"></input>');
 		
 		message.append('<span>Fichier : </span>').append(this.label.append(this.file)).append('<br/>').
 		append('<span>Nom : </span>').append(this.dir_name).append('<br/>').

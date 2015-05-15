@@ -189,6 +189,57 @@ ul{
 	color: #FE6176;
 }
 
+input {
+	font-family: 'Biryani', sans-serif;
+}
+
+input[type=text]:disabled {
+	background-color: rgb(230,230,230);
+	color: gray;
+}
+
+input[type=text]:focus {
+	border-bottom: 2px solid #FE1938;
+	width: 150%;
+}
+
+input[type=text] {
+	background-color: rgba(0,0,0,0);
+	border: 0;
+	border-bottom: 2px solid gray;
+	-font-size: 14px;
+	font-family: 'Biryani', sans-serif;
+	padding-bottom: 0px;
+	margin-bottom: -2px;
+	height: 21px;
+	outline: none;
+	width: 150px;
+}
+
+#options input[type=text]:focus {
+	border-bottom: 2px solid #FE1938;
+	width: 250px;
+}
+
+#options input[type=text] {
+	background-color: rgba(0,0,0,0);
+	border: 0;
+	border-bottom: 2px solid gray;
+	margin-left: 11px;
+	color: white;
+	font-size: 14px;
+	font-family: 'Biryani', sans-serif;
+	padding-bottom: 0px;
+	margin-bottom: -2px;
+	height: 21px;
+	outline: none;
+	width: 150px;
+
+   -webkit-transition: all .5s ease;
+   -moz-transition: all .5s ease;
+   transition: all .5s ease;
+}
+
 #content{
 	overflow-y: scroll;
 	font-size: 18px;
@@ -585,21 +636,29 @@ div.pop_up.error h2 {
 	color: #888;
 }
 
-input[type="button"], .input_file {
+input[type="button"], input[type="submit"], .input_file {
 	text-align: center;
 	display: inline-block;
-	padding: 3px 10px;
-	font-family: Arial;
+	padding: 1px 10px;
 	color: white;
-	font-size:12px;
+	font-size: 12px;
 	border: 1px solid black;
 	background-color: #2E2E2E;
-	
+	padding-top: 4px;
+	border-radius: 4px;
 }
 
-input[type="button"]:hover, .input_file:hover{
+input[type="button"]:hover, input[type="submit"]:hover, .input_file:hover{
 	border: 1px solid #FE1938;
 	background-color: #FE6176;
+	cursor: pointer;
+}
+
+input[type="submit"] {
+	display: block;
+	margin: auto;
+	margin-top: 22px;
+	min-width: 150px;
 }
 
 * {
