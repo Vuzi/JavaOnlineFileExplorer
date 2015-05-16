@@ -167,14 +167,9 @@
 
 	// Construct search list
 	searchList = new SearchList($('#searchs'));
-	searchList.on('select', function(element, e) {
-		folder.updateFrom(element.results, element.value);
-		console.log(element);
+	searchList.on('select', function(node, result, e) {
+		folder.updateFrom(node.results, node.value);
 		tree.deselect();
-
-		// Ugly, to change
-		searchList.deselect();
-		element.li.addClass('selected');
 	});
 
 	// Construct the folder view

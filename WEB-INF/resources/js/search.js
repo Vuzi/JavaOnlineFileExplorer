@@ -1,5 +1,51 @@
 
 // =======================================================
+//                  Search list element
+// =======================================================
+
+var SearchListElement = CallbackHandler.extend({
+	init : function(renderer, value, results) {
+		this._super();
+
+		this.renderer = renderer;
+		this.selected = false;
+
+		this.value = value;
+		this.results = results;
+	},
+	update : function() {
+		this.render();
+		return this;
+	},
+	render : function() {
+		var me = this;
+
+		this.content = $('<li><span class="glyphicon glyphicon-search" href="#"></span>' + (this.value ? this.value.search : '-') + ' (' + (this.results ? this.results.length : 0) + ')</li>');
+		this.renderer.prepend(this.content);
+		this.content.on('click', function(e) {
+			me.select(e);
+		});
+		return this;
+	},
+	select : function(e) {
+		if(!this.selected) {
+			this.fireEvent('select', this, this.results, e);
+			this.content.addClass('selected');
+			this.selected = true;
+		}
+		return this;
+	},
+	deselect : function(e) {
+		if(this.selected) {
+			this.fireEvent('deselect', this, this.results, e);
+			this.content.removeClass('selected');
+			this.selected = false;
+		}
+		return this;
+	}
+})
+
+// =======================================================
 //                     Search list
 // =======================================================
 
@@ -14,41 +60,39 @@ var SearchList = CallbackHandler.extend({
 	},
 	update : function() {
 		this.render();
+		return this;
 	},
 	render : function() {
 		this.content = $('<ul></ul>');
 		this.renderer.append(this.content);
+		return this;
 	},
-	add : function(values, results) {
+	add : function(value, results) {
 		var me = this;
 
-		var li = $('<li><span class="glyphicon glyphicon-search" href="#"></span>' + values.search + ' (' + (results ? results.length : 0) + ')</li>');
-		this.content.prepend(li);
+		var node = new SearchListElement(this.content, value, results);
+		node.on('select', function(node, result, e) {
+			if(me.selected)
+				me.selected.deselect();
+
+			me.selected = node;
+			me.fireEvent('select', node, result, e);
+		});
 
 		// Only keep 10 elements
 		if(this.results.length > 10) {
-			this.results.pop().li.remove();
+			this.results.pop().content.remove();
 		}
 
-		var element = {
-			li : li,
-			value : values,
-			results : results
-		};
-		this.results.unshift(element);
-
-		li.on('click', function(e) {
-			me.fireEvent('select', element, e);
-		});
-
-		this.deselect(); // TODO
-		li.addClass('selected');
+		this.results.unshift(node);
+		node.update().select();
+		return this;
 	},
-	select : function(result) {
-		// TODO
-	},
-	deselect : function(result) {
-		this.content.children().removeClass('selected');
+	deselect: function() {
+		if(this.selected)
+			this.selected.deselect();
+		this.selected = null;
+		return this;
 	}
 })
 
