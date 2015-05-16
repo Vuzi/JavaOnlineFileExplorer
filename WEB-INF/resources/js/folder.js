@@ -61,14 +61,14 @@ var Folder = CallbackHandler.extend({
 					return;
 				}
 				
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
 				pop.display();
 				me.finish_update();
 			},
 			fail: function(data) {
 				console.log(data);
 				
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+				var pop = new Toast("Erreur ", "La requête a échouée", "error");
 				pop.display();
 				me.finish_update();
 			}
