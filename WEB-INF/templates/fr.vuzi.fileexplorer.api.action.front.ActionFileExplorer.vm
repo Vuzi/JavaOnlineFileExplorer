@@ -93,7 +93,15 @@
 							window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
 					}
 				},
-				{ button : true, name : "Renommer le fichier", icon : "pencil" },
+				{ button : true, name : "Renommer le fichier", icon : "pencil", action :
+					function() {
+						if(!folder.in_update)
+							new FileRenamingWindow(element).on('success', function(popUp, data) {
+								tree.select(element.UID)
+								tree.update();
+							}).display();
+					}
+				},
 				{ button : true, name : "Déplacer le fichier", icon : "share-alt" },
 				{ button : true, name : "Supprimer le fichier", icon : "trash", action :
 					function() {

@@ -428,6 +428,62 @@ var FileCreationWindow = PopUpAction.extend({
 })
 
 // =======================================================
+//                     File renaming
+// =======================================================
+
+var FileRenamingWindow = PopUpAction.extend({
+	init : function(file) {
+		var me = this;
+
+		this.path = file.name ? file.path + file.name + '/' : file.path;
+		
+		var message = $('<div></div>');
+		this.file_name = $('<input type="text" value="' + file.name + '" placeholder="Nom du fichier"></input>');
+		this.file_path = $('<input type="text" value="' + file.path + '" disabled="disabled"></input>');
+		this.submit = $('<input type="submit" value="Modifier le nom"></input>');
+		
+		message.append('<span>Nom : </span>').append(this.file_name).append('<br/>').
+		append('<span>Chemin : </span>').append(this.file_path).append('<br/>').append(this.submit);
+
+		this._super("Changement de nom fichier", message);
+
+		// On enter
+		this.file_name.on('keypress', function(e) {
+			if(e.which == 13) {
+				me.action();
+			}
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Fichier modifié", "Le fichier '" + me.file_name.val() + "' a été renommé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		this._super();
+		this.file_name.focus();
+	},
+	action : function() {
+		var file_name = this.file_name.val().trim();
+		var file_path = this.file_path.val().trim();
+		var me = this;
+
+		if(!file_name || file_name == "" || file_name.indexOf('/') >= 0 || file_name.indexOf('"') >= 0 || file_name.indexOf("'") >= 0) {
+			new Pop_up("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error").display();
+			return;
+		}
+
+		this._super('POST', 'api/file' + this.path, { action : "rename", name : file_name });
+	}
+});
+
+// =======================================================
 //                   File deletion
 // =======================================================
 

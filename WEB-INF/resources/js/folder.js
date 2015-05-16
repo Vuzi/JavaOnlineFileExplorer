@@ -84,46 +84,69 @@ var Folder = CallbackHandler.extend({
 		
 		// '..' folder
 		if(element.UID != null && parent) {
-			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, e);
-			}).on('click_context', function(element, icon, e) {
-				console.log(me.parent)
-				me._action_context(element, e);
-			}).on('select', function(element, icon, e) {
-				me._action_select(element, e);
-			}).update(parent, 'parent', '...');
+			this._render_event(new Icon(ul)).update(parent, 'parent', '...');
 		}
 		
 		// Directories
 		element.directories.forEach(function(directory) {
-			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, e);
-			}).on('click_context', function(element, icon, e) {
-				me._action_context(element, e);
-			}).on('select', function(element, icon, e) {
-				me._action_select(element, e);
-			}).update(directory, 'folder');
+			me._render_event(new Icon(ul)).update(directory, 'folder');
 		});
 		
 		// Files
 		element.files.forEach(function(file) {
-			new Icon(ul).on('click', function(element, icon, e) {
-				me.fireEvent('select', element, e);
-			}).on('click_context', function(element, icon, e) {
-				me._action_context(element, e);
-			}).on('select', function(element, icon, e) {
-				me._action_select(element, e);
-			}).update(file);
+			me._render_event(new Icon(ul)).update(file);
 		});
 		
 		this.renderer.empty().append(h1).append(ul);
 	},
-	_action_select : function(element, event) {
+	_render_event : function(icon) {
+		var me = this;
+		return icon.on('click', function(element, icon, e) {
+				me.fireEvent('select', element, e);
+			}).on('click_context', function(element, icon, e) {
+				me._action_context(element, e);
+			}).on('select', function(element, icon, e) {
+				me._action_select(icon, e);
+			}).on('dragstart', function(element, icon, e) {
+				me._action_drag_start(icon, e);
+			}).on('dragend', function(element, icon, e) {
+				console.log(e);
+				me._action_drag_stop(icon, e);
+			});
+	},
+	_action_drag_start : function(icon, event) {
 		if(!this.in_update) {
-			if(this.selected[element.UID])
-				delete this.selected[element.UID];
+			if(this.selected[icon.element.UID]) {
+				event.dataTransfer.setData("value", this.selected);
+				event.dataTransfer.setData("multiple", true);
+
+				$.each(this.selected, function(key, value) {
+					value.image.css('opacity', '0.5');
+				});
+			} else {
+				event.dataTransfer.setData("value", icon);
+				event.dataTransfer.setData("multiple", false);
+				icon.image.css('opacity', '0.5');
+			}
+		}
+	},
+	_action_drag_stop : function(icon, event) {
+		if(!this.in_update) {
+			if(this.selected[icon.element.UID]) {
+				$.each(this.selected, function(key, value) {
+					value.image.css('opacity', 1);
+				});
+			} else {
+				icon.image.css('opacity', 1);
+			}
+		}
+	},
+	_action_select : function(icon, event) {
+		if(!this.in_update) {
+			if(this.selected[icon.element.UID])
+				delete this.selected[icon.element.UID];
 			else 
-				this.selected[element.UID] = element;
+				this.selected[icon.element.UID] = icon;
 		}
 	},
 	_action_context : function(element, event) {
@@ -222,6 +245,7 @@ var Icon = CallbackHandler.extend({
 		var icon_path = endpoint + icons_dir + icon_src;
 		this.image = $('<div style="background-image: url(' + icon_path + ');"/>');
 
+
 		if(mimeType.match("^image")) {
 			var image_path = endpoint + 'api/file-bin' + path + filename;
 
@@ -232,13 +256,13 @@ var Icon = CallbackHandler.extend({
 				me.image.css('background-image', 'url(' + icon_path + ')');
 			});
 
-			return $('<a href="#"></a>').
-						append($('<figure class="image" ></figure>').
+			return $('<a href="#" draggable="true"></a>').
+						append($('<figure draggable="true" class="image" ></figure>').
 							append(this.image).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		} else {
-			return $('<a href="#"></a>').
-						append($('<figure></figure>').
+			return $('<a href="#" draggable="true" ></a>').
+						append($('<figure draggable="true"></figure>').
 							append(this.image).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		}
@@ -249,9 +273,20 @@ var Icon = CallbackHandler.extend({
 		var me = this;
 		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path);
 
+		icon.on('dragstart', function(e) {
+			me.fireEvent('dragstart', me.element, me, e);
+		}).on('dragend', function(e) {
+			me.fireEvent('dragend', me.element, me, e);
+		}).on('dragover', function(e) {
+			console.log('on');
+			icon.addClass('drag_over');
+		}).on('dragleave', function(e) {
+			icon.removeClass('drag_over');
+			console.log('off');
+		});
+
 		icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
 			me.fireEvent('click', me.element, me, e);
-			e.preventDefault();
 		});
 
 		// Context menu
@@ -268,7 +303,6 @@ var Icon = CallbackHandler.extend({
 				me.fireEvent('select', me.element, me, e);
 				me.selected = true;
 			}
-			e.preventDefault();
 		});
 		
 		this.renderer.append($('<li />').append(icon));

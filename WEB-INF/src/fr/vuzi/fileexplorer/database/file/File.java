@@ -72,7 +72,7 @@ public class File {
 
 	public File(GridFSFile gfsFile) {
 		this.UID = gfsFile.get("_id").toString();
-		this.name = gfsFile.get("filename").toString();
+		this.name = gfsFile.get("filename") != null ? gfsFile.get("filename").toString() : "(null)";
 		this.type = gfsFile.getContentType();
 		this.path = (String) gfsFile.get("path");
 		this.creationDate = (Date) gfsFile.get("creation");

@@ -327,6 +327,10 @@ input[type=text] {
 	border: 3px solid #FE1938;
 }
 
+#content li a.drag_over div {
+	border: 3px solid orange;
+}
+
 #content::-webkit-scrollbar-track
 {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
@@ -696,4 +700,14 @@ input[type="submit"] {
 
 * {
 	outline-color: red;
+}
+
+[draggable] {
+	-moz-user-select: none;
+	-khtml-user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
+	/* Required to make elements draggable in old WebKit */
+	-khtml-user-drag: element;
+	-webkit-user-drag: element;
 }

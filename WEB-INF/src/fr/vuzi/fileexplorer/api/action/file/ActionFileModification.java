@@ -149,7 +149,13 @@ public class ActionFileModification extends AAction {
 	private void renameAction(IContext c, User u) {
 		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
-		String newName = c.getParameterUnique("newName");
+		String newName = c.getParameterUnique("name");
+		
+		if(newName == null || newName.contains("/\\'\"")) {
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No valid name provided")));
+			c.setStatus(400);
+			return;	
+		}
 
 		File file = FileUtils.getFile(u, path, name);
 		File newFile = FileUtils.getFile(u, path, newName);

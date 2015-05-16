@@ -218,6 +218,8 @@ public class FileUtils {
 	 * @return The renamed file
 	 */
 	public static File renameFile(User u, File f, String newName) {
+		System.out.println(newName);
+		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("files.files");
 
 		// Change name
