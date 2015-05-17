@@ -251,12 +251,18 @@ var Icon = CallbackHandler.extend({
 		if(mimeType.match("^image")) {
 			var image_path = endpoint + 'api/file-bin' + path + filename;
 
-			this.image.on('mouseover', function() {
-				me.image.css('background-image', 'url(' + image_path + ')');
-			});
-			this.image.on('mouseout', function() {
-				me.image.css('background-image', 'url(' + icon_path + ')');
-			});
+			if (this.element.size <= 1048576){
+				this.image.css('background-image', 'url(' + image_path + ')');
+			}
+			else{
+				this.image.on('mouseover', function() {
+					me.image.css('background-image', 'url(' + image_path + ')');
+				});
+				this.image.on('mouseout', function() {
+					me.image.css('background-image', 'url(' + icon_path + ')');
+				});
+			}
+			
 
 			return $('<a href="javascript:void(0)" draggable="true"></a>').
 						append($('<figure draggable="true" class="image" ></figure>').
