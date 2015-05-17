@@ -1,7 +1,7 @@
 <div id="pop_up_back"></div>
 <div id="global" class="blurable">
 	<div id="left">
-		<div id="tree"></div>
+		<div id="tree" class="tree"></div>
 		<div id="searchs"></div>
 		<div id="tree_cursor"></div>
 	</div>
@@ -102,7 +102,15 @@
 							}).display();
 					}
 				},
-				{ button : true, name : "Déplacer le fichier", icon : "share-alt" },
+				{ button : true, name : "Déplacer le fichier", icon : "share-alt", action :
+					function() {
+						if(!folder.in_update)
+							new FileMoveWindow(element).on('success', function(popUp, data) {
+								tree.select(element.UID)
+								tree.update();
+							}).display();
+					}
+				},
 				{ button : true, name : "Supprimer le fichier", icon : "trash", action :
 					function() {
 						if(!folder.in_update) {

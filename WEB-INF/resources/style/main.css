@@ -45,6 +45,10 @@ html, body {
 	color: white;
 }
 
+#global .selected > a{
+	color: #FE6176;
+}
+
 ul{
 	list-style: none;
 }
@@ -91,33 +95,37 @@ ul{
 	float: left;
 }
 
-#tree .root{
+.tree .root{
 	font-weight: bold;
 	font-size: 18px;
 	font-family: 'Roboto Condensed', sans-serif;
 }
 
-#tree ul{
+.tree ul{
 	padding: 5px;
 	padding-left: 8px;
 }
 
-#tree ul li{
+.tree ul li{
 	padding-left: 12px;
 	overflow:hidden;
 	white-space:nowrap;
 }
 
-#tree ul li a:hover{
+.tree ul li a{
+	text-decoration: none;
+}
+
+.tree ul li a:hover{
 	font-weight:bold;
 }
 
-#tree .selected > a {
+.tree .selected > a {
 	font-weight:bold;
 	color: #FE6176;
 }
 
-#tree li span{
+.tree li span{
 	width: 20px;
 	height: 20px;
 	position: relative;
@@ -136,11 +144,11 @@ ul{
 	border: 0.5px solid black;
 }
 
-#tree li span:hover{
+.tree li span:hover{
 	border: 0.5px solid white;
 }
 
-#tree li .developped{
+.tree li .developped{
 	background-image: url(icons/plus-transp.png);
 	background-color: white;
 }
@@ -498,6 +506,10 @@ div.pop_up {
     -ms-text-overflow: ellipsis;
 }
 
+div.pop_up p{
+	white-space: normal;
+}
+
 div.pop_up img{
 	max-width: 100%;
 	border: 1px solid black;
@@ -510,7 +522,7 @@ div.pop_up a.close img{
 	height: 20px;
 	border-radius: 20px;
 	float: right;
-	position:absolute; 
+	position:absolute;
 	right: 3px;
 	top: 3px;
 	background-color: whitesmoke;
@@ -525,7 +537,21 @@ div.pop_up p{
 	margin-bottom: 0;
 }
 
-div.pop_up p span{
+div.pop_up .tree{
+  border: 1px solid #ddd;
+  margin-top: 21px;
+  border-radius: 4px;
+}
+
+div.pop_up .tree a{
+	color: black;
+}
+
+div.pop_up .tree .selected > a{
+	color: #FE6176;
+}
+
+div.pop_up p .field-name{
 	display: inline-block;
 	width: 75px;
 }

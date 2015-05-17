@@ -74,7 +74,7 @@ var PopUpCancelable = PopUp.extend({
 	render : function() {
 		var me = this;
 		this.cancelable = true;
-		this.cancel_button = $("<a href='#' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
+		this.cancel_button = $("<a href='javascript:void(0)' class='close'><img src='" + endpoint + "resources/style/icons/close_button.png'/>");
 		
 		this.cancel_button.on('click', function(e) {
 			me.fireEvent('cancel', me, e);
@@ -173,12 +173,12 @@ var DirectoryCreationWindow = PopUpAction.extend({
 		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
 
 		var message = $('<p></p>');
-		this.dir_name = $('<input type="text" placeholder="Nom du dossier"></input>');
-		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+		this.dir_name = $('<input class="field" type="text" placeholder="Nom du dossier"></input>');
+		this.dir_path = $('<input class="field" type="text" value="' + this.path + '" disabled="disabled"></input>');
 		this.submit = $('<input type="submit" value="Créer"></input>');
 
-		message.append($('<span>Dossier : </span>')).append(this.dir_name).append($('<br/>')).
-		append($('<span>Chemin : </span>')).append(this.dir_path).append($('<br/>')).append(this.submit);
+		message.append($('<span class="field-name">Dossier : </span>')).append(this.dir_name).append($('<br/>')).
+		append($('<span class="field-name">Chemin : </span>')).append(this.dir_path).append($('<br/>')).append(this.submit);
 
 		this._super("Création dossier", message);
 
@@ -274,12 +274,12 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
 		
 		var message = $('<div></div>');
-		this.dir_name = $('<input type="text" value="' + directory.name + '" placeholder="Nom du fichier"></input>');
-		this.dir_path = $('<input type="text" value="' + directory.path + '" disabled="disabled"></input>');
+		this.dir_name = $('<input class="field" type="text" value="' + directory.name + '" placeholder="Nom du fichier"></input>');
+		this.dir_path = $('<input class="field" type="text" value="' + directory.path + '" disabled="disabled"></input>');
 		this.submit = $('<input type="submit" value="Modifier le nom"></input>');
 		
-		message.append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
-		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+		message.append('<span class="field-name">Nom : </span>').append(this.dir_name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
 
 		this._super("Changement de nom dossier", message);
 
@@ -332,13 +332,13 @@ var FileCreationWindow = PopUpAction.extend({
 		var message = $('<div></div>');
 		this.file = $('<input type="file" name="file" hidden="true"/>');
 		this.label = $('<label class="input_file">Parcourir</label>');
-		this.dir_name = $('<input type="text" placeholder="Nom du fichier"></input>');
-		this.dir_path = $('<input type="text" value="' + this.path + '" disabled="disabled"></input>');
+		this.dir_name = $('<input class="field" type="text" placeholder="Nom du fichier"></input>');
+		this.dir_path = $('<input class="field" type="text" value="' + this.path + '" disabled="disabled"></input>');
 		this.submit = $('<input type="submit" value="Envoyer"></input>');
 		
-		message.append('<span>Fichier : </span>').append(this.label.append(this.file)).append('<br/>').
-		append('<span>Nom : </span>').append(this.dir_name).append('<br/>').
-		append('<span>Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
+		message.append('<span class="field-name">Fichier : </span>').append(this.label.append(this.file)).append('<br/>').
+		append('<span class="field-name">Nom : </span>').append(this.dir_name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.dir_path).append('<br/>').append(this.submit);
 
 		this._super("Upload fichier", message);
 
@@ -438,12 +438,12 @@ var FileRenamingWindow = PopUpAction.extend({
 		this.path = file.name ? file.path + file.name + '/' : file.path;
 		
 		var message = $('<div></div>');
-		this.file_name = $('<input type="text" value="' + file.name + '" placeholder="Nom du fichier"></input>');
-		this.file_path = $('<input type="text" value="' + file.path + '" disabled="disabled"></input>');
+		this.file_name = $('<input class="field" type="text" value="' + file.name + '" placeholder="Nom du fichier"></input>');
+		this.file_path = $('<input class="field" type="text" value="' + file.path + '" disabled="disabled"></input>');
 		this.submit = $('<input type="submit" value="Modifier le nom"></input>');
 		
-		message.append('<span>Nom : </span>').append(this.file_name).append('<br/>').
-		append('<span>Chemin : </span>').append(this.file_path).append('<br/>').append(this.submit);
+		message.append('<span class="field-name">Nom : </span>').append(this.file_name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.file_path).append('<br/>').append(this.submit);
 
 		this._super("Changement de nom fichier", message);
 
@@ -523,5 +523,64 @@ var FileDeletionWindow = PopUpAction.extend({
 	},
 	action : function() {
 		this._super('DELETE', 'api/file' + this.path, {});
+	}
+})
+
+
+// =======================================================
+//                   File move
+// =======================================================
+
+var FileMoveWindow = PopUpAction.extend({
+	init : function(file) {
+		var me = this;
+
+		this.file = file;
+		this.path = file.name ? file.path + file.name + '/' : file.path;
+		
+		var message = $('<div></div>');
+		this.file_name = $('<input class="field" type="text" disabled="disabled" value="' + file.name + '" placeholder="Nom du fichier"></input>');
+		this.file_path = $('<input class="field" type="text" value="' + file.path + '" ></input>');
+		var tree_div = $('<div class="tree"></div>');
+		this.submit = $('<input type="submit" value="Déplacer le fichier"></input>');
+
+		message.append('<span class="field-name">Nom : </span>').append(this.file_name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.file_path).append('<br/>').append(tree_div).append(this.submit);
+
+		this.tree = new DirectoryTree(tree_div);
+		this.tree.on('select', function(element, node, e, ignorePushState) {
+			me.file_path.val(element.name ? element.path + element.name + '/' : '/');
+		});
+		
+		this._super("Déplacement fichier", message);
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Suppression du fichier effectuée", "Le fichier '" + file.name + "' a été supprimé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		var me = this;
+		this._super();
+		this.tree.update(function() {
+			me.tree.select(me.file.parentUID);
+		});
+	},
+	action : function() {
+		var file_path = this.file_path.val().trim();
+		var me = this;
+
+		if(!file_path || file_path == "" || file_path.indexOf('"') >= 0 || file_path.indexOf("'") >= 0) {
+			new Pop_up("Impossible de déplacer le fichier", "Le chemin '" + file_path + "' n'est pas valide", "error").display();
+			return;
+		}
+
+		this._super('POST', 'api/file' + this.path, { action : "move", path : file_path });
 	}
 })
