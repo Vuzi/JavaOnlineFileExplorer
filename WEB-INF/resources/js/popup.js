@@ -320,6 +320,65 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 });
 
 // =======================================================
+//                   Directory move
+// =======================================================
+
+var DirectoryMoveWindow = PopUpAction.extend({
+	init : function(directory) {
+		var me = this;
+
+		this.directory = directory;
+		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
+		
+		var message = $('<div></div>');
+		this.dir_name = $('<input class="field" type="text" disabled="disabled" value="' + directory.name + '" placeholder="Nom du dossier"></input>');
+		this.dir_path = $('<input class="field" type="text" value="' + directory.path + '" ></input>');
+		var tree_div = $('<div class="tree"></div>');
+		this.submit = $('<input type="submit" value="Déplacer le dossier"></input>');
+
+		message.append('<span class="field-name">Nom : </span>').append(this.dir_name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.dir_path).append('<br/>').append(tree_div).append(this.submit);
+
+		this.tree = new DirectoryTree(tree_div);
+		this.tree.on('select', function(element, node, e, ignorePushState) {
+			me.dir_path.val(element.name ? element.path + element.name + '/' : '/');
+		});
+		
+		this._super("Déplacement dossier", message);
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('success', function() {
+			var toast = new Toast("Déplacement du dossier effectuée", "Le dossier '" + directory.name + "' a été déplacé avec succès", "success");
+			toast.display();
+		});
+	},
+	display : function() {
+		var me = this;
+		this._super();
+		this.tree.update(function() {
+			me.tree.select_path(me.directory.path);
+		});
+	},
+	action : function() {
+		var dir_path = this.dir_path.val().trim();
+		var me = this;
+
+		if(!dir_path || dir_path == "" || dir_path.indexOf('"') >= 0 || dir_path.indexOf("'") >= 0) {
+			new Pop_up("Impossible de déplacer le dossier", "Le chemin '" + dir_path + "' n'est pas valide", "error").display();
+			return;
+		}
+
+		this._super('POST', 'api/dir' + this.path, { action : "move", path : dir_path });
+	}
+})
+
+
+// =======================================================
 //                    File creation
 // =======================================================
 
@@ -561,7 +620,7 @@ var FileMoveWindow = PopUpAction.extend({
 
 		// On success
 		this.on('success', function() {
-			var toast = new Toast("Suppression du fichier effectuée", "Le fichier '" + file.name + "' a été supprimé avec succès", "success");
+			var toast = new Toast("Déplacement du fichier effectuée", "Le fichier '" + file.name + "' a été déplacé avec succès", "success");
 			toast.display();
 		});
 	},
