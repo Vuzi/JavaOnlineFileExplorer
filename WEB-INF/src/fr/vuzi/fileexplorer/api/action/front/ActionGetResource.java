@@ -42,13 +42,13 @@ public class ActionGetResource extends AAction {
 		IContext c = getActionContext();
 		File ressource;
 		
-		if(this.getClass().getResource("/../resources/" + c.getParameterUnique("path")) != null)
-			ressource = new File(this.getClass().getResource("/../resources/" + c.getParameterUnique("path")).getFile());
+		if(this.getClass().getResource("/../resources/" + c.getParameterUnique("_path")) != null)
+			ressource = new File(this.getClass().getResource("/../resources/" + c.getParameterUnique("_path")).getFile());
 		else
 			ressource = new File("__dummy");
 		
 		if(!ressource.exists() && !ressource.isFile()) {
-			c.getResponseWriter().write("Error : no file " + c.getParameterUnique("path"));
+			c.getResponseWriter().write("Error : no file " + c.getParameterUnique("_path"));
 			c.getResponse().setStatus(404);
 			return;	
 		}

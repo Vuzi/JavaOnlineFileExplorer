@@ -22,6 +22,6 @@ public class ActionFileExplorer extends AActionNoCredentials {
 	@Override
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
-		c.setAttribute("model", new GenericMessage(c.getParameterUnique("path")));
+		c.setAttribute("model", new GenericMessage(c.getParameterUnique("_path")));
 	}
 }

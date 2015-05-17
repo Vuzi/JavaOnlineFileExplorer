@@ -39,7 +39,7 @@ public class ActionFileModification extends AAction {
 		User u = (User) c.getSessionAttribute("user");
 		
 		if(action == null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("path") + "'")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("_path") + "'")));
 			c.setStatus(400);
 			return;
 		}
@@ -64,7 +64,7 @@ public class ActionFileModification extends AAction {
 			moveAction(c, u);
 			break;
 		default:
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("path") + "'")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("_path") + "'")));
 			c.setStatus(400);
 		}
 	}
@@ -86,7 +86,7 @@ public class ActionFileModification extends AAction {
 			return;	
 		}
 		
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String filename = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		
 		// Directory retrieving
@@ -117,7 +117,7 @@ public class ActionFileModification extends AAction {
 	 * @param u The current user
 	 */
 	private void deleteAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 
 		File file = FileUtils.getFile(u, path, name);
@@ -147,7 +147,7 @@ public class ActionFileModification extends AAction {
 	 * @param u The current user
 	 */
 	private void renameAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		String newName = c.getParameterUnique("name");
 		
@@ -181,14 +181,14 @@ public class ActionFileModification extends AAction {
 	 * @param u The current user
 	 */
 	private void moveAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
-		List<String> newPath = DirectoryUtils.getPath(c.getParameterUnique("newPath"));
-		String dirName = newPath.size() > 0 ? newPath.remove(newPath.size() - 1) : null;
-
+		List<String> newPath = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		String dirName = newPath.size() > 0 ? newPath.get(newPath.size() - 1) : null;
+		
 		File file = FileUtils.getFile(u, path, name);
 		File newFile = FileUtils.getFile(u, newPath, name);
-		Directory container = DirectoryUtils.getDirectory(u, newPath, dirName);
+		Directory container = DirectoryUtils.getDirectory(u, newPath);
 
 		if(file == null) {
 			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));

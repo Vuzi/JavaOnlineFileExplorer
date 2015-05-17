@@ -33,7 +33,7 @@ public class ActionDirModification extends AAction {
 		User u = (User) c.getSessionAttribute("user");
 		
 		if(action == null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("path") + "'")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("_path") + "'")));
 			c.getResponse().setStatus(400);
 			return;
 		}
@@ -52,13 +52,13 @@ public class ActionDirModification extends AAction {
 			renameAction(c, u);
 			break;
 		default:
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("path") + "'")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("_path") + "'")));
 			c.setStatus(400);
 		}
 	}
 
 	private void createAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		
 		// Test for root directory
@@ -71,7 +71,7 @@ public class ActionDirModification extends AAction {
 		// Test that the parent directory exist
 		Directory d = DirectoryUtils.getDirectoryParent(u, path, name);
 		if(d == null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Parent directory of '/" + c.getParameterUnique("path") + "' does not exist")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Parent directory of '/" + c.getParameterUnique("_path") + "' does not exist")));
 			c.setStatus(400);
 			return;
 		}
@@ -79,7 +79,7 @@ public class ActionDirModification extends AAction {
 		// Test that the directory doesn't exist
 		d = DirectoryUtils.getDirectory(u, path, name);
 		if(d != null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("path") + "' already exists")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("_path") + "' already exists")));
 			c.setStatus(400);
 			return;
 		}
@@ -89,7 +89,7 @@ public class ActionDirModification extends AAction {
 	}
 	
 	private void deleteAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		
 		// Test for root directory
@@ -102,7 +102,7 @@ public class ActionDirModification extends AAction {
 		// Test that the directory exist
 		Directory d = DirectoryUtils.getDirectory(u, path, name);
 		if(d == null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("path") + "' does not exist")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("_path") + "' does not exist")));
 			c.setStatus(400);
 			return;
 		}
@@ -112,7 +112,7 @@ public class ActionDirModification extends AAction {
 		File[] files = FileUtils.getFilesContained(u, d);
 		
 		if(files.length > 0 || directories.length > 0) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("path") + "' is not empty")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("_path") + "' is not empty")));
 			c.setStatus(400);
 			return;
 		}
@@ -124,7 +124,7 @@ public class ActionDirModification extends AAction {
 	}
 	
 	private void renameAction(IContext c, User u) {
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String newName = c.getParameterUnique("name");
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 
@@ -152,7 +152,7 @@ public class ActionDirModification extends AAction {
 		// Test that the directory exist
 		Directory d = DirectoryUtils.getDirectory(u, path, name);
 		if(d == null) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : Directory '/" + c.getParameterUnique("path") + "' does not exist")));
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : Directory '/" + c.getParameterUnique("_path") + "' does not exist")));
 			c.setStatus(404);
 			return;
 		}

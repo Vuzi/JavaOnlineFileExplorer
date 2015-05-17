@@ -40,11 +40,11 @@ public class ActionSearch extends AAction {
 		User u = (User) c.getSessionAttribute("user");
 		
 		// File info
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		Directory dir = DirectoryUtils.getDirectory(u, path);
 		
 		if(dir == null) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory '" + c.getParameterUnique("path") + "' found")));
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory '" + c.getParameterUnique("_path") + "' found")));
 			c.setStatus(404);
 			return;	
 		}

@@ -39,7 +39,7 @@ public class ActionFileUpload extends AAction {
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
 		User u = (User) c.getSessionAttribute("user");
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		
 		// Directory retrieving
 		Directory d = DirectoryUtils.getDirectory(u, new ArrayList<String>(path));

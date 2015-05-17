@@ -43,7 +43,7 @@ public class ActionFileDownload extends AAction {
 		User u = (User) c.getSessionAttribute("user");
 		
 		// File info
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
 		
 		File file = FileUtils.getFile(u, path, name);

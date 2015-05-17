@@ -31,14 +31,14 @@ public class ActionDirShow extends AAction {
 		User u = (User) c.getSessionAttribute("user");
 		
 		// Directory info
-		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("path"));
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
 		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
-		
+				
 		// Directory retrieving
 		Directory d = DirectoryUtils.getDirectory(u, path, name);
 	
 		if(d == null) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory found for '/" + c.getParameterUnique("path") + "'")));
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory found for '/" + c.getParameterUnique("_path") + "'")));
 			c.setStatus(404);
 		} else {
 			d.directories = DirectoryUtils.getDirectoriesContained(u, d);

@@ -253,7 +253,7 @@ public class FileUtils {
 		query.put("_id", new ObjectId(f.UID));
 		query.put("owner", new ObjectId(u.UID));
 		
-		String newPath = newContainer.name == null ? "/" : newContainer.path + "/" + newContainer.name + "/";
+		String newPath = newContainer.name == null ? "/" : newContainer.path + newContainer.name + "/";
 		
 		BasicDBObject update = new BasicDBObject();
 		update.append("$set", new BasicDBObject().append("path", newPath).append("parent", newContainer.UID == null ? null : new ObjectId(newContainer.UID)));
