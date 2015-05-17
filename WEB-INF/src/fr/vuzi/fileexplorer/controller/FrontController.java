@@ -120,13 +120,7 @@ public class FrontController extends AFrontController {
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/(?:~(.*))?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",  new String[] { "path" }, "velocity"));
 
 	}
-
-	@Override
-	protected String getRootDirectory() {
-		//return "D:/DEV/JAVA/WORKSPACES/workspace-jee/JavaOnlineFileExplorer/";
-		return "C:/Users/Vuzi/Desktop/JEE/workspace/JavaOnlineFileExplorer/";
-	}
-
+	
 	@Override
 	protected IContext createContext(HttpServletRequest request, HttpServletResponse response) {
 		return new BasicAuthContext(request, response); // Use custom session handling basic auth

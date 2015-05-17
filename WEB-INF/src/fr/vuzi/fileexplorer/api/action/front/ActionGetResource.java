@@ -40,7 +40,12 @@ public class ActionGetResource extends AAction {
 	@Override
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
-		File ressource = new File(Configuration.root, "WEB-INF/resources/" + c.getParameterUnique("path"));
+		File ressource;
+		
+		if(this.getClass().getResource("/../resources/" + c.getParameterUnique("path")) != null)
+			ressource = new File(this.getClass().getResource("/../resources/" + c.getParameterUnique("path")).getFile());
+		else
+			ressource = new File("__dummy");
 		
 		if(!ressource.exists() && !ressource.isFile()) {
 			c.getResponseWriter().write("Error : no file " + c.getParameterUnique("path"));
