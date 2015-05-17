@@ -245,7 +245,7 @@ var Icon = CallbackHandler.extend({
 		}
 
 		var icon_path = endpoint + icons_dir + icon_src;
-		this.image = $('<div style="background-image: url(' + icon_path + ');"/>');
+		this.image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
 
 
 		if(mimeType.match("^image")) {
@@ -253,8 +253,8 @@ var Icon = CallbackHandler.extend({
 
 			if (this.element.size <= 1048576){
 				this.image.css('background-image', 'url(' + image_path + ')');
-			}
-			else{
+				this.image.addClass('preview');
+			} else {
 				this.image.on('mouseover', function() {
 					me.image.css('background-image', 'url(' + image_path + ')');
 				});
@@ -265,13 +265,13 @@ var Icon = CallbackHandler.extend({
 			
 
 			return $('<a href="javascript:void(0)" draggable="true"></a>').
-						append($('<figure draggable="true" class="image" ></figure>').
-							append(this.image).
+						append($('<figure draggable="true"></figure>').
+							append($('<div class="image-wrapper" ></div>').append(this.image)).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		} else {
 			return $('<a href="javascript:void(0)" draggable="true" ></a>').
 						append($('<figure draggable="true"></figure>').
-							append(this.image).
+							append($('<div class="image-wrapper" ></div>').append(this.image)).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		}
 	},

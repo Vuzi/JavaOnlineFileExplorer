@@ -302,7 +302,7 @@ input[type=text] {
 	text-align: center;
 }
 
-#content li a figure figcaption{
+#content li a figure figcaption {
 	display:block;
 	color: black;
 	overflow:hidden;
@@ -313,7 +313,24 @@ input[type=text] {
 	width: 98px;
 }
 
-#content li a figure div{
+#content li a figure .image-wrapper {
+	overflow: hidden;
+	width: 90px;
+	height: 90px;
+
+	border: 3px solid #2E2E2E;
+	border-radius: 90px;
+	z-index: 10;
+    -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC); /* this fixes the overflow:hidden in Chrome/Opera */
+}
+
+#content li a figure .image.preview:hover {
+    -moz-transform: scale(1.1, 1.1);
+    -webkit-transform: scale(1.1, 1.1);
+    transform: scale(1.1, 1.1);    
+}
+
+#content li a figure .image {
 	background-size: cover;
 	background-color: #1C1C1C;
     background-repeat: no-repeat;
@@ -323,37 +340,35 @@ input[type=text] {
 	height: 90px;
 	transition-duration: 0.5s;
 	border-radius: 90px;
-	border: 3px solid #2E2E2E;
+
+	z-index: 1;
 }
 
-#content li a.selected div{
+#content li a.selected .image-wrapper {
 	border: 3px solid #FE6176;
 }
 
-#content li a div:hover{
+#content li a .image-wrapper:hover {
 	//border: 3px solid #7CCEFE;
 	border: 3px solid #FE1938;
 }
 
-#content li a.drag_over div {
+#content li a.drag_over .image-wrapper {
 	border: 3px solid orange;
 }
 
-#content::-webkit-scrollbar-track
-{
+#content::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
 	border-radius: 10px;
 	background-color: #2E2E2E;
 }
 
-#content::-webkit-scrollbar
-{
+#content::-webkit-scrollbar {
 	width: 15px;
 	background-color: #2E2E2E;
 }
 
-#content::-webkit-scrollbar-thumb
-{
+#content::-webkit-scrollbar-thumb {
 	border-radius: 10px;
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
 	background-color: #1C1C1C;
@@ -724,7 +739,7 @@ input[type="submit"] {
 	min-width: 150px;
 }
 
-* {
+input {
 	outline-color: red;
 }
 

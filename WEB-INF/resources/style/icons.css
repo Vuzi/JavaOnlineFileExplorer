@@ -77,3 +77,7 @@
 .glyphicon-search:before {
 	content: "\e003";
 }
+
+.glyphicon-transfer:before {
+	content: "\e178";
+}
