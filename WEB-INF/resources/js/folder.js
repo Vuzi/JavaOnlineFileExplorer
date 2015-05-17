@@ -107,10 +107,11 @@ var Folder = CallbackHandler.extend({
 				me._action_context(element, e);
 			}).on('select', function(element, icon, e) {
 				me._action_select(icon, e);
+			}).on('deselect', function(element, icon, e) {
+				me._action_select(icon, e);
 			}).on('dragstart', function(element, icon, e) {
 				me._action_drag_start(icon, e);
 			}).on('dragend', function(element, icon, e) {
-				console.log(e);
 				me._action_drag_stop(icon, e);
 			});
 	},
@@ -143,10 +144,11 @@ var Folder = CallbackHandler.extend({
 	},
 	_action_select : function(icon, event) {
 		if(!this.in_update) {
-			if(this.selected[icon.element.UID])
+			if(this.selected[icon.element.UID]) {
 				delete this.selected[icon.element.UID];
-			else 
+			} else { 
 				this.selected[icon.element.UID] = icon;
+			}
 		}
 	},
 	_action_context : function(element, event) {
@@ -256,12 +258,12 @@ var Icon = CallbackHandler.extend({
 				me.image.css('background-image', 'url(' + icon_path + ')');
 			});
 
-			return $('<a href="#" draggable="true"></a>').
+			return $('<a href="javascript:void(0)" draggable="true"></a>').
 						append($('<figure draggable="true" class="image" ></figure>').
 							append(this.image).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		} else {
-			return $('<a href="#" draggable="true" ></a>').
+			return $('<a href="javascript:void(0)" draggable="true" ></a>').
 						append($('<figure draggable="true"></figure>').
 							append(this.image).
 							append($('<figcaption>' + filename + '</figcaption>')));
@@ -278,11 +280,9 @@ var Icon = CallbackHandler.extend({
 		}).on('dragend', function(e) {
 			me.fireEvent('dragend', me.element, me, e);
 		}).on('dragover', function(e) {
-			console.log('on');
 			icon.addClass('drag_over');
 		}).on('dragleave', function(e) {
 			icon.removeClass('drag_over');
-			console.log('off');
 		});
 
 		icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
@@ -302,6 +302,9 @@ var Icon = CallbackHandler.extend({
 			if(!me.selected) {
 				me.fireEvent('select', me.element, me, e);
 				me.selected = true;
+			} else {
+				me.fireEvent('select', me.element, me, e);
+				me.selected = false;
 			}
 		});
 		
