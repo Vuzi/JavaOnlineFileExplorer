@@ -197,13 +197,13 @@ public class ActionFileModification extends AAction {
 		}
 		
 		if(container == null) {
-			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory '" + c.getParameterUnique("newPath") + "' found")));
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No directory '" + c.getParameterUnique("path") + "' found")));
 			c.setStatus(404);
 			return;	
 		}
 		
 		if(newFile != null) {
-			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : A file named '" + name + "' in '" + c.getParameterUnique("newPath") +  "' already exist")));
+			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : A file named '" + name + "' in '" + c.getParameterUnique("path") +  "' already exist")));
 			c.setStatus(400);
 			return;	
 		}

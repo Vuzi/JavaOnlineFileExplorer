@@ -384,4 +384,65 @@ public class DirectoryUtils {
 		}
 		return directories;
 	}
+
+	public static Directory moveDirectory(User u, Directory d, Directory newContainer) {
+		
+		if(d.UID == null)
+			return d;
+		
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
+		MongoCollection<Document> collectionFiles = DataBase.getInstance().getCollection("files.files");
+
+		// Change path
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(d.UID));
+		query.put("owner", new ObjectId(u.UID));
+
+		String oldPath = d.path;
+		String newPath = newContainer.name == null ? "/" : newContainer.path + newContainer.name + "/";
+
+		BasicDBObject update = new BasicDBObject();
+		update.append("$set", new BasicDBObject().append("path", newPath));
+
+		collection.updateOne(query, update);
+
+		// Update paths
+		query = new BasicDBObject();
+		query.put("owner", new ObjectId(u.UID));
+		
+		if(d.getPathList().size() > 0) {
+			String pathRegex = "^/" + String.join("/", d.getPathList()) + "/" + d.name + "/";
+			query.put("path", new BasicDBObject("$regex", pathRegex));
+		} else {
+			String pathRegex = "^/" + d.name + "/";
+			query.put("path", new BasicDBObject("$regex", pathRegex));
+		}
+
+		// Update directories
+		for(Document doc : collection.find(query)) {
+			BasicDBObject dirQuery = new BasicDBObject();
+			dirQuery.put("_id", doc.getObjectId("_id"));
+			
+			update = new BasicDBObject();
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+		
+			collection.updateOne(dirQuery, update);
+		}
+		
+		// Update files
+		for(Document doc : collectionFiles.find(query)) {
+			BasicDBObject fileQuery = new BasicDBObject();
+			fileQuery.put("_id", doc.getObjectId("_id"));
+			
+			update = new BasicDBObject();
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+		
+			collectionFiles.updateOne(fileQuery, update);
+		}
+		
+		// Update local version
+		d.path = newPath;
+		
+		return d;
+	}
 }
