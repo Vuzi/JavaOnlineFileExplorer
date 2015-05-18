@@ -194,6 +194,12 @@ public class ActionDirModification extends AAction {
 			return;	
 		}
 		
+		if(container.getInnerPath().startsWith(dir.getInnerPath())) {
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(400, "Error : Could not move directory inside itself")));
+			c.setStatus(400);
+			return;	
+		}
+		
 		if(newDir != null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : A directory named '" + name + "' in '" + c.getParameterUnique("path") +  "' already exist")));
 			c.setStatus(400);
