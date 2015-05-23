@@ -1,0 +1,89 @@
+@font-face {
+    font-family: Glyphicons;
+    src: url(font/glyphicons-halflings-regular.ttf);
+}
+
+.glyphicon {
+    display: inline-block;
+    font-family: Glyphicons;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    position: relative;
+    top: 1px;
+}
+
+#context_menu li .glyphicon {
+	font-size: 14px;
+	margin-left: -20px;
+}
+
+#context_menu li .glyphicon:before {
+	margin-right: 6px;
+}
+
+.glyphicon-user:before{
+	margin-top:1px;
+	content: "\e008";
+}
+
+.glyphicon-lock:before {
+	margin-top:1px;
+  content: "\e033";
+}
+
+.glyphicon-trash:before {
+    content: "\e020";
+}
+
+.glyphicon-sort-by-alphabet:before {
+	content: "\e151";
+}
+
+.glyphicon-sort-by-alphabet-alt:before {
+	content: "\e152";
+}
+
+.glyphicon-sort-by-attributes:before {
+	content: "\e155";
+}
+
+.glyphicon-sort-by-attributes-alt:before {
+	content: "\e156";
+}
+
+.glyphicon-cloud-upload:before {
+	content: "\e198";
+}
+
+.glyphicon-cloud-download:before {
+	content: "\e197";
+}
+
+.glyphicon-share-alt:before {
+	content: "\e095";
+}
+
+.glyphicon-folder-open:before {
+	content: "\e118";
+}
+
+.glyphicon-duplicate:before {
+	content: "\e224";
+}
+
+.glyphicon-pencil:before {
+	content: "\270f";
+}
+
+.glyphicon-new-window:before {
+	content: "\e164";
+}
+
+.glyphicon-log-in:before {
+	content: "\e161";
+}
+
+.glyphicon-search:before {
+	content: "\e003";
+}
