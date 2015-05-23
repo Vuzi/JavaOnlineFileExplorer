@@ -103,13 +103,15 @@ var PopUpCancelable = PopUp.extend({
 // =======================================================
 
 var PopUpAction = PopUpCancelable.extend({
+	_show_loading : function() {
+		// Show a loading animation
+		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		this.toggle_dissmiss();
+	},
 	action : function(type, URI, values) {
 		var me = this;
 
-		// Show a loading animation
-		var tmp = this.content.contents();
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-		this.toggle_dissmiss();
+		this._show_loading();
 
 		// Perform the request
 		$.ajax({
@@ -218,51 +220,6 @@ var DirectoryCreationWindow = PopUpAction.extend({
 	}
 })
 
-
-// =======================================================
-//                   Directory deletion
-// =======================================================
-
-var DirectoryDeletionWindow = PopUpAction.extend({
-	init : function(directory) {
-		var me = this;
-
-		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-		
-		var message = $('<p>Êtes vous certain de vouloir supprimer le dossier "' + this.path + '" ?</p>');
-		this.submit = $('<input type="submit" value="Supprimer" style="display: inline-block; margin-right: 10px;"></input>');
-		this.cancel = $('<input type="submit" value="Annuler" style="display: inline-block;"></input>');
-		
-		message.append($('<div style="text-align: center;"></div>').append(this.submit).append(this.cancel));
-		
-		this._super("Suppression dossier", message);
-
-		// Cancel button
-		this.cancel.on('click', function(e) {
-			me.dissmiss();
-		});
-		
-		// Submit button
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-
-		// On success
-		this.on('success', function() {
-			var toast = new Toast("Suppression du dossier effectuée", "Le dossier '" + this.path + "' a été supprimé avec succès", "success");
-			toast.display();
-		});
-	},
-	display : function() {
-		this._super();
-		this.cancel.focus();
-	},
-	action : function() {
-		this._super('DELETE', 'api/dir' + this.path, {});
-	}
-})
-
-
 // =======================================================
 //                  Directory renaming
 // =======================================================
@@ -318,65 +275,6 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 		this._super('POST', 'api/dir' + this.path, { action : "rename", name : dir_name });
 	}
 });
-
-// =======================================================
-//                   Directory move
-// =======================================================
-
-var DirectoryMoveWindow = PopUpAction.extend({
-	init : function(directory) {
-		var me = this;
-
-		this.directory = directory;
-		this.path = directory.name ? directory.path + directory.name + '/' : directory.path;
-		
-		var message = $('<div></div>');
-		this.dir_name = $('<input class="field" type="text" disabled="disabled" value="' + directory.name + '" placeholder="Nom du dossier"></input>');
-		this.dir_path = $('<input class="field" type="text" value="' + directory.path + '" ></input>');
-		var tree_div = $('<div class="tree"></div>');
-		this.submit = $('<input type="submit" value="Déplacer le dossier"></input>');
-
-		message.append('<span class="field-name">Nom : </span>').append(this.dir_name).append('<br/>').
-		append('<span class="field-name">Chemin : </span>').append(this.dir_path).append('<br/>').append(tree_div).append(this.submit);
-
-		this.tree = new DirectoryTree(tree_div);
-		this.tree.on('select', function(element, node, e, ignorePushState) {
-			me.dir_path.val(element.name ? element.path + element.name + '/' : '/');
-		});
-		
-		this._super("Déplacement dossier", message);
-		
-		// Submit button
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-
-		// On success
-		this.on('success', function() {
-			var toast = new Toast("Déplacement du dossier effectuée", "Le dossier '" + directory.name + "' a été déplacé avec succès", "success");
-			toast.display();
-		});
-	},
-	display : function() {
-		var me = this;
-		this._super();
-		this.tree.update(function() {
-			me.tree.select_path(me.directory.path);
-		});
-	},
-	action : function() {
-		var dir_path = this.dir_path.val().trim();
-		var me = this;
-
-		if(!dir_path || dir_path == "" || dir_path.indexOf('"') >= 0 || dir_path.indexOf("'") >= 0) {
-			new Pop_up("Impossible de déplacer le dossier", "Le chemin '" + dir_path + "' n'est pas valide", "error").display();
-			return;
-		}
-
-		this._super('POST', 'api/dir' + this.path, { action : "move", path : dir_path });
-	}
-})
-
 
 // =======================================================
 //                    File creation
@@ -487,62 +385,6 @@ var FileCreationWindow = PopUpAction.extend({
 })
 
 // =======================================================
-//                     File renaming
-// =======================================================
-
-var FileRenamingWindow = PopUpAction.extend({
-	init : function(file) {
-		var me = this;
-
-		this.path = file.name ? file.path + file.name + '/' : file.path;
-		
-		var message = $('<div></div>');
-		this.file_name = $('<input class="field" type="text" value="' + file.name + '" placeholder="Nom du fichier"></input>');
-		this.file_path = $('<input class="field" type="text" value="' + file.path + '" disabled="disabled"></input>');
-		this.submit = $('<input type="submit" value="Modifier le nom"></input>');
-		
-		message.append('<span class="field-name">Nom : </span>').append(this.file_name).append('<br/>').
-		append('<span class="field-name">Chemin : </span>').append(this.file_path).append('<br/>').append(this.submit);
-
-		this._super("Changement de nom fichier", message);
-
-		// On enter
-		this.file_name.on('keypress', function(e) {
-			if(e.which == 13) {
-				me.action();
-			}
-		});
-		
-		// Submit button
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-
-		// On success
-		this.on('success', function() {
-			var toast = new Toast("Fichier modifié", "Le fichier '" + me.file_name.val() + "' a été renommé avec succès", "success");
-			toast.display();
-		});
-	},
-	display : function() {
-		this._super();
-		this.file_name.focus();
-	},
-	action : function() {
-		var file_name = this.file_name.val().trim();
-		var file_path = this.file_path.val().trim();
-		var me = this;
-
-		if(!file_name || file_name == "" || file_name.indexOf('/') >= 0 || file_name.indexOf('"') >= 0 || file_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error").display();
-			return;
-		}
-
-		this._super('POST', 'api/file' + this.path, { action : "rename", name : file_name });
-	}
-});
-
-// =======================================================
 //                   File deletion
 // =======================================================
 
@@ -585,25 +427,78 @@ var FileDeletionWindow = PopUpAction.extend({
 	}
 })
 
-
 // =======================================================
-//                   File move
+//                    Resource generic
 // =======================================================
 
-var FileMoveWindow = PopUpAction.extend({
-	init : function(file) {
+var ResourceGenericWindow = PopUpAction.extend({
+	init_info : function(elements) {
 		var me = this;
 
-		this.file = file;
-		this.path = file.name ? file.path + file.name + '/' : file.path;
-		
-		var message = $('<div></div>');
-		this.file_name = $('<input class="field" type="text" disabled="disabled" value="' + file.name + '" placeholder="Nom du fichier"></input>');
-		this.file_path = $('<input class="field" type="text" value="' + file.path + '" ></input>');
-		var tree_div = $('<div class="tree"></div>');
-		this.submit = $('<input type="submit" value="Déplacer le fichier"></input>');
+		console.log(elements);
 
-		message.append('<span class="field-name">Nom : </span>').append(this.file_name).append('<br/>').
+		if(elements.name) {
+			this.elements = {};
+			this.elements[elements.UID] = elements;
+		} else {
+			this.elements = elements;
+		}
+
+		console.log(this.elements);
+
+		// Prepare values
+		this.dir_nb = 0;
+		this.file_nb = 0;
+		this.total_nb = 0;
+
+		this.me = null;
+		this.names = '';
+
+		$.each(this.elements, function(UID, element) {
+			if(isDir(element))
+				me.dir_nb++;
+			else
+				me.file_nb++;
+
+			me.total_nb++;
+
+			if(me.names != '')
+				me.names += ', ';
+
+			me.names += element.name;
+
+			if(!me.path)
+				me.path = element.path || '/';
+		});
+
+		// Define name to use
+		if(this.dir_nb >= 1 && this.file_nb == 0)
+			this.title = "dossier" + (this.dir_nb > 1 ? 's' : '');
+		else if(this.file_nb >= 1 && this.dir_nb == 0)
+			this.title = "fichier" + (this.file_nb > 1 ? 's' : '');
+		else
+			this.title = "fichiers & dossiers";
+	}
+});
+
+// =======================================================
+//                    Resource move
+// =======================================================
+
+var ResourceMoveWindow = ResourceGenericWindow.extend({
+	init : function(elements) {
+		var me = this;
+
+		this.init_info(elements);
+
+		// Construct view
+		var message = $('<div></div>');
+		this.file_name = $('<input class="field" type="text" disabled="disabled" value="' + this.names + '" placeholder="Nom ' + this.title + '"></input>');
+		this.file_path = $('<input class="field" type="text" value="' + this.path + '" ></input>');
+		var tree_div = $('<div class="tree"></div>');
+		this.submit = $('<input type="submit" value="Déplacer le' + (this.total_nb > 1 ? 's' : '') + ' ' + this.title + '"></input>');
+
+		message.append('<span class="field-name">Nom' + (this.total_nb > 1 ? 's' : '') + ' : </span>').append(this.file_name).append('<br/>').
 		append('<span class="field-name">Chemin : </span>').append(this.file_path).append('<br/>').append(tree_div).append(this.submit);
 
 		this.tree = new DirectoryTree(tree_div);
@@ -611,7 +506,7 @@ var FileMoveWindow = PopUpAction.extend({
 			me.file_path.val(element.name ? element.path + element.name + '/' : '/');
 		});
 		
-		this._super("Déplacement fichier", message);
+		this._super("Déplacement " + this.title, message);
 		
 		// Submit button
 		this.submit.on('click', function(e) {
@@ -619,27 +514,111 @@ var FileMoveWindow = PopUpAction.extend({
 		});
 
 		// On success
-		this.on('success', function() {
-			var toast = new Toast("Déplacement du fichier effectuée", "Le fichier '" + file.name + "' a été déplacé avec succès", "success");
-			toast.display();
+		this.on('done', function(done, error, fail) {
+			if(error + fail == 0)
+				new Toast("Déplacement effectué avec succès",
+					      "L'opération de déplacement a été effectuée avec succès",
+					      "success").display()
+			else
+				new Toast("Déplacement effectué",
+					      "L'opération de déplacement a été effectuée, mais des erreurs sont survenues durant celle-ci",
+					      "warning").display(3500);
 		});
 	},
 	display : function() {
 		var me = this;
 		this._super();
 		this.tree.update(function() {
-			me.tree.select(me.file.parentUID);
+			me.tree.select_path(me.path);
 		});
 	},
 	action : function() {
-		var file_path = this.file_path.val().trim();
 		var me = this;
+		var requests = new Requests();
+		var file_path = this.file_path.val().trim();
 
 		if(!file_path || file_path == "" || file_path.indexOf('"') >= 0 || file_path.indexOf("'") >= 0) {
 			new Pop_up("Impossible de déplacer le fichier", "Le chemin '" + file_path + "' n'est pas valide", "error").display();
 			return;
 		}
 
-		this._super('POST', 'api/file' + this.path, { action : "move", path : file_path });
+		this._show_loading();
+
+		$.each(this.elements, function(UID, element) {
+			if(isDir(element))
+				requests.add({ type : 'POST', uri : 'api/dir' +  (element.name ? element.path + element.name + '/' : element.path), value : { action : "move", path : file_path } });
+			else
+				requests.add({ type : 'POST', uri : 'api/file' +  element.path + element.name, value : { action : "move", path : file_path } });
+		});
+
+		requests.on('done', function(done, error, fail) {
+			me.dissmiss();
+			me.fireEvent('done', done, error, fail);
+		}).proceed();
+	}
+})
+
+// =======================================================
+//                  Resource deletion
+// =======================================================
+
+var ResourceDeletionWindow = ResourceGenericWindow.extend({
+	init : function(elements) {
+		var me = this;
+
+		this.init_info(elements);
+
+		// Construct view
+		var message = $('<p>Êtes vous certain de vouloir supprimer le' + (this.total_nb > 1 ? 's' : '') + ' ' + this.title + ' ' + this.names + ' ?</p>');
+		this.submit = $('<input type="submit" value="Supprimer" style="display: inline-block; margin-right: 10px;"></input>');
+		this.cancel = $('<input type="submit" value="Annuler" style="display: inline-block;"></input>');
+		
+		message.append($('<div style="text-align: center;"></div>').append(this.submit).append(this.cancel));
+
+		this._super("Suppression " + this.title, message);
+		
+		// Cancel button
+		this.cancel.on('click', function(e) {
+			me.dissmiss();
+		});
+		
+		// Submit button
+		this.submit.on('click', function(e) {
+			me.action();
+		});
+
+		// On success
+		this.on('done', function(done, error, fail) {
+			if(error + fail == 0)
+				new Toast("Suppression effectué avec succès",
+					      "L'opération de suppression a été effectuée avec succès",
+					      "success").display()
+			else
+				new Toast("Suppression effectué",
+					      "L'opération de suppression a été effectuée, mais des erreurs sont survenues durant celle-ci",
+					      "warning").display(3500);
+		});
+	},
+	display : function() {
+		this._super();
+		this.cancel.focus();
+	},
+	action : function() {
+		var me = this;
+		var requests = new Requests();
+
+		this._show_loading();
+
+		$.each(this.elements, function(UID, element) {
+			if(isDir(element))
+				requests.add({ type : 'DELETE', uri : 'api/dir' +  (element.name ? element.path + element.name + '/' : element.path) });
+			else
+				requests.add({ type : 'DELETE', uri : 'api/file' +  element.path + element.name });
+		});
+
+		requests.on('done', function(done, error, fail) {
+			me.dissmiss();
+			me.fireEvent('done', done, error, fail);
+		}).proceed();
 	}
 })

@@ -10,6 +10,7 @@ var DirectoryTreeNode = CallbackHandler.extend({
 		this.contained = [];
 		this.developped = false;
 		this.selected = false;
+		this.selection = true;
 	},
 	add : function(node) {
 		if(this.contained.length <= 0)
@@ -40,7 +41,8 @@ var DirectoryTreeNode = CallbackHandler.extend({
 		
 		// Selection
 		name.on('click', function(e) {
-			me.select(e);
+			if(me.selection)
+				me.select(e);
 
 			e.preventDefault();
 		});
@@ -57,9 +59,11 @@ var DirectoryTreeNode = CallbackHandler.extend({
 		
 		// Context menu
 		name.bind('contextmenu', function(e) {
-			me.select(e);
-			me.fireEvent('select_contextual', me.directory, me, e);
-		
+			if(me.selection) {
+				me.select(e);
+				me.fireEvent('select_contextual', me.directory, me, e);
+			}
+
 			e.preventDefault();
 		});
 		
@@ -94,6 +98,7 @@ var DirectoryTreeNode = CallbackHandler.extend({
 		});
 	},
 	select : function(e, pushState) {
+
 		this.selected = true;
 
 		this.node.addClass('selected');
@@ -105,6 +110,20 @@ var DirectoryTreeNode = CallbackHandler.extend({
 		
 		this.node.removeClass('selected');
 		this.fireEvent('deselect', this.directory, this, e);
+	},
+	enable_selection : function() {
+		this.selection = true;
+
+		this.contained.forEach(function(node) {
+			node.enable_selection();
+		});
+	},
+	disable_selection : function() {
+		this.selection = false;
+
+		this.contained.forEach(function(node) {
+			node.disable_selection();
+		});
 	}
 });
 
@@ -152,16 +171,21 @@ var DirectoryTree = CallbackHandler.extend({
 			var node = new DirectoryTreeNode(parent);
 			node.update(directory);
 			node.on('select', function(element, node, e, pushState) {
+				if(me.selection) {
+					if(me.selected && me.selected != node)
+						me.selected.deselect(null);
 
-				if(me.selected && me.selected != node)
-					me.selected.deselect(null);
-
-				me.selected = node;
-				me.fireEvent('select', element, node, e, pushState);
+					me.selected = node;
+					me.fireEvent('select', element, node, e, pushState);
+				}
 			}).on('deselect', function(element, node, e) {
-				me.selected = null;
+				if(me.selection) {
+					me.selected = null;
+				}
 			}).on('select_contextual', function(element, node, e) {
-				me.fireEvent('select_contextual', element, node, e);
+				if(me.selection) {
+					me.fireEvent('select_contextual', element, node, e);
+				}
 			});
 			
 			parent.add(node);
@@ -228,5 +252,17 @@ var DirectoryTree = CallbackHandler.extend({
 				pop.display();
 			}
 		});
+	},
+	enable_selection : function() {
+		this.selection = true;
+
+		if(this.nodes[null])
+			this.nodes[null].enable_selection();
+	},
+	disable_selection : function() {
+		this.selection = false;
+
+		if(this.nodes[null])
+			this.nodes[null].disable_selection();
 	}
 });

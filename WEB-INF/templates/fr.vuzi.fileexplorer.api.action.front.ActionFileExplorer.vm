@@ -73,10 +73,38 @@
 				{ info : true, name : "Chemin", value : reference.path },
 				{ info : true, name : "Taille (totale)", value : sizeFormat(file_total) },
 
-				( file_nb > 0 ?   { button : true, name : "Télécharger les fichiers (" + file_nb + ")", icon : "cloud-download" } : {}),
-				( folder_nb > 0 ? { button : true, name : "Ouvrir les dossiers (" + folder_nb + ")", icon : "log-in" } : {}),
-				{ button : true, name : "Déplacer la sélection", icon : "share-alt" },
-				{ button : true, name : "Supprimer la sélection", icon : "trash" }
+				( file_nb > 0 ?   { button : true, name : "Télécharger les fichiers (" + file_nb + ")", icon : "cloud-download", action :
+					function() {
+						if(!folder.in_update)
+							$.each(element, function(UID, value) {
+								window.open(endpoint + "api/file-bin" + value.path + value.name, "_blank");
+							});
+					}
+				} : {}),
+				( folder_nb > 0 ? { button : true, name : "Ouvrir les dossiers (" + folder_nb + ")", icon : "log-in", action :
+					function() {
+						if(!folder.in_update)
+							$.each(element, function(UID, value) {
+								window.open(endpoint + "~" + value.path + value.name, "_blank");
+							});
+					}
+				} : {}),
+				{ button : true, name : "Déplacer la sélection", icon : "share-alt", action:
+					function() {
+						console.log(element)
+						new ResourceMoveWindow(element).on('done', function() {
+								tree.update();
+							}).display();
+					}
+				},
+				{ button : true, name : "Supprimer la sélection", icon : "trash", action:
+					function() {
+						console.log(element)
+						new ResourceDeletionWindow(element).on('done', function() {
+								tree.update();
+							}).display();
+					}
+				},
 			], e.pageX, e.pageY);
 		} else if(element.size) {
 			menu.display( [
@@ -97,25 +125,22 @@
 					function() {
 						if(!folder.in_update)
 							new FileRenamingWindow(element).on('success', function(popUp, data) {
-								tree.select(element.UID)
-								tree.update();
+								tree.select(element.UID); tree.update();
 							}).display();
 					}
 				},
 				{ button : true, name : "Déplacer le fichier", icon : "share-alt", action :
 					function() {
 						if(!folder.in_update)
-							new FileMoveWindow(element).on('success', function(popUp, data) {
-								tree.select(element.UID)
-								tree.update();
+							new ResourceMoveWindow(element).on('done', function() {
+								tree.select(element.UID); tree.update();
 							}).display();
 					}
 				},
 				{ button : true, name : "Supprimer le fichier", icon : "trash", action :
 					function() {
 						if(!folder.in_update) {
-							new FileDeletionWindow(element).on('success', function(popUp, data) {
-								tree.select(data.UID)
+							new ResourceDeletionWindow(element).on('done', function() {
 								tree.update();
 							}).display();
 						}
@@ -145,25 +170,23 @@
 					function() {
 						if(!folder.in_update)
 							new DirectoryRenamingWindow(element).on('success', function(popUp, data) {
-								tree.select(tree.selected.UID)
-								tree.update();
+								tree.select(tree.selected.UID); tree.update();
 							}).display();
 					}
 				} : 0),
-				(element.name ? { button : true, name : "Déplacer le dossier", icon : "transfer", action :
+				(element.name ? { button : true, name : "Déplacer le dossier", icon : "share-alt", action :
 					function() {
 						if(!folder.in_update)
-							new DirectoryMoveWindow(element).on('success', function(popUp, data) {
-								tree.select(tree.selected.UID)
-								tree.update();
+							new ResourceMoveWindow(element).on('done', function() {
+								tree.select(tree.selected.UID); tree.update();
 							}).display();
 					}
 				} : 0),
 				(element.name ? { button : true, name : "Supprimer le dossier", icon : "trash", action :
 					function() {
 						if(!folder.in_update) {
-							new DirectoryDeletionWindow(element).on('success', function(popUp, data) {
-								tree.select(data.UID)
+							new ResourceDeletionWindow(element).on('done', function() {
+								tree.select_path(element.path);
 								tree.update();
 							}).display();
 						}
@@ -176,7 +199,9 @@
 	// Construct the tree view
 	tree = new DirectoryTree($('#tree'));
 	tree.on('select', function(element, node, e, ignorePushState) {
+		tree.disable_selection();
 		searchList.deselect();
+
 		folder.update(element, node.parent ? node.parent.directory : null);
 
 		if(!ignorePushState) {
@@ -210,6 +235,9 @@
 	});
 	folder.on('select_context', function(element, e) {
 		contructContextualMenu(element, e);
+	});
+	folder.on('update', function(element) {
+		tree.enable_selection();
 	});
 
 	// Construct the contextual menu
@@ -278,14 +306,10 @@
 	window.onpopstate = function(e) {
 		var folder = e.state;
 		var title = e.title;
-		
-		//if(title == 'node') {
-			if(folder) {
-				tree.select(folder.UID, true);
-			}
-		//} else if(title == 'search') {
-		//	// TODO
-		//}
+	
+		if(folder) {
+			tree.select(folder.UID, true);
+		}
 	}
 
 </script>

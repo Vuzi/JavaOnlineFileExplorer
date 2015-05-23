@@ -155,3 +155,86 @@ console.log(c instanceof A); // true
 console.log(b instanceof A); // true
 console.log(b instanceof C); // false
 */
+
+
+
+var Requests = CallbackHandler.extend({
+	init : function(action) {
+		this._super();
+		this.actions = [];
+
+		if(action)
+			this.add(action);
+	},
+	add : function(action) {
+		this.actions.push(action);
+
+		return this;
+	},
+	proceed : function(action) {
+		var me = this;
+
+		if(action)
+			this.add(action);
+
+		var done = 0;
+		var error = 0;
+		var fail = 0;
+
+		this.fireEvent('start', this.actions);
+		var time = 0;
+
+		this.actions.forEach(function(action) {
+			setTimeout(function() {
+				$.ajax({
+					type: action.type || 'GET',
+					url: endpoint + action.uri,
+					dataType : 'json',
+					processData : false,
+					data : JSON.stringify(action.value || {}),
+					contentType : 'application/json',
+					headers : authHeader('vuzi', '1234'),
+					success: function(data) {
+						done++;
+
+						me.fireEvent('success', me, data.data);
+
+						if((done + error + fail) >= me.actions.length)
+							me.fireEvent('done', done, error, fail);
+					},
+					error: function(data) {
+						error++;
+
+						if(!data.responseJSON) {
+							this.fail(data);
+							return;
+						}
+
+						var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+						pop.display();
+						
+						me.fireEvent('error', me, data.responseJSON.data);
+
+						if((done + error + fail) >= me.actions.length)
+							me.fireEvent('done', done, error, fail);
+					},
+					fail: function(data) {
+						fail++;
+
+						var pop = new Toast("Erreur ", "La requête a échouée", "error");
+						pop.display();
+
+						me.fireEvent('fail', me);
+						
+						if((done + error + fail) >= me.actions.length)
+							me.fireEvent('done', done, error, fail);
+					}
+				});
+			}, time);
+
+			time += 500;
+		});
+
+		return this;
+	}
+})

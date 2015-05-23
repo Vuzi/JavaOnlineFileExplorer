@@ -84,7 +84,7 @@ var Folder = CallbackHandler.extend({
 		
 		// '..' folder
 		if(element.UID != null && parent) {
-			this._render_event(new Icon(ul)).update(parent, 'parent', '...');
+			this._render_event(new Icon(ul)).update(parent, 'parent', '...', false);
 		}
 		
 		// Directories
@@ -153,9 +153,15 @@ var Folder = CallbackHandler.extend({
 	},
 	_action_context : function(element, event) {
 		if(!this.in_update) {
-			if(Object.keys(this.selected).length > 1 && this.selected[element.UID])
-				this.fireEvent('select_context', this.selected, event);
-			else
+			if(Object.keys(this.selected).length > 1 && this.selected[element.UID]) {
+				var values = {};
+
+				$.each(this.selected, function(UID, node) {
+					values[UID] = node.element;
+				});
+
+				this.fireEvent('select_context', values, event);
+			} else
 				this.fireEvent('select_context', element, event);
 		}
 	}
@@ -275,7 +281,7 @@ var Icon = CallbackHandler.extend({
 							append($('<figcaption>' + filename + '</figcaption>')));
 		}
 	},
-	update : function(element, type, name) {
+	update : function(element, type, name, selectable) {
 		this.element = element;
 
 		var me = this;
@@ -303,14 +309,16 @@ var Icon = CallbackHandler.extend({
 		
 		// Select
 		icon.on('click', function(e) {
-			icon.toggleClass('selected');
+			if(selectable !== false) {
+				icon.toggleClass('selected');
 
-			if(!me.selected) {
-				me.fireEvent('select', me.element, me, e);
-				me.selected = true;
-			} else {
-				me.fireEvent('select', me.element, me, e);
-				me.selected = false;
+				if(!me.selected) {
+					me.fireEvent('select', me.element, me, e);
+					me.selected = true;
+				} else {
+					me.fireEvent('select', me.element, me, e);
+					me.selected = false;
+				}
 			}
 		});
 		
