@@ -244,9 +244,7 @@
 	menu = new ContextualMenu(folder, tree);
 	
 	#if ( $context.getParameterUnique('_path') )
-		tree.update(function() {
-			tree.select_path("$context.getParameterUnique('_path')");
-		});
+		tree.update("$context.getParameterUnique('_path')");
 	#else
 		tree.update();
 	#end

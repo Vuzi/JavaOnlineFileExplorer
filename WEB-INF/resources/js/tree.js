@@ -138,6 +138,7 @@ var DirectoryTree = CallbackHandler.extend({
 		this.renderer = renderer;
 		this.nodes = [];
 		this.selected = null;
+		this.selection = true;
 	},
 	render : function(data) {
 		var me = this;
@@ -223,7 +224,7 @@ var DirectoryTree = CallbackHandler.extend({
 		if(this.selected)
 			this.selected.deselect();
 	},
-	update : function(clbk) {
+	update : function(path) {
 		var me = this;
 		$.ajax({
 			type: 'GET',
@@ -233,13 +234,12 @@ var DirectoryTree = CallbackHandler.extend({
 			success: function(data) {
 				me.render(data.data);
 				
-				if(me.selected)
+				if(path)
+					me.select_path(path, false);
+				else if(me.selected)
 					me.select(me.selected.directory.UID);
 				else
 					me.select(null);
-				
-				if(clbk)
-					clbk(me);
 			},
 			error: function(data) {
 				console.log(data);
