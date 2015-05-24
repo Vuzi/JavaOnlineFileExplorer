@@ -24,5 +24,4 @@ public class BasicAuthContext extends Context {
 			setSessionAttribute("user-cr", user.credentials);
 		}
 	}
-	
 }

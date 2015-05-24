@@ -1,0 +1,312 @@
+<div id="global" class="blurable">
+	<div id="left">
+		<div id="tree" class="tree"></div>
+		<div id="searchs"></div>
+		<div id="tree_cursor"></div>
+	</div>
+	
+	<div id="right">
+		<nav id="options">
+			<ul type="menu">
+				<li><a href="#" action="new_file">Nouveau fichier</a></li>
+				<li><a href="#" action="new_dir">Nouveau dossier</a></li>
+				<li><a href="#">Organisation</a></li>
+				<li><a href="#">Affichage</a></li>
+				<li><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
+			</ul>
+		</nav>
+		<div id="content" class="blurable"></div>
+	</div>
+</div>
+<script src="$context.getRequestAddr()resources/js/jquery-2.1.4.min.js"></script>
+<script src="$context.getRequestAddr()resources/js/utils.js"></script>
+<script src="$context.getRequestAddr()resources/js/folder.js"></script>
+<script src="$context.getRequestAddr()resources/js/tree.js"></script>
+<script src="$context.getRequestAddr()resources/js/menu.js"></script>
+<script src="$context.getRequestAddr()resources/js/popup.js"></script>
+<script src="$context.getRequestAddr()resources/js/search.js"></script>
+<script type="text/javascript">
+	
+	// Variables
+	var global = $('#global');
+	var pop_up_back = $('#pop_up_back');
+	var right = $('#right');
+	var left = $('#left');
+	var tree_cursor = $('#tree_cursor');
+	
+	var endpoint = '$context.getRequestAddr()';
+	
+	// Mobile performance fix
+	if(window.onMobile()) {
+		$(".blurable").removeClass('blurable');
+	}
+	
+	// Elements creation
+	var folder;     // Folder view (left panel)
+	var tree;       // Tree (right panel)
+	var menu;       // Contextual menu
+	var searchList; // Search list (left panel)
+
+	var contructContextualMenu = function(element, e) {
+
+		if(!element.path) {
+			var folder_nb = 0;
+			var file_nb = 0;
+			var file_total = 0;
+			var reference;
+
+			$.each(element, function(UID, value) {
+				if(value.size) {
+					file_nb++;
+					file_total += value.size;
+				} else {
+					folder_nb++;
+				}
+
+				if(!reference)
+					reference = value;
+			});
+
+			menu.display( [
+				{ info : true, name : "Selection", value : (folder_nb + file_nb) + " élément(s) sélectionné(s)" },
+				{ info : true, name : "Chemin", value : reference.path },
+				{ info : true, name : "Taille (totale)", value : sizeFormat(file_total) },
+
+				( file_nb > 0 ?   { button : true, name : "Télécharger les fichiers (" + file_nb + ")", icon : "cloud-download", action :
+					function() {
+						if(!folder.in_update)
+							$.each(element, function(UID, value) {
+								window.open(endpoint + "api/file-bin" + value.path + value.name, "_blank");
+							});
+					}
+				} : {}),
+				( folder_nb > 0 ? { button : true, name : "Ouvrir les dossiers (" + folder_nb + ")", icon : "log-in", action :
+					function() {
+						if(!folder.in_update)
+							$.each(element, function(UID, value) {
+								window.open(endpoint + "~" + value.path + value.name, "_blank");
+							});
+					}
+				} : {}),
+				{ button : true, name : "Déplacer la sélection", icon : "share-alt", action:
+					function() {
+						console.log(element)
+						new ResourceMoveWindow(element).on('done', function() {
+								tree.update();
+							}).display();
+					}
+				},
+				{ button : true, name : "Supprimer la sélection", icon : "trash", action:
+					function() {
+						console.log(element)
+						new ResourceDeletionWindow(element).on('done', function() {
+								tree.update();
+							}).display();
+					}
+				},
+			], e.pageX, e.pageY);
+		} else if(element.size) {
+			menu.display( [
+				{ info : true, name : "Nom", value : element.name },
+				{ info : true, name : "Chemin", value : element.path },
+				{ info : true, name : "Type", value : element.type },
+				{ info : true, name : "Taille", value : sizeFormat(element.size) },
+				{ info : true, name : "Création", value : new Date(element.creationDate).toLocaleString() },
+				{ info : true, name : "Modification", value : new Date(element.modificationDate).toLocaleString() },
+
+				{ button : true, name : "Télécharger le fichier", icon : "cloud-download", action :
+					function() {
+						if(!folder.in_update)
+							window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+					}
+				},
+				{ button : true, name : "Renommer le fichier", icon : "pencil", action :
+					function() {
+						if(!folder.in_update)
+							new FileRenamingWindow(element).on('success', function(popUp, data) {
+								tree.select(element.UID); tree.update();
+							}).display();
+					}
+				},
+				{ button : true, name : "Déplacer le fichier", icon : "share-alt", action :
+					function() {
+						if(!folder.in_update)
+							new ResourceMoveWindow(element).on('done', function() {
+								tree.select(element.UID); tree.update();
+							}).display();
+					}
+				},
+				{ button : true, name : "Supprimer le fichier", icon : "trash", action :
+					function() {
+						if(!folder.in_update) {
+							new ResourceDeletionWindow(element).on('done', function() {
+								tree.update();
+							}).display();
+						}
+					}
+				}
+			], e.pageX, e.pageY);
+		} else {
+			menu.display( [
+				(element.name ? { info : true, name : "Nom", value : element.name } : 0 ),
+				{ info : true, name : "Chemin", value : element.path },
+				(element.name ? { info : true, name : "Création", value : new Date(element.creation).toLocaleString() } : 0 ),
+				(element.name ? { info : true, name : "Modification", value : new Date(element.edit).toLocaleString() } : 0 ),
+
+				{ button : true, name : "Ouvrir le dossier", icon : "log-in", action :
+					function() {
+						if(!folder.in_update)
+							tree.select(element.UID);
+					}
+				},
+				{ button : true, name : "Ouvrir dans une nouvelle fenêtre", icon : "new-window", action :
+					function() {
+						if(!folder.in_update)
+							window.open(endpoint + "~" + element.path + element.name, "_blank");
+					}
+				},
+				(element.name ? { button : true, name : "Renommer le dossier", icon : "pencil", action :
+					function() {
+						if(!folder.in_update)
+							new DirectoryRenamingWindow(element).on('success', function(popUp, data) {
+								tree.select(tree.selected.UID); tree.update();
+							}).display();
+					}
+				} : 0),
+				(element.name ? { button : true, name : "Déplacer le dossier", icon : "share-alt", action :
+					function() {
+						if(!folder.in_update)
+							new ResourceMoveWindow(element).on('done', function() {
+								tree.select(tree.selected.UID); tree.update();
+							}).display();
+					}
+				} : 0),
+				(element.name ? { button : true, name : "Supprimer le dossier", icon : "trash", action :
+					function() {
+						if(!folder.in_update) {
+							new ResourceDeletionWindow(element).on('done', function() {
+								tree.select_path(element.path);
+								tree.update();
+							}).display();
+						}
+					}
+				} : 0)
+			], e.pageX, e.pageY);
+		}
+	}
+
+	// Construct the tree view
+	tree = new DirectoryTree($('#tree'));
+	tree.on('select', function(element, node, e, ignorePushState) {
+		tree.disable_selection();
+		searchList.deselect();
+
+		folder.update(element, node.parent ? node.parent.directory : null);
+
+		if(!ignorePushState) {
+			if(element.name)
+				window.history.pushState(element, "node", endpoint + '~' + element.path + element.name);
+			else	
+				window.history.pushState(element, "node", endpoint + '~/');
+		}
+	});
+	tree.on('select_contextual', function(element, node, e) {
+		contructContextualMenu(element, e);
+	});
+
+	// Construct search list
+	searchList = new SearchList($('#searchs'));
+	searchList.on('select', function(node, result, e) {
+		folder.updateFrom(node.results, node.value);
+		tree.deselect();
+	});
+
+	// Construct the folder view
+	folder = new Folder($('#content'));
+	folder.on('select', function(element) {
+		if(isFile(element)) {
+			if(element.type.match("^image"))
+				new ImagePreviewWindow(element).display();
+			else
+				window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
+		} else
+			tree.select(element.UID);
+	});
+	folder.on('select_context', function(element, e) {
+		contructContextualMenu(element, e);
+	});
+	folder.on('update', function(element) {
+		tree.enable_selection();
+	});
+
+	// Construct the contextual menu
+	menu = new ContextualMenu(folder, tree);
+	
+	#if ( $context.getParameterUnique('_path') )
+		tree.update("$context.getParameterUnique('_path')");
+	#else
+		tree.update();
+	#end
+	searchList.update();
+	
+	// Event binding (Option menu)
+	$('[action=new_dir]').on('click', function(e) {
+		if(tree.selected) {
+			new DirectoryCreationWindow(tree.selected.directory).on('success', function() {
+				tree.update();
+			}).display();
+		}
+	});
+	
+	$('[action=new_file]').on('click', function(e) {
+		if(tree.selected) {
+			new FileCreationWindow(tree.selected.directory).on('success', function() {
+				tree.update();
+			}).display();
+		}
+	});
+
+	$('#search').on('keypress', function(e) {
+		if (e.which == 13) {
+			$('[action=search]').trigger('click');
+		}
+	});
+
+	$('[action=search]').on('click', function(e) {
+
+		var val = $('#search').val();
+		$('#search').val('');
+
+		performSearch(val, tree, folder, searchList);
+	});
+
+	// Draggable left panel
+	var clicked = false;
+	var last = null;
+	tree_cursor.on('mousedown', function(e) {
+		clicked = true;
+		last = e;
+	});
+
+	global.on('mouseup', function(e) {
+		clicked = false;
+	});
+
+	global.on('mousemove', function(e) {
+		if(clicked) {
+			left.width(left.width() + (e.pageX - last.pageX));
+			last = e;
+		}
+	});
+	
+	// Back button handling
+	window.onpopstate = function(e) {
+		var folder = e.state;
+		var title = e.title;
+	
+		if(folder) {
+			tree.select(folder.UID, true);
+		}
+	}
+
+</script>

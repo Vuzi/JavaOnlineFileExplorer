@@ -1,8 +1,7 @@
 {
 	"root" : "C:/unused/",
 	"URI"  : "/JavaOnlineFileExplorer",
-	"actions" : [ 
-					"fr.vuzi.fileexplorer.api.action.front.ActionIdentification",
+	"actions" : [
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogin",
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogout",
 					"fr.vuzi.fileexplorer.api.action.directory.ActionDirShow",

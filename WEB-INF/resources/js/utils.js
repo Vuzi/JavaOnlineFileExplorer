@@ -14,14 +14,6 @@ function sizeFormat(bytes) {
     return result + ' ' + (exp == 0 ? 'Octets': 'KMGTPEZY'[exp - 1] + 'o');
 }
 
-function authHeader(login, password) {
-	return { 'Authorization' : 'Basic ' + btoa(login + ":" + password) }
-}
-
-function authHeaderValue(login, password) {
-	return 'Basic ' + btoa(login + ":" + password);
-}
-
 function isDir(element) {
 	return element.name && !element.size;
 }
@@ -193,7 +185,6 @@ var Requests = CallbackHandler.extend({
 					processData : false,
 					data : JSON.stringify(action.value || {}),
 					contentType : 'application/json',
-					headers : authHeader('vuzi', '1234'),
 					success: function(data) {
 						done++;
 

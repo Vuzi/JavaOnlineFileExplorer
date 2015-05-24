@@ -48,7 +48,6 @@ var Folder = CallbackHandler.extend({
 			type: 'GET',
 			url: link,
 			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
 			success: function(data) {
 				me.render(data.data, parent);
 				me.finish_update();

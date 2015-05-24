@@ -126,7 +126,6 @@ var performSearch = function(value, tree, folder, searchList) {
 		processData : false,
 		data : JSON.stringify(values),
 		contentType : 'application/json',
-		headers : authHeader('vuzi', '1234'),
 		success: function(data) {
 			values.path = lastPath;
 			

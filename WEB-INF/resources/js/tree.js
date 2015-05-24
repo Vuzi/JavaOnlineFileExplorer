@@ -230,7 +230,6 @@ var DirectoryTree = CallbackHandler.extend({
 			type: 'GET',
 			url: endpoint + 'api/tree',
 			dataType : 'json',
-			headers : authHeader('vuzi', '1234'),
 			success: function(data) {
 				me.render(data.data);
 				
@@ -243,12 +242,12 @@ var DirectoryTree = CallbackHandler.extend({
 			},
 			error: function(data) {
 				console.log(data);
-				var pop = new Pop_up("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
 				pop.display();
 			},
 			fail: function(data) {
 				console.log(data);
-				var pop = new Pop_up("Erreur ", "La requête a échouée", "error");
+				var pop = new Toast("Erreur ", "La requête a échouée", "error");
 				pop.display();
 			}
 		});

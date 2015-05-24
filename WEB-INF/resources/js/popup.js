@@ -121,7 +121,6 @@ var PopUpAction = PopUpCancelable.extend({
 			processData : false,
 			data : JSON.stringify(values),
 			contentType : 'application/json',
-			headers : authHeader('vuzi', '1234'),
 			success: function(data) {
 				me.dissmiss();
 				me.fireEvent('success', me, data.data);
@@ -379,7 +378,6 @@ var FileCreationWindow = PopUpAction.extend({
 			}
 		};
 		xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
-		xhr.setRequestHeader("Authorization", authHeaderValue('vuzi', '1234'));
 		xhr.send(formData);
 	}
 })
@@ -435,17 +433,13 @@ var ResourceGenericWindow = PopUpAction.extend({
 	init_info : function(elements) {
 		var me = this;
 
-		console.log(elements);
-
 		if(elements.name) {
 			this.elements = {};
 			this.elements[elements.UID] = elements;
 		} else {
 			this.elements = elements;
 		}
-
-		console.log(this.elements);
-
+		
 		// Prepare values
 		this.dir_nb = 0;
 		this.file_nb = 0;
@@ -528,9 +522,7 @@ var ResourceMoveWindow = ResourceGenericWindow.extend({
 	display : function() {
 		var me = this;
 		this._super();
-		this.tree.update(function() {
-			me.tree.select_path(me.path);
-		});
+		this.tree.update(me.path);
 	},
 	action : function() {
 		var me = this;
