@@ -69,6 +69,7 @@ ul{
 	height: 100%;
 	float: left;
 	background-color: #1C1C1C;
+	background-image: url(backgrounds/noisy_net_@2X.png);
     overflow: hidden;
     position: relative;
 }
@@ -100,8 +101,6 @@ ul{
 	padding: 10px;
 	width: 100%;
 	height: auto;
-	background-color: #1C1C1C;
-
 	float: left;
 }
 
@@ -203,6 +202,9 @@ ul{
 	//background-color: #2E2E2E;
 	//background-color:#BDBDBD;
 	background-color: #FEF9E4;
+
+	background-image: url(backgrounds/paper2.png);
+	background-op
 	transition: 0.5s;
 	-webkit-transition:0.5s;
 	-moz-transition:0.5s;
@@ -310,6 +312,11 @@ input[type=text] {
 	font-size: 14px;
 	display: inline-block;
 	text-align: center;
+}
+
+#content li a figure {
+	margin-left: 30px;
+	margin-right: 30px;
 }
 
 #content li a figure figcaption {
@@ -763,9 +770,26 @@ input {
 	-webkit-user-drag: element;
 }
 
+.drop-menu {
+
+	background-color: #2E2E2E;
+	padding: 5px;
+
+	color: white;
+	font-family: 'Roboto Condensed', sans-serif;
+	font-size: 17px;
+}
 
 
+.drop-menu div {
+	padding-left: 14px;
+	padding-right: 14px;
+}
 
+.drop-menu div:hover {
+	background-color: gray;
+	cursor: pointer;
+}
 
 
 
@@ -808,7 +832,7 @@ input {
 	color: black;
 	text-align: center;
 	/*background-color: #FEF9E4;*/
-	background-color: #67DB86;
+	background-color: #FEF9E4;
 	background-image:url(icons/cloudy.png);
 	background-repeat: no-repeat;
 	background-size: cover;

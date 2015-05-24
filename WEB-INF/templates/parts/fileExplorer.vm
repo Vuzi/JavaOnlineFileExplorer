@@ -8,10 +8,12 @@
 	<div id="right">
 		<nav id="options">
 			<ul type="menu">
-				<li><a href="#" action="new_file">Nouveau fichier</a></li>
-				<li><a href="#" action="new_dir">Nouveau dossier</a></li>
-				<li><a href="#">Organisation</a></li>
-				<li><a href="#">Affichage</a></li>
+				<li action="new_file"><a href="#" >Nouveau fichier</a></li>
+				<li action="new_dir"><a href="#">Nouveau dossier</a></li>
+				<li action="change_order"><a href="#">Organisation</a></li>
+				<li action="change_view">
+					<a href="#">Affichage</a>
+				</li>
 				<li><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
 			</ul>
 		</nav>
@@ -308,5 +310,33 @@
 			tree.select(folder.UID, true);
 		}
 	}
+
+	var elem = $('[action=change_view]');
+	
+	$('[action=change_view]').on('click', function(e) {
+
+		var test = $('<div class="drop-menu"></div>').
+					append('<div class="option-item">Grande icones</div>').
+					append('<div class="option-item">Petites icones</div>');
+
+		$('body').append(test);
+
+		test.css('position', 'absolute');
+		test.css('top', (elem.offset().top + elem.height()) + 'px');
+		test.css('left', elem.offset().left + 'px');
+		test.css('min-width', elem.width() + 'px');
+
+		test.on('mouseleave', function(e) {
+			console.log('leave');
+			test.remove();
+		});
+		test.on('mouseenter', function(e) {
+			console.log('enter');
+		});
+		/*
+		$('body').on('click', function(e) {
+			test.remove();
+		});*/
+	});
 
 </script>
