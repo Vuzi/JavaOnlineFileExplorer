@@ -5,7 +5,7 @@
 	margin: 0;
 }
 
-.outer {
+#htmlConnection .outer {
     display: table;
     height: 100%;
     left: 0;
@@ -16,14 +16,14 @@
     width: 100%;
 }
 
-.middle {
+#htmlConnection .middle {
     display: table-cell;
     margin: 0;
     padding: 0;
     vertical-align: middle;
 }
 
-.inner {
+#htmlConnection .inner {
     margin: 0 auto;
     padding: 10px;
     text-align: left;
@@ -41,25 +41,25 @@
 	transition-duration:0.5s;
 }
 
-.inner:hover{
+#htmlConnection .inner:hover{
 	border: solid 10px #FE1938;
 }
 
 
-h2{
+#htmlConnection h2{
 	margin-top: 25%;
 	font-size: 7em;
 	margin-bottom:15px;
 	font-family: 'Lobster';
 }
 
-p{
+#htmlConnection p{
 	padding-left: 100px;
 	padding-right: 100px;
 	margin-bottom: 40px;
 }
 
-input{
+#htmlConnection input{
 	font-family: 'Biryani', sans-serif;
 	color: black;
 	margin: 5px;
@@ -72,7 +72,7 @@ input{
 	-moz-transition: all .5s ease;
 }
 
-input[type="text"]{
+#htmlConnection input[type="text"]{
 	background-color: rgba(0,0,0,0);
 	border: 0;
 	border-bottom: 2px solid gray;
@@ -83,11 +83,11 @@ input[type="text"]{
 	outline: none;
 }
 
-input[type=text]:focus {
+#htmlConnection input[type=text]:focus {
 	border-bottom: 2px solid #FE1938;
 }
 
-input[type="submit"]{
+#htmlConnection input[type="submit"]{
 	font-size:12px;
 	padding: 1px 10px;
 	padding-bottom: 2px;
@@ -105,13 +105,13 @@ input[type="submit"]{
 	margin-top:25px;
 }
 
-input[type="submit"]:hover{
+#htmlConnection input[type="submit"]:hover{
 	border: 2px solid #FE1938;
 	background-color: #FE6176;
 	cursor: pointer;
 }
 
-* {
+#htmlConnection * {
 	outline-color: #FE1938;
 }
 

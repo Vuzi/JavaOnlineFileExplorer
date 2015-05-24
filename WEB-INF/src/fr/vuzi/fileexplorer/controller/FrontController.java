@@ -77,6 +77,7 @@ public class FrontController extends AFrontController {
 	protected void initRewriterRules() {
 		// == API ==
 		// -- User account actions --
+		
 		// Login
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/login/?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.user.ActionLogin"));
 		
@@ -118,6 +119,8 @@ public class FrontController extends AFrontController {
 		// -- Front --
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/resources/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionGetResource", new String[] { "_path" }));
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/(?:~(.*))?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",  new String[] { "_path" }, "velocity"));
+		// Identification
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/login", "GET|POST", "fr.vuzi.fileexplorer.api.action.front.ActionIdentification",  new String[] {}, "velocity"));
 
 	}
 	

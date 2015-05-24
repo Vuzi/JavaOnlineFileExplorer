@@ -1,0 +1,16 @@
+<div id="htmlConnection">
+	<div class="outer">
+		<div class="middle">
+			<div class="inner">					
+				<h2>Radius</h2>
+				<p><i>"Mon cerveau ? C'est mon second organe préféré."</i> - <b>Woody Allen</b></p>
+				<form method="POST">									
+					<input type="text" name="login" placeholder="Identifiant"/><span class="glyphicon glyphicon-user"></span><br/>
+					<input type="text" name="password" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
+					<input type="submit" name="submit" value="Connexion"><br/>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>	
+

@@ -15,6 +15,15 @@
 	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
 
+
+@font-face {
+	font-family: 'Lobster';
+	font-style: normal;
+	font-weight: 700;
+	src: url(font/Lobster.woff2) format('woff2'), url(font/Lobster.ttf);
+	unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
 html, body {
 	font-size: 14px;
 	font-family: 'Biryani', sans-serif;
@@ -24,6 +33,7 @@ html, body {
 	padding: 0;
 	height: 100%;
 	background-color: #1C1C1C;	
+	background-image: url("backgrounds/noisy_net_@2X.png");
 	
 	-webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -752,3 +762,131 @@ input {
 	-khtml-user-drag: element;
 	-webkit-user-drag: element;
 }
+
+
+
+
+
+
+
+
+/**********************/
+/* CSS FOR LOGIN PAGE */
+/**********************/
+#htmlConnection body{
+	font-family: Calibri;
+	background-color: #1C1C1C;
+	margin: 0;
+}
+
+#htmlConnection .outer {
+    display: table;
+    height: 100%;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+
+#htmlConnection .middle {
+    display: table-cell;
+    margin: 0;
+    padding: 0;
+    vertical-align: middle;
+}
+
+#htmlConnection .inner {
+    margin: 0 auto;
+    padding: 10px;
+    text-align: left;
+    width: 750px;
+	height: 750px;
+	border-radius: 750px;
+	
+	color: black;
+	text-align: center;
+	/*background-color: #FEF9E4;*/
+	background-color: #67DB86;
+	background-image:url(icons/cloudy.png);
+	background-repeat: no-repeat;
+	background-size: cover;
+	border: solid 10px black;
+	transition-duration:0.5s;
+}
+
+#htmlConnection .inner:hover{
+	border: solid 10px #FE1938;
+}
+
+
+#htmlConnection h2{
+	margin-top: 25%;
+	font-size: 9em;
+	margin-bottom:15px;
+	font-family: 'Lobster';
+}
+
+#htmlConnection p{
+	padding-left: 100px;
+	padding-right: 100px;
+	margin-bottom: 40px;
+}
+
+#htmlConnection input{
+	font-family: 'Biryani', sans-serif;
+	color: black;
+	margin: 5px;
+	padding: 5px;
+	width: 200px;
+	font-size: 14px;
+	
+	transition: all .5s ease;		
+	-webkit-transition: all .5s ease;
+	-moz-transition: all .5s ease;
+}
+
+#htmlConnection input[type="text"]{
+	background-color: rgba(0,0,0,0);
+	border: 0;
+	border-bottom: 2px solid gray;
+	
+	padding-bottom: 0px;
+	margin-bottom: -2px;
+	height: 21px;
+	outline: none;
+}
+
+#htmlConnection input[type=text]:focus {
+	border-bottom: 2px solid #FE1938;
+}
+
+#htmlConnection input[type="submit"]{
+	font-size:12px;
+	padding: 1px 10px;
+	padding-bottom: 2px;
+	
+	width: 150px;
+	height: 30px;
+	text-align: center;
+	display: inline-block;
+	
+	color: white;
+	border: 2px solid black;
+	background-color: #2E2E2E;
+	padding-top: 4px;
+	border-radius: 5px;
+	margin-top:25px;
+}
+
+#htmlConnection input[type="submit"]:hover{
+	border: 2px solid #FE1938;
+	background-color: #FE6176;
+	cursor: pointer;
+}
+
+#htmlConnection * {
+	outline-color: #FE1938;
+}
+

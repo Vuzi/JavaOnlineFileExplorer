@@ -22,6 +22,16 @@
 	margin-right: 6px;
 }
 
+.glyphicon-user:before{
+	margin-top:1px;
+	content: "\e008";
+}
+
+.glyphicon-lock:before {
+	margin-top:1px;
+  content: "\e033";
+}
+
 .glyphicon-trash:before {
     content: "\e020";
 }

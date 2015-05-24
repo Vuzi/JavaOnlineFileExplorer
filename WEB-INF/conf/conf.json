@@ -2,6 +2,7 @@
 	"root" : "C:/unused/",
 	"URI"  : "/JavaOnlineFileExplorer",
 	"actions" : [ 
+					"fr.vuzi.fileexplorer.api.action.front.ActionIdentification",
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogin",
 					"fr.vuzi.fileexplorer.api.action.user.ActionLogout",
 					"fr.vuzi.fileexplorer.api.action.directory.ActionDirShow",
@@ -25,6 +26,6 @@
 	"velocity_priority" : { 
 		"__CURRENT__" : true,
 		"fr.vuzi.fileexplorer.api.action.front.ActionGetHeader" : true,
-		"fr.vuzi.fileexplorer.api.action.front.ActionGetFooter" : true 
+		"fr.vuzi.fileexplorer.api.action.front.ActionGetFooter" : true
 	}
 }
