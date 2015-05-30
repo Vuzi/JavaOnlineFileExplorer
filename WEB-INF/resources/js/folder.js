@@ -23,7 +23,7 @@ var FolderTableRenderer = CallbackHandler.extend({
 	},
 	render : function() {
 		this.rendered = $('<table class="' + this.size + '"></table>');
-		this.rendered.append($('<tr><th></th><th>Nom</th><th>Type</th><th>Modification</th><th>Taille</th></tr>'));
+		this.rendered.append($('<tr><th></th><th>Nom</th><th>Type</th><th>Création</th><th>Modification</th><th>Taille</th></tr>'));
 	},
 	generateTypeIcon : function(mimeType, filename, path, size) {
 		var icons_dir = "resources/style/icons/";
@@ -98,7 +98,7 @@ var FolderTableRenderer = CallbackHandler.extend({
 		}
 
 		var icon_path = endpoint + icons_dir + icon_src;
-		var image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
+		var image = $('<img src="' + icon_path + '" alt="icon" />');
 
 		return image;
 	},
@@ -110,8 +110,17 @@ var FolderTableRenderer = CallbackHandler.extend({
 		line.append($('<td class="icon"></td>').append(icon));
 		line.append($('<td>' + (name || element.name) + '</td>'));
 		line.append($('<td>' + (type || element.type) + '</td>'));
-		line.append($('<td>' + (element.modificationDate || element.modification) + '</td>'));
-		line.append($('<td>' + (element.size || '-') + '</td>'));
+
+		if(element.UID) {
+			line.append($('<td>' + (element.modificationDate ? new Date(element.modificationDate).toLocaleString() : new Date(element.edit).toLocaleString() )+ '</td>'));
+			line.append($('<td>' + (element.creationDate ? new Date(element.creationDate).toLocaleString() : new Date(element.creation).toLocaleString() )+ '</td>'));
+			line.append($('<td>' + (element.size ? sizeFormat(element.size) : '-') + '</td>'));
+		} else {
+			line.append($('<td> - </td>'));
+			line.append($('<td> - </td>'));
+			line.append($('<td> - </td>'));
+		}
+
 
 		line.on('dragstart', function(e) {
 			me.fireEvent('dragstart', element, line, e);
