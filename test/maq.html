@@ -36,8 +36,9 @@
 				</div>
 				
 				<div id="content">
+				<button onclick="changeTheme()">CLIQUE ICI PUTAIN</button>
 					<h1>Content of /Root/Truc/Pomme</h2>
-					<!--<ul>
+					<ul id="smallView">
 						<li><a href="#"><figure><img src="style/icons/PDF.png"/><figcaption>superhypermegagigateralongfile.pdf</figcaption></figure></a></li>
 						<li><a href="#"><figure><img src="style/icons/PNG.png"/><figcaption>file.png</figcaption></figure></a></li>					
 						<li><a href="#"><figure><img src="style/icons/DOC.png"/><figcaption>file.doc</figcaption></figure></a></li>
@@ -55,22 +56,31 @@
 						<li><a href="#"><figure><img src="style/icons/PPT.png"/><figcaption>file.ppt</figcaption></figure></a></li>
 						<li><a href="#"><figure><img src="style/icons/MP3.png"/><figcaption>file.mp3</figcaption></figure></a></li>
 						<li><a href="#"><figure><img src="style/icons/PDF.png"/><figcaption>file.pdf</figcaption></figure></a></li>
-					</ul>-->
-					<table>
-					<tr><th>Type</th><th>Nom</th><th>Truc</th><th>Truc</th><th>Truc</th><th>Truc</th></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
-					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					</ul>
+					<!--<table id="smallView">
+						<tr><th>Type</th><th>Nom</th><th>Truc</th><th>Truc</th><th>Truc</th><th>Truc</th></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+						<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
 					</table>
+					-->
 				</div>
+				<script>
+				function changeTheme() {					
+					if(document.getElementById("smallView")) 
+						document.getElementById("smallView").id = "largeView";
+					else if(document.getElementById("largeView")) 
+						document.getElementById("largeView").id = "smallView";
+				};
+				</script>
 			</div>
 		</div>
 	</body>
