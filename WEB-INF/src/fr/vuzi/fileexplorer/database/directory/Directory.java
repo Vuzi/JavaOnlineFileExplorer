@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import fr.vuzi.fileexplorer.database.file.File;
 
@@ -18,11 +19,19 @@ public class Directory {
 
 	public Directory(Document d) {
 		this.UID = d.getObjectId("_id").toString();
+		
+		ObjectId parent = d.getObjectId("parent");
+		if(parent != null)
+			this.parentUID = parent.toString();
+		
 		this.name = d.getString("name");
 		this.edit = d.getDate("edit");
 		this.creation = d.getDate("creation");
 		this.path = d.getString("path");
 		this.pathList = DirectoryUtils.getPath(path);
+		
+		if(path == null)
+			this.path = "/";
 	}
 	
 	public Directory() {
@@ -33,6 +42,11 @@ public class Directory {
 	 * Directory ID
 	 */
 	public String UID;
+	
+	/**
+	 * Parent ID
+	 */
+	public String parentUID;
 
 	/**
 	 * Name of the directory

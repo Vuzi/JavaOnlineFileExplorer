@@ -74,23 +74,23 @@ public class ActionDirModification extends AAction {
 		}
 		
 		// Test that the parent directory exist
-		Directory d = DirectoryUtils.getDirectoryParent(u, path, name);
-		if(d == null) {
+		Directory parent = DirectoryUtils.getDirectoryParent(u, path, name);
+		if(parent == null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Parent directory of '/" + c.getParameterUnique("_path") + "' does not exist")));
 			c.setStatus(400);
 			return;
 		}
 		
 		// Test that the directory doesn't exist
-		d = DirectoryUtils.getDirectory(u, path, name);
-		if(d != null) {
+		Directory self = DirectoryUtils.getDirectory(u, path, name);
+		if(self != null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Directory '/" + c.getParameterUnique("_path") + "' already exists")));
 			c.setStatus(400);
 			return;
 		}
 		
-		d = DirectoryUtils.createDirectory(u, path, name.trim());
-		c.setAttribute("model", new GenericMessage(d));
+		self = DirectoryUtils.createDirectory(u, parent, name.trim());
+		c.setAttribute("model", new GenericMessage(self));
 	}
 	
 	private void deleteAction(IContext c, User u) {

@@ -144,6 +144,8 @@ public class FileUtils {
 		gfsFile.put("edit", now);
 		gfsFile.put("parent", d.UID == null ? null : new ObjectId(d.UID));
 		
+		DirectoryUtils.updateDirectoryDate(u, d.UID);
+				
 		gfsFile.save();
 		in.close();
 		
@@ -173,6 +175,8 @@ public class FileUtils {
 		gfsFile.put("creation", now);
 		gfsFile.put("edit", now);
 		gfsFile.put("parent", d.UID == null ? null : new ObjectId(d.UID));
+
+		DirectoryUtils.updateDirectoryDate(u, d.UID);
 		
 		gfsFile.save();
 
@@ -202,8 +206,9 @@ public class FileUtils {
 		BasicDBObject query = new BasicDBObject();
 		query.put("owner", new ObjectId(u.UID));
 		query.put("_id", new ObjectId(f.UID));
-
+		
 		if(collection.deleteOne(query).wasAcknowledged()) {
+			DirectoryUtils.updateDirectoryDate(u, d);
 			return d;
 		} else {
 			return null;
@@ -231,6 +236,7 @@ public class FileUtils {
 		update.append("$set", new BasicDBObject().append("filename", newName));
 		
 		collection.updateOne(query, update);
+		DirectoryUtils.updateDirectoryDate(u, f.parentUID);
 
 		// Update local version
 		f.name = newName;
@@ -259,6 +265,8 @@ public class FileUtils {
 		update.append("$set", new BasicDBObject().append("path", newPath).append("parent", newContainer.UID == null ? null : new ObjectId(newContainer.UID)));
 		
 		collection.updateOne(query, update);
+		DirectoryUtils.updateDirectoryDate(u, f.parentUID);
+		DirectoryUtils.updateDirectoryDate(u, newContainer.UID);
 
 		// Update local version
 		f.path = newPath;

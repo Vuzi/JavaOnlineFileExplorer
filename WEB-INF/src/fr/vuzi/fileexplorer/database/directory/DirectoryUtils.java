@@ -153,8 +153,6 @@ public class DirectoryUtils {
 
 		if(dir.name == null)
 			query.put("path", "/");
-		else if(dir.path == null)
-			query.put("path","/" + dir.name + "/");
 		else
 			query.put("path", dir.path + dir.name + "/");
 		query.put("owner", new ObjectId(u.UID));
@@ -218,13 +216,44 @@ public class DirectoryUtils {
 	}
 	
 	/**
+	 * Update a directory name
+	 * @param u The owner
+	 * @param UID The UID
+	 */
+	public static void updateDirectoryDate(User u, String UID) {
+		if(UID == null)
+			return; // Nothing to update
+		
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
+		Date now = new Date();
+
+		BasicDBObject query = new BasicDBObject();
+		query.put("owner", new ObjectId(u.UID));
+		query.put("_id", new ObjectId(UID));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.append("$set", new BasicDBObject().append("edit", now));
+		
+		collection.updateOne(query, update);
+	}
+
+	/**
+	 * Update the directory date
+	 * @param u The owner
+	 * @param d The directory
+	 */
+	public static void updateDirectoryDate(User u, Directory d) {
+		updateDirectoryDate(u, d.UID);
+	}
+	
+	/**
 	 * Create a directory
 	 * @param u The owner
 	 * @param path The path
 	 * @param name The name
 	 * @return The newly created directory
 	 */
-	public static Directory createDirectory(User u, List<String> path, String name) {
+	public static Directory createDirectory(User u, Directory parent, String name) {
 
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
 		Document newDir = new Document();
@@ -232,12 +261,14 @@ public class DirectoryUtils {
 
 		newDir.put("owner", new ObjectId(u.UID));
 		newDir.put("name", name);
-		newDir.put("path", path.size() > 0 ? "/" + String.join("/", path) + "/" : "/");
+		newDir.put("path", parent.name != null ? parent.path + parent.name + "/" : "/");
 		newDir.put("creation", now);
 		newDir.put("edit", now);
+		newDir.put("parent", parent.UID != null ? new ObjectId(parent.UID) : null);
 		
 		collection.insertOne(newDir);
-		
+		updateDirectoryDate(u, parent);
+				
 		return new Directory(newDir);
 	}
 	
@@ -259,8 +290,9 @@ public class DirectoryUtils {
 		query.put("owner", new ObjectId(u.UID));
 		query.put("name", d.name);
 		query.put("path", d.path);
-		
+
 		if(collection.deleteOne(query).wasAcknowledged()) {
+			updateDirectoryDate(u, d.parentUID);
 			return getDirectoryParent(u, d);
 		} else {
 			return null;
@@ -281,6 +313,7 @@ public class DirectoryUtils {
 		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
 		MongoCollection<Document> collectionFiles = DataBase.getInstance().getCollection("files.files");
+		Date now = new Date();
 		String newPath = d.path + newName;
 		String oldPath = d.path + d.name;
 
@@ -290,7 +323,7 @@ public class DirectoryUtils {
 		query.put("owner", new ObjectId(u.UID));
 		
 		BasicDBObject update = new BasicDBObject();
-		update.append("$set", new BasicDBObject().append("name", newName));
+		update.append("$set", new BasicDBObject().append("name", newName).append("edit", now));
 		
 		collection.updateOne(query, update);
 		
@@ -312,7 +345,7 @@ public class DirectoryUtils {
 			dirQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
-			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())).append("edit", now));
 		
 			collection.updateOne(dirQuery, update);
 		}
@@ -323,7 +356,7 @@ public class DirectoryUtils {
 			fileQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
-			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())).append("edit", now));
 		
 			collectionFiles.updateOne(fileQuery, update);
 		}
@@ -385,6 +418,13 @@ public class DirectoryUtils {
 		return directories;
 	}
 
+	/**
+	 * Move a directory
+	 * @param u
+	 * @param d
+	 * @param newContainer
+	 * @return
+	 */
 	public static Directory moveDirectory(User u, Directory d, Directory newContainer) {
 		
 		if(d.UID == null)
@@ -392,7 +432,8 @@ public class DirectoryUtils {
 		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("directories");
 		MongoCollection<Document> collectionFiles = DataBase.getInstance().getCollection("files.files");
-
+		Date now = new Date();
+		
 		// Change path
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(d.UID));
@@ -402,7 +443,7 @@ public class DirectoryUtils {
 		String newPath = newContainer.name == null ? "/" : newContainer.path + newContainer.name + "/";
 
 		BasicDBObject update = new BasicDBObject();
-		update.append("$set", new BasicDBObject().append("path", newPath));
+		update.append("$set", new BasicDBObject().append("path", newPath).append("edit", now));
 
 		collection.updateOne(query, update);
 
@@ -424,7 +465,7 @@ public class DirectoryUtils {
 			dirQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
-			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())).append("edit", now));
 		
 			collection.updateOne(dirQuery, update);
 		}
@@ -435,10 +476,12 @@ public class DirectoryUtils {
 			fileQuery.put("_id", doc.getObjectId("_id"));
 			
 			update = new BasicDBObject();
-			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())));
+			update.append("$set", new BasicDBObject().append("path", newPath + doc.getString("path").substring(oldPath.length())).append("edit", now));
 		
 			collectionFiles.updateOne(fileQuery, update);
 		}
+
+		updateDirectoryDate(u, newContainer);
 		
 		// Update local version
 		d.path = newPath;

@@ -121,7 +121,6 @@ var FolderTableRenderer = CallbackHandler.extend({
 			line.append($('<td> - </td>'));
 		}
 
-
 		line.on('dragstart', function(e) {
 			me.fireEvent('dragstart', element, line, e);
 		}).on('dragend', function(e) {
@@ -322,7 +321,7 @@ var Folder = CallbackHandler.extend({
 	init : function(renderer, folderRenderer) {
 		this._super();
 		this.renderer = renderer;
-		this.folderRenderer = folderRenderer || new FolderTableRenderer();
+		this.folderRenderer = folderRenderer || new FolderIconRenderer();
 		this.folderRenderer.renderer = this.renderer;
 		this.in_update = false;
 		this.selected = [];

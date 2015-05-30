@@ -3,6 +3,7 @@ package fr.vuzi.fileexplorer.database.file;
 import java.util.Date;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.gridfs.GridFSFile;
 import com.mongodb.gridfs.GridFSInputFile;
@@ -66,8 +67,10 @@ public class File {
 		this.creationDate = (Date) gfsFile.get("creation");
 		this.modificationDate = (Date) gfsFile.get("edit");
 		this.size = gfsFile.getLength();
-		if(gfsFile.get("parent") != null)
-			this.parentUID = gfsFile.get("parent").toString();
+		
+		ObjectId parent = (ObjectId) gfsFile.get("parent");
+		if(parent != null)
+			this.parentUID = parent.toString();
 	}
 
 	public File(GridFSFile gfsFile) {
