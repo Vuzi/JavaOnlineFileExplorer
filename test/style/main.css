@@ -453,3 +453,91 @@ input[type="button"]:hover, .input_file:hover{
 border: 1px solid #FE1938;
 background-color: #FE6176;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#right #content table{
+	background-color: whitesmoke;
+	width: 100%;
+	border-collapse: collapse;
+	color: black;
+}
+
+#right #content table th{
+	font-size: 0.9em;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: white;
+	border: 1px solid #1C1C1C;
+	background-color: #1C1C1C;
+}
+
+#right #content table tr td{
+	border: 1px solid #1C1C1C;
+	font-size: 0.7em;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#right #content table tr td.icon{
+	width: 30px;
+	text-align: center;
+}
+
+#right #content table img{
+	margin-top: 10px;
+	height: 30px;
+	width: 30px;
+}
+
+#right #content table tr{
+	transition-duration: 0.2s;
+}
+
+#right #content table tr:hover td{
+	color: white;
+	background-color: #1C1C1C;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

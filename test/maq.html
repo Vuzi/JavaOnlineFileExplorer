@@ -4,78 +4,10 @@
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:700' rel='stylesheet' type='text/css'>
 		<link href='http://fonts.googleapis.com/css?family=Biryani:300,400' rel='stylesheet' type='text/css'>
-		<link rel="stylesheet" type="text/css" href="main.css">
-		<script src="http://ekladata.com/bleulezard.eklablog.com/perso/flocons.js" type="text/javascript"></script>
-		<audio controls="controls" hidden="true" autoplay="true">
-			<source src="icons/starwars.mp3" type="audio/mpeg" />		
-		</audio>
+		<link rel="stylesheet" type="text/css" href="style/main.css">
 		<title>Maquette FileExplorer</title>
 	</head>
 	<body>
-		<script type="text/javascript">
-			snow_img = "icons/ship.png";
-			
-			snow_no = 10;
-			
-			if (typeof(window.pageYOffset) == "number")
-			{
-				snow_browser_width = window.innerWidth;
-				snow_browser_height = window.innerHeight;
-			} 
-			else if (document.body && (document.body.scrollLeft || document.body.scrollTop))
-			{
-				snow_browser_width = document.body.offsetWidth;
-				snow_browser_height = document.body.offsetHeight;
-			}
-			else if (document.documentElement && (document.documentElement.scrollLeft || document.documentElement.scrollTop))
-			{
-				snow_browser_width = document.documentElement.offsetWidth;
-				snow_browser_height = document.documentElement.offsetHeight;
-			}
-			else
-			{
-				snow_browser_width = 500;
-				snow_browser_height = 500;	
-			}
-			
-			snow_dx = [];
-			snow_xp = [];
-			snow_yp = [];
-			snow_am = [];
-			snow_stx = [];
-			snow_sty = [];
-			
-			for (i = 0; i < snow_no; i++) 
-			{ 
-				snow_dx[i] = 0; 
-				snow_xp[i] = Math.random()*(snow_browser_width-50);
-				snow_yp[i] = Math.random()*snow_browser_height;
-				snow_am[i] = Math.random()*10; 
-				snow_stx[i] = 0.02 + Math.random()/10;
-				snow_sty[i] = 0.7 + Math.random();
-				if (i > 0) document.write("<\div id=\"snow_flake"+ i +"\" style=\"position:absolute;z-index:"+i+"\"><\img src=\""+snow_img+"\" border=\"0\"><\/div>"); else document.write("<\div id=\"snow_flake0\" style=\"position:absolute;z-index:0\"><a href=\"http://peters1.dk/tools/snow.php\" target=\"_blank\"><\img src=\""+snow_img+"\" border=\"0\"></a><\/div>");
-			}
-			
-			function SnowStart() 
-			{ 
-				for (i = 0; i < snow_no; i++) 
-				{ 
-					snow_yp[i] += snow_sty[i];
-					if (snow_yp[i] > snow_browser_height-50) 
-					{
-						snow_xp[i] = Math.random()*(snow_browser_width-snow_am[i]-30);
-						snow_yp[i] = 0;
-						snow_stx[i] = 0.001 + Math.random()/10;
-						snow_sty[i] = 0.7 + Math.random();
-					}
-					snow_dx[i] += snow_stx[i];
-					document.getElementById("snow_flake"+i).style.top=snow_yp[i]+"px";
-					document.getElementById("snow_flake"+i).style.left=snow_xp[i] + snow_am[i]*Math.sin(snow_dx[i])+"px";
-				}
-				snow_time = setTimeout("SnowStart()", 10);
-			}
-			SnowStart();
-		</script>
 		<div id="global">
 			
 			<div id="left">
@@ -101,35 +33,43 @@
 			
 			<div id="right">
 				<div id="options">
-					<menu type="menu">
-						<li><menu label="Fichier"><a href="#">Nouveau fichier</a></menu></li>
-						<li><menu label="Editer"><a href="#">Nouveau dossier</a></menu></li>
-						<li><menu label="Editer"><a href="#">Organisation</a></menu></li>
-						<li><menu label="Editer"><a href="#">Affichage</a></menu></li>
-					</menu>
 				</div>
 				
 				<div id="content">
 					<h1>Content of /Root/Truc/Pomme</h2>
-					<ul>
-						<li><a href="#"><figure><img src="icons/PDF.png"/><figcaption>superhypermegagigateralongfile.pdf</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/PNG.png"/><figcaption>file.png</figcaption></figure></a></li>					
-						<li><a href="#"><figure><img src="icons/DOC.png"/><figcaption>file.doc</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/JPG.png"/><figcaption>file.jpg</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/CSV.png"/><figcaption>file.csv</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/AVI.png"/><figcaption>file.avi</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/FOLDER.png"/><figcaption>Dossier</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/XLS.png"/><figcaption>file.xls</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/CDR.png"/><figcaption>file.cdr</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/RAR.png"/><figcaption>file.rar</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/FOLDER.png"/><figcaption>Super hyper mega giga tera long dossier</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/default.png"/><figcaption>file.truc</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/ZIP.png"/><figcaption>file.zip</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/TXT.png"/><figcaption>file.txt</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/PPT.png"/><figcaption>file.ppt</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/MP3.png"/><figcaption>file.mp3</figcaption></figure></a></li>
-						<li><a href="#"><figure><img src="icons/PDF.png"/><figcaption>file.pdf</figcaption></figure></a></li>
-					</ul>
+					<!--<ul>
+						<li><a href="#"><figure><img src="style/icons/PDF.png"/><figcaption>superhypermegagigateralongfile.pdf</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/PNG.png"/><figcaption>file.png</figcaption></figure></a></li>					
+						<li><a href="#"><figure><img src="style/icons/DOC.png"/><figcaption>file.doc</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/JPG.png"/><figcaption>file.jpg</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/CSV.png"/><figcaption>file.csv</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/AVI.png"/><figcaption>file.avi</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/FOLDER.png"/><figcaption>Dossier</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/XLS.png"/><figcaption>file.xls</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/CDR.png"/><figcaption>file.cdr</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/RAR.png"/><figcaption>file.rar</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/FOLDER.png"/><figcaption>Super hyper mega giga tera long dossier</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/default.png"/><figcaption>file.truc</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/ZIP.png"/><figcaption>file.zip</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/TXT.png"/><figcaption>file.txt</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/PPT.png"/><figcaption>file.ppt</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/MP3.png"/><figcaption>file.mp3</figcaption></figure></a></li>
+						<li><a href="#"><figure><img src="style/icons/PDF.png"/><figcaption>file.pdf</figcaption></figure></a></li>
+					</ul>-->
+					<table>
+					<tr><th>Type</th><th>Nom</th><th>Truc</th><th>Truc</th><th>Truc</th><th>Truc</th></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					<tr><a href="#"><td class="icon"><img src="style/icons/PDF.png"/></td><td>superhypermegagigateralongfile.pdf</td><td>Truc</td><td>Truc</td><td>Truc</td><td>Truc</td></a></tr>
+					</table>
 				</div>
 			</div>
 		</div>
