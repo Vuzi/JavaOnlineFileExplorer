@@ -1,6 +1,6 @@
 <div id="pop_up_back"></div>
 
-#if (!$context.getSessionAttribute('user'))
+#if (!$context.getSessionAttribute('user-uid'))
 	#parse("parts/login.vm")
 #else
 	#parse("parts/fileExplorer.vm")

@@ -81,9 +81,13 @@ var CallbackHandler = Class.extend({
 		return this;
 	},
 	clear : function(target) {
-		if(this.actions[target] instanceof Array) {
-			this.actions[target] = [];
-		}
+		if(target) {
+			if(this.actions[target] instanceof Array) {
+				this.actions[target] = [];
+			}
+		} else
+			this.actions = {};
+
 		return this;
 	},
 	fireEvent : function(target) {

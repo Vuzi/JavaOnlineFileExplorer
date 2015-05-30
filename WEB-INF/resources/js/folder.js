@@ -2,182 +2,16 @@
 // =======================================================
 //                    Directory content
 // =======================================================
-
-var Folder = CallbackHandler.extend({
+var FolderRenderer = CallbackHandler.extend({
 	init : function(renderer) {
 		this._super();
 		this.renderer = renderer;
-		this.in_update = false;
-		this.selected = [];
 	},
-	prepare_update : function() {
-		this.in_update = true;
-		this.selected = {};
-		this.renderer.addClass('blur');
-	},
-	finish_update : function() {
-		this.in_update = false;
-		this.renderer.removeClass('blur');
-
-		this.fireEvent('update', this.element);
-	},
-	updateFrom : function(elements, values) {
-		var tmp = { files : [], directories : [] };
-
-		elements.forEach(function(element) {
-			if(element.size)
-				tmp.files.push(element);
-			else
-				tmp.directories.push(element);
-		});
-
-		this.render(tmp, null, values);
-	},
-	update : function(element, parent) {
-		var me = this;
-		var link;
-		
-		this.prepare_update();
-
-		if(element.UID == null)
-			link = endpoint + 'api/dir/';
-		else
-			link = endpoint + 'api/dir-id/' + element.UID;
-			
-		$.ajax({
-			type: 'GET',
-			url: link,
-			dataType : 'json',
-			success: function(data) {
-				me.render(data.data, parent);
-				me.finish_update();
-			},
-			error: function(data, e) {
-
-				// No response JSON
-				if(!data.responseJSON) {
-					this.fail(data);
-					return;
-				}
-				
-				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-				me.finish_update();
-			},
-			fail: function(data) {
-				console.log(data);
-				
-				var pop = new Toast("Erreur ", "La requête a échouée", "error");
-				pop.display();
-				me.finish_update();
-			}
-		});
-	},
-	render : function(element, parent, search) {
-		this.element = element;
-		
-		var me = this;
-		var h1 = (search ? $('<h1> Résultat de la recherche "' + search.search + '" dans "' + search.path + '" </h1>')
-			             : $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>'));
-		var ul = $('<ul />');
-		
-		// '..' folder
-		if(element.UID != null && parent) {
-			this._render_event(new Icon(ul)).update(parent, 'parent', '...', false);
-		}
-		
-		// Directories
-		element.directories.forEach(function(directory) {
-			me._render_event(new Icon(ul)).update(directory, 'folder');
-		});
-		
-		// Files
-		element.files.forEach(function(file) {
-			me._render_event(new Icon(ul)).update(file);
-		});
-		
-		this.renderer.empty().append(h1).append(ul);
-	},
-	_render_event : function(icon) {
-		var me = this;
-		return icon.on('click', function(element, icon, e) {
-				me.fireEvent('select', element, e);
-			}).on('click_context', function(element, icon, e) {
-				me._action_context(element, e);
-			}).on('select', function(element, icon, e) {
-				me._action_select(icon, e);
-			}).on('deselect', function(element, icon, e) {
-				me._action_select(icon, e);
-			}).on('dragstart', function(element, icon, e) {
-				me._action_drag_start(icon, e);
-			}).on('dragend', function(element, icon, e) {
-				me._action_drag_stop(icon, e);
-			});
-	},
-	_action_drag_start : function(icon, event) {
-		if(!this.in_update) {
-			if(this.selected[icon.element.UID]) {
-				event.dataTransfer.setData("value", this.selected);
-				event.dataTransfer.setData("multiple", true);
-
-				$.each(this.selected, function(key, value) {
-					value.image.css('opacity', '0.5');
-				});
-			} else {
-				event.dataTransfer.setData("value", icon);
-				event.dataTransfer.setData("multiple", false);
-				icon.image.css('opacity', '0.5');
-			}
-		}
-	},
-	_action_drag_stop : function(icon, event) {
-		if(!this.in_update) {
-			if(this.selected[icon.element.UID]) {
-				$.each(this.selected, function(key, value) {
-					value.image.css('opacity', 1);
-				});
-			} else {
-				icon.image.css('opacity', 1);
-			}
-		}
-	},
-	_action_select : function(icon, event) {
-		if(!this.in_update) {
-			if(this.selected[icon.element.UID]) {
-				delete this.selected[icon.element.UID];
-			} else { 
-				this.selected[icon.element.UID] = icon;
-			}
-		}
-	},
-	_action_context : function(element, event) {
-		if(!this.in_update) {
-			if(Object.keys(this.selected).length > 1 && this.selected[element.UID]) {
-				var values = {};
-
-				$.each(this.selected, function(UID, node) {
-					values[UID] = node.element;
-				});
-
-				this.fireEvent('select_context', values, event);
-			} else
-				this.fireEvent('select_context', element, event);
-		}
-	}
+	add : function(element, type, name, selectable) {}
 })
 
-
-// =======================================================
-//                          Icon
-// =======================================================
-
-var Icon = CallbackHandler.extend({
-	init : function(renderer) {
-		this._super();
-		this.selected = false;
-		this.renderer = renderer;
-	},
-	generateTypeIcon : function(mimeType, filename, path) {
+var FolderLargeIconRenderer = FolderRenderer.extend({
+	generateTypeIcon : function(mimeType, filename, path, size) {
 		var icons_dir = "resources/style/icons/";
 		var icon_src = "default.png";
 		var me = this;
@@ -250,46 +84,44 @@ var Icon = CallbackHandler.extend({
 		}
 
 		var icon_path = endpoint + icons_dir + icon_src;
-		this.image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
+		var image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
 
 
 		if(mimeType.match("^image")) {
 			var image_path = endpoint + 'api/file-bin' + path + filename;
 
-			if (this.element.size <= 1048576){
-				this.image.css('background-image', 'url(' + image_path + ')');
-				this.image.addClass('preview');
+			if (size <= 1048576){
+				image.css('background-image', 'url(' + image_path + ')');
+				image.addClass('preview');
 			} else {
-				this.image.on('mouseover', function() {
-					me.image.css('background-image', 'url(' + image_path + ')');
+				image.on('mouseover', function() {
+					image.css('background-image', 'url(' + image_path + ')');
 				});
-				this.image.on('mouseout', function() {
-					me.image.css('background-image', 'url(' + icon_path + ')');
+				image.on('mouseout', function() {
+					image.css('background-image', 'url(' + icon_path + ')');
 				});
 			}
 			
 
 			return $('<a href="javascript:void(0)" draggable="true"></a>').
 						append($('<figure draggable="true"></figure>').
-							append($('<div class="image-wrapper" ></div>').append(this.image)).
+							append($('<div class="image-wrapper" ></div>').append(image)).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		} else {
 			return $('<a href="javascript:void(0)" draggable="true" ></a>').
 						append($('<figure draggable="true"></figure>').
-							append($('<div class="image-wrapper" ></div>').append(this.image)).
+							append($('<div class="image-wrapper" ></div>').append(image)).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		}
 	},
-	update : function(element, type, name, selectable) {
-		this.element = element;
-
+	add : function(element, type, name, selectable) {
 		var me = this;
-		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path);
+		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path, element.size);
 
 		icon.on('dragstart', function(e) {
-			me.fireEvent('dragstart', me.element, me, e);
+			me.fireEvent('dragstart', element, icon, e);
 		}).on('dragend', function(e) {
-			me.fireEvent('dragend', me.element, me, e);
+			me.fireEvent('dragend', element, icon, e);
 		}).on('dragover', function(e) {
 			icon.addClass('drag_over');
 		}).on('dragleave', function(e) {
@@ -297,12 +129,12 @@ var Icon = CallbackHandler.extend({
 		});
 
 		icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
-			me.fireEvent('click', me.element, me, e);
+			me.fireEvent('click', element, icon, e);
 		});
 
 		// Context menu
 		icon.bind('contextmenu', function(e) {
-			me.fireEvent('click_context', me.element, me, e);
+			me.fireEvent('click_context', element, icon, e);
 			e.preventDefault();
 		});
 		
@@ -312,15 +144,181 @@ var Icon = CallbackHandler.extend({
 				icon.toggleClass('selected');
 
 				if(!me.selected) {
-					me.fireEvent('select', me.element, me, e);
+					me.fireEvent('select', element, icon, e);
 					me.selected = true;
 				} else {
-					me.fireEvent('select', me.element, me, e);
+					me.fireEvent('select', element, icon, e);
 					me.selected = false;
 				}
 			}
 		});
 		
 		this.renderer.append($('<li />').append(icon));
+	}
+})
+
+
+// =======================================================
+//                    Directory content
+// =======================================================
+
+var Folder = CallbackHandler.extend({
+	init : function(renderer, folderRenderer) {
+		this._super();
+		this.renderer = renderer;
+		this.folderRenderer = folderRenderer || new FolderLargeIconRenderer();
+		this.in_update = false;
+		this.selected = [];
+	},
+	prepare_update : function() {
+		this.in_update = true;
+		this.selected = {};
+		this.renderer.addClass('blur');
+	},
+	finish_update : function() {
+		this.in_update = false;
+		this.renderer.removeClass('blur');
+
+		this.fireEvent('update', this.element);
+	},
+	updateFrom : function(elements, values) {
+		var tmp = { files : [], directories : [] };
+
+		elements.forEach(function(element) {
+			if(element.size)
+				tmp.files.push(element);
+			else
+				tmp.directories.push(element);
+		});
+
+		this.render(tmp, null, values);
+	},
+	update : function(element, parent) {
+		var me = this;
+		var link;
+		
+		this.prepare_update();
+
+		if(element.UID == null)
+			link = endpoint + 'api/dir/';
+		else
+			link = endpoint + 'api/dir-id/' + element.UID;
+			
+		$.ajax({
+			type: 'GET',
+			url: link,
+			dataType : 'json',
+			success: function(data) {
+				me.render(data.data, parent);
+				me.finish_update();
+			},
+			error: function(data, e) {
+
+				// No response JSON
+				if(!data.responseJSON) {
+					this.fail(data);
+					return;
+				}
+				
+				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+				pop.display();
+				me.finish_update();
+			},
+			fail: function(data) {
+				var pop = new Toast("Erreur ", "La requête a échouée", "error");
+				pop.display();
+				me.finish_update();
+			}
+		});
+	},
+	render : function(element, parent, search) {
+		this.element = element;
+		
+		var me = this;
+		var h1 = (search ? $('<h1> Résultat de la recherche "' + search.search + '" dans "' + search.path + '" </h1>')
+			             : $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>'));
+		var ul = $('<ul />');
+
+		this.folderRenderer.clear();
+		this.folderRenderer.renderer = ul;
+		
+		// '..' folder
+		if(element.UID != null && parent) {
+			this.folderRenderer.add(parent, 'parent', '...', false);
+		}
+		
+		// Directories
+		element.directories.forEach(function(directory) {
+			me.folderRenderer.add(directory, 'folder');
+		});
+		
+		// Files
+		element.files.forEach(function(file) {
+			me.folderRenderer.add(file);
+		});
+		
+		// Handle events
+		this.folderRenderer.on('click', function(element, icon, e) {
+			if(!this.in_update) 
+				me.fireEvent('select', element, e);
+		}).on('click_context', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_context(element, icon, e);
+		}).on('select', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_select(element, icon, e);
+		}).on('deselect', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_select(element, icon, e);
+		}).on('dragstart', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_drag_start(element, icon, e);
+		}).on('dragend', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_drag_stop(element, icon, e);
+		});
+
+		// Render element
+		this.renderer.empty().append(h1).append(ul);
+	},
+	_action_drag_start : function(element, icon, event) {
+		if(this.selected[element.UID]) {
+			event.dataTransfer.setData("value", this.selected);
+			event.dataTransfer.setData("multiple", true);
+
+			icon.css('opacity', '0.5');
+/*
+			$.each(this.selected, function(key, value) {
+				value.image.css('opacity', '0.5');
+			});*/
+		} else {
+			event.dataTransfer.setData("value", icon);
+			event.dataTransfer.setData("multiple", false);
+			icon.css('opacity', '0.5');
+		}
+	},
+	_action_drag_stop : function(element, icon, event) {
+		if(this.selected[element.UID]) {
+			/*
+			$.each(this.selected, function(key, value) {
+				value.css('opacity', 1);
+			});*/
+			icon.css('opacity', '1');
+		} else {
+			icon.css('opacity', '1');
+		}
+	},
+	_action_select : function(element, icon, event) {
+		if(this.selected[element.UID]) {
+			delete this.selected[element.UID];
+		} else { 
+			this.selected[element.UID] = element;
+		}
+	},
+	_action_context : function(element, icon, event) {
+		if(Object.keys(this.selected).length > 1 && this.selected[element.UID])
+			this.fireEvent('select_context', this.selected, event);
+		else
+			this.fireEvent('select_context', element, event);
 	}
 })

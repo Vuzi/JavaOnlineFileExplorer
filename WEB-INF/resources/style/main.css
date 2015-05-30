@@ -337,6 +337,8 @@ input[type=text] {
 
 	border: 3px solid #2E2E2E;
 	border-radius: 90px;
+	transition-duration: 0.5s;
+
 	z-index: 10;
     -webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC); /* this fixes the overflow:hidden in Chrome/Opera */
 }
@@ -399,18 +401,16 @@ input[type=text] {
 	right: 0;
 	bottom: 0;
 	left: 0;
+
 	background: rgba(0, 0, 0, 0.5);
+	//background-image: url(backgrounds/test.png);
+
 	opacity:1;
 	display: none;
 	
 }
 
 .blurable.blur {
-	filter: blur(3px);
-	-webkit-filter: blur(3px);
-	-moz-filter: blur(3px);
-	-o-filter: blur(3px);
-	-ms-filter: blur(3px);
 	
 	transition: 0.5s;
 	-webkit-transition:0.5s;
@@ -418,11 +418,14 @@ input[type=text] {
 }
 
 .blurable {
+	/*
 	filter: blur(0px);
 	-webkit-filter: blur(0px);
 	-moz-filter: blur(0px);
 	-o-filter: blur(0px);
-	-ms-filter: blur(0px);
+	-ms-filter: blur(0px);*/
+
+
 	
 	transition: 0.5s;
 	-webkit-transition:0.5s;
