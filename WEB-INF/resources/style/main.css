@@ -308,6 +308,7 @@ input[type=text] {
 	color: black;
 }
 
+/*NORMAL ICON VIEW*/
 #content li{
 	font-size: 14px;
 	display: inline-block;
@@ -375,6 +376,53 @@ input[type=text] {
 #content li a.drag_over .image-wrapper {
 	border: 3px solid orange;
 }
+
+
+/*NORMAL LIST VIEW*/
+#right #content table{
+	width: 100%;
+	border-collapse: collapse;
+	color: black;
+}
+
+#right #content table th{
+	font-weight: normal;
+	text-align: left;
+	font-size: 0.8em;
+	padding-left: 5px;
+	padding-right: 5px;
+	color: white;
+	background-color: #1C1C1C;
+}
+
+#right #content table tr td{
+	border-bottom: 1px solid lightgray;
+	font-size: 0.7em;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+
+#right #content table tr td.icon{
+	width: 30px;
+	text-align: center;
+}
+
+#right #content table img{
+	margin-top: 10px;
+	height: 30px;
+	width: 30px;
+}
+
+#right #content table tr{	
+	transition-duration: 0.2s;
+}
+
+#right #content table tr:hover td{
+	color: white;
+	background-color: #1C1C1C;
+}
+
+
 
 #content::-webkit-scrollbar-track {
 	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
@@ -1119,7 +1167,7 @@ input {
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
 	text-overflow: ellipsis;
-	width: 46.5px;
+	width: 50px;
 }
 
 #content ul.smallView li a figure .image-wrapper {
