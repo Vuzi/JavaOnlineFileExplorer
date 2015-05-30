@@ -6,16 +6,156 @@ var FolderRenderer = CallbackHandler.extend({
 	init : function(renderer, size) {
 		this._super();
 		this.renderer = renderer;
-		this.size = size || "smallView";
+		this.size = size || "normalView";
 	},
 	render : function() {},
 	add : function(element, type, name, selectable) {},
 })
 
 // =======================================================
+//                    Directory renderer
+// =======================================================
+var FolderTableRenderer = CallbackHandler.extend({
+	init : function(renderer, size) {
+		this._super();
+		this.renderer = renderer;
+		this.size = size || "normalView";
+	},
+	render : function() {
+		this.rendered = $('<table class="' + this.size + '"></table>');
+		this.rendered.append($('<tr><th></th><th>Nom</th><th>Type</th><th>Modification</th><th>Taille</th></tr>'));
+	},
+	generateTypeIcon : function(mimeType, filename, path, size) {
+		var icons_dir = "resources/style/icons/";
+		var icon_src = "default.png";
+		var me = this;
+
+		switch (mimeType) {
+			case 'application/x-troff-msvideo':
+			case 'video/avi' :
+			case 'video/msvideo' :
+			case 'video/x-msvideo' :
+				// Avi video
+				icon_src = "avi.png";
+				break;
+			case 'text/csv' :
+				// CSV file
+				icon_src = "csv.png";
+				break;
+			case 'application/msword' :
+			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' :
+			case 'application/vnd.openxmlformats-officedocument.wordprocessingml.template' :
+				// Doc
+				icon_src = "doc.png";
+				break;
+			case 'parent':
+				icon_src = "parent.png";
+				break;
+			case 'folder':
+				// Folder
+				icon_src = "folder.png";
+				break;
+			case 'image/jpeg' :
+				// Jpeg
+				icon_src = "jpg.png";
+				break;
+			case 'audio/mpeg' :
+			case 'audio/mp3' :
+				// MP3
+				icon_src = "mp3.png";
+				break;
+			case 'application/pdf' :
+				// PDF
+				icon_src = "pdf.png";
+				break;
+			case 'image/png' :
+				// PNG
+				icon_src = "png.png";
+				break;
+			case 'application/vnd.openxmlformats-officedocument.presentationml.presentation' :
+			case 'application/vnd.openxmlformats-officedocument.presentationml.slideshow' :
+			case 'application/vnd.openxmlformats-officedocument.presentationml.template' :
+				// Ppt
+				icon_src = "ppt.png";
+				break;
+			case 'application/x-rar-compressed' :
+				// rar
+				icon_src = "rar.png";
+				break;
+			case 'text/plain' :
+				// txt
+				icon_src = "txt.png";
+				break;
+			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' :
+			case 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' :
+				// xls
+				icon_src = "xls.png";
+				break;
+			case 'application/zip' :
+				// Zip
+				icon_src = "zip.png";
+				break;
+		}
+
+		var icon_path = endpoint + icons_dir + icon_src;
+		var image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
+
+		return image;
+	},
+	add : function(element, type, name, selectable) {
+		var me = this;
+		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path, element.size);
+		var line = $('<tr></tr>');
+
+		line.append($('<td class="icon"></td>').append(icon));
+		line.append($('<td>' + (name || element.name) + '</td>'));
+		line.append($('<td>' + (type || element.type) + '</td>'));
+		line.append($('<td>' + (element.modificationDate || element.modification) + '</td>'));
+		line.append($('<td>' + (element.size || '-') + '</td>'));
+
+		line.on('dragstart', function(e) {
+			me.fireEvent('dragstart', element, line, e);
+		}).on('dragend', function(e) {
+			me.fireEvent('dragend', element, line, e);
+		}).on('dragover', function(e) {
+			line.addClass('drag_over');
+		}).on('dragleave', function(e) {
+			line.removeClass('drag_over');
+		});
+
+		line.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
+			me.fireEvent('click', element, line, e);
+		});
+
+		// Context menu
+		line.bind('contextmenu', function(e) {
+			me.fireEvent('click_context', element, line, e);
+			e.preventDefault();
+		});
+		
+		// Select
+		line.on('click', function(e) {
+			if(selectable !== false) {
+				line.toggleClass('selected');
+
+				if(!me.selected) {
+					me.fireEvent('select', element, line, e);
+					me.selected = true;
+				} else {
+					me.fireEvent('select', element, line, e);
+					me.selected = false;
+				}
+			}
+		});
+		
+		this.rendered.append(line);
+	}
+})
+
+// =======================================================
 //                  Directory icon renderer
 // =======================================================
-var FolderLargeIconRenderer = FolderRenderer.extend({
+var FolderIconRenderer = FolderRenderer.extend({
 	generateTypeIcon : function(mimeType, filename, path, size) {
 		var icons_dir = "resources/style/icons/";
 		var icon_src = "default.png";
@@ -173,7 +313,7 @@ var Folder = CallbackHandler.extend({
 	init : function(renderer, folderRenderer) {
 		this._super();
 		this.renderer = renderer;
-		this.folderRenderer = folderRenderer || new FolderLargeIconRenderer();
+		this.folderRenderer = folderRenderer || new FolderTableRenderer();
 		this.folderRenderer.renderer = this.renderer;
 		this.in_update = false;
 		this.selected = [];

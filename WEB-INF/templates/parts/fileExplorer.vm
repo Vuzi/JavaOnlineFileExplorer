@@ -333,10 +333,6 @@
 		test.on('mouseenter', function(e) {
 			console.log('enter');
 		});
-		/*
-		$('body').on('click', function(e) {
-			test.remove();
-		});*/
 	});
 
 </script>
