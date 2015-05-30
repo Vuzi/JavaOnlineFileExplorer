@@ -1,15 +1,20 @@
 
 // =======================================================
-//                    Directory content
+//                    Directory renderer
 // =======================================================
 var FolderRenderer = CallbackHandler.extend({
-	init : function(renderer) {
+	init : function(renderer, size) {
 		this._super();
 		this.renderer = renderer;
+		this.size = size || "smallView";
 	},
-	add : function(element, type, name, selectable) {}
+	render : function() {},
+	add : function(element, type, name, selectable) {},
 })
 
+// =======================================================
+//                  Directory icon renderer
+// =======================================================
 var FolderLargeIconRenderer = FolderRenderer.extend({
 	generateTypeIcon : function(mimeType, filename, path, size) {
 		var icons_dir = "resources/style/icons/";
@@ -102,7 +107,6 @@ var FolderLargeIconRenderer = FolderRenderer.extend({
 				});
 			}
 			
-
 			return $('<a href="javascript:void(0)" draggable="true"></a>').
 						append($('<figure draggable="true"></figure>').
 							append($('<div class="image-wrapper" ></div>').append(image)).
@@ -113,6 +117,9 @@ var FolderLargeIconRenderer = FolderRenderer.extend({
 							append($('<div class="image-wrapper" ></div>').append(image)).
 							append($('<figcaption>' + filename + '</figcaption>')));
 		}
+	},
+	render : function() {
+		this.rendered = $('<ul class="' + this.size + '"></ul>');
 	},
 	add : function(element, type, name, selectable) {
 		var me = this;
@@ -153,7 +160,7 @@ var FolderLargeIconRenderer = FolderRenderer.extend({
 			}
 		});
 		
-		this.renderer.append($('<li />').append(icon));
+		this.rendered.append($('<li />').append(icon));
 	}
 })
 
@@ -167,6 +174,7 @@ var Folder = CallbackHandler.extend({
 		this._super();
 		this.renderer = renderer;
 		this.folderRenderer = folderRenderer || new FolderLargeIconRenderer();
+		this.folderRenderer.renderer = this.renderer;
 		this.in_update = false;
 		this.selected = [];
 	},
@@ -237,10 +245,9 @@ var Folder = CallbackHandler.extend({
 		var me = this;
 		var h1 = (search ? $('<h1> Résultat de la recherche "' + search.search + '" dans "' + search.path + '" </h1>')
 			             : $('<h1> Contenu de ' + (element.name == null ? '/' : element.path  + element.name) + '</h1>'));
-		var ul = $('<ul />');
 
 		this.folderRenderer.clear();
-		this.folderRenderer.renderer = ul;
+		this.folderRenderer.render();
 		
 		// '..' folder
 		if(element.UID != null && parent) {
@@ -279,7 +286,7 @@ var Folder = CallbackHandler.extend({
 		});
 
 		// Render element
-		this.renderer.empty().append(h1).append(ul);
+		this.renderer.empty().append(h1).append(this.folderRenderer.rendered);
 	},
 	_action_drag_start : function(element, icon, event) {
 		if(this.selected[element.UID]) {
