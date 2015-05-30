@@ -32,7 +32,7 @@ public class ActionFileExplorer extends AActionNoCredentials {
 			User user = UserUtils.getUser(login, pass);
 			if(user != null) {
 				// Save in the session and send the connected user in the response
-				c.setSessionAttribute("user", user);
+				c.setSessionAttribute("user-uid", user.UID);
 				c.setSessionAttribute("user-cr", user.credentials);
 				
 			} else {

@@ -1,11 +1,13 @@
 package fr.vuzi.fileexplorer.database.user;
 
 import org.bson.Document;
+import org.bson.types.ObjectId;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.MongoCollection;
 
 import fr.vuzi.fileexplorer.database.DataBase;
+import fr.vuzi.webframework.context.IContext;
 
 /**
  * Collection of users related actions and utility methods
@@ -40,6 +42,32 @@ public class UserUtils {
 			return null;
 		
 		return new User(d);
+	}
+
+	/**
+	 * Return an user by its UID
+	 * @param UID User UID
+	 * @return
+	 */
+	public static User getUser(String UID) {
+		if(UID == null)
+			return null;
+		
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("users");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(UID));
+		
+		Document d = collection.find(query).first();
+		
+		if(d == null)
+			return null;
+		
+		return new User(d);
+	}
+
+	public static User getSessionUser(IContext c) {
+		return getUser((String)c.getSessionAttribute("user-uid"));
 	}
 	
 }

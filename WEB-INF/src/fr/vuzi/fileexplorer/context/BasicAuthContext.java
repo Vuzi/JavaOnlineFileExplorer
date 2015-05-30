@@ -7,6 +7,12 @@ import fr.vuzi.fileexplorer.database.user.User;
 import fr.vuzi.fileexplorer.database.user.UserUtils;
 import fr.vuzi.webframework.context.Context;
 
+/**
+ * Context handling basic auth with our specific user
+ * 
+ * @author Vuzi
+ *
+ */
 public class BasicAuthContext extends Context {
 
 	public BasicAuthContext(HttpServletRequest request, HttpServletResponse response) {
@@ -15,12 +21,11 @@ public class BasicAuthContext extends Context {
 
 	@Override
 	public void authentificate(String login, String password) throws Exception {
-		//Thread.sleep(1000);
-		resetSession();
 		User user = UserUtils.getUser(login, password);
 		
 		if(user != null) {
 			setSessionAttribute("user", user);
+			setSessionAttribute("user-id", user.UID);
 			setSessionAttribute("user-cr", user.credentials);
 		}
 	}

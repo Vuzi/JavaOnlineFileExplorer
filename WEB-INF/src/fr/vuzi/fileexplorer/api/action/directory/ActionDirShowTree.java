@@ -3,6 +3,7 @@ package fr.vuzi.fileexplorer.api.action.directory;
 import fr.vuzi.fileexplorer.database.directory.Directory;
 import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.user.User;
+import fr.vuzi.fileexplorer.database.user.UserUtils;
 import fr.vuzi.fileexplorer.message.GenericMessage;
 import fr.vuzi.webframework.action.AAction;
 import fr.vuzi.webframework.action.IAction;
@@ -24,7 +25,7 @@ public class ActionDirShowTree extends AAction {
 	public void proceed() throws Exception {
 		// Context
 		IContext c = getActionContext();
-		User u = (User) c.getSessionAttribute("user");
+		User u = UserUtils.getSessionUser(c);
 		
 		// Directory retrieving
 		Directory d = DirectoryUtils.getDirectoryTree(u);

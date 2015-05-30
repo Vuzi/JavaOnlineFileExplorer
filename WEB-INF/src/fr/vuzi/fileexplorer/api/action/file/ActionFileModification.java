@@ -8,6 +8,7 @@ import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.file.File;
 import fr.vuzi.fileexplorer.database.file.FileUtils;
 import fr.vuzi.fileexplorer.database.user.User;
+import fr.vuzi.fileexplorer.database.user.UserUtils;
 import fr.vuzi.fileexplorer.message.ErrorMessage;
 import fr.vuzi.fileexplorer.message.GenericMessage;
 import fr.vuzi.webframework.action.AAction;
@@ -36,7 +37,7 @@ public class ActionFileModification extends AAction {
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
 		String action = c.getParameterUnique("action");
-		User u = (User) c.getSessionAttribute("user");
+		User u = UserUtils.getSessionUser(c);
 		
 		if(action == null) {
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : No action found for '/" + c.getParameterUnique("_path") + "'")));

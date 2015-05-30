@@ -8,6 +8,7 @@ import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.file.File;
 import fr.vuzi.fileexplorer.database.file.FileUtils;
 import fr.vuzi.fileexplorer.database.user.User;
+import fr.vuzi.fileexplorer.database.user.UserUtils;
 import fr.vuzi.webframework.action.AAction;
 import fr.vuzi.webframework.action.IAction;
 import fr.vuzi.webframework.context.IContext;
@@ -40,7 +41,7 @@ public class ActionFileDownload extends AAction {
 	@Override
 	public void proceed() throws Exception {
 		IContext c = getActionContext();
-		User u = (User) c.getSessionAttribute("user");
+		User u = UserUtils.getSessionUser(c);
 		
 		// File info
 		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
