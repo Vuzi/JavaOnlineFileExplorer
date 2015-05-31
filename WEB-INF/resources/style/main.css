@@ -382,6 +382,7 @@ input[type=text] {
 
 /*NORMAL LIST VIEW*/
 #right #content table{
+	font-family: Calibri;
 	width: 100%;
 	border-collapse: collapse;
 	color: black;
@@ -426,12 +427,13 @@ input[type=text] {
 }
 
 #right #content table tr.selected:hover{
-	background-color: #FE6176
+	color: white;
+	background-color: gray /*#FE6176*/
 }
 
 #right #content table tr.selected{
-	color: white;
-	background-color: #FE1938;
+	color: black;
+	background-color: lightgray /*#FE1938;*/
 }
 
 #right #content table tr.drag_over{
@@ -804,17 +806,19 @@ input[type="button"], input[type="submit"], .input_file {
 	text-align: center;
 	display: inline-block;
 	padding: 1px 10px;
-	color: white;
 	font-size: 12px;
-	border: 1px solid black;
-	background-color: #2E2E2E;
+	border: 2px solid transparent;
+	color: black;
+	background-color: lightgray;
 	padding-top: 4px;
 	border-radius: 4px;
 }
 
 input[type="button"]:hover, input[type="submit"]:hover, .input_file:hover{
-	border: 1px solid #1C1C1C; /*#FE1938*/
-	background-color: #FE1938; /*#FE6176*/
+	/*border: 1px solid #1C1C1C; /*#FE1938*/
+	/*background-color: #FE1938; /*#FE6176*/
+	color: white;
+	background-color: #2E2E2E;
 	cursor: pointer;
 }
 
@@ -826,7 +830,8 @@ input[type="submit"] {
 }
 
 input {
-	outline-color: red;
+	margin-top: 5px;
+	outline-color: #FE1938;
 }
 
 [draggable] {
@@ -976,7 +981,7 @@ input {
 }
 
 #htmlConnection input[type="submit"]:hover{
-	border: 2px solid #1C1C1C; /*#FE1938*/
+	border: 2px solid transparent; /*#1C1C1C; /*#FE1938*/
 	background-color: #FE1938; /*#FE6176*/
 	cursor: pointer;
 }
@@ -985,6 +990,10 @@ input {
 	margin-top: 3px;
 	background-color: white;
 	color: black;
+}
+
+#htmlConnection input.action:hover{
+	color:white;
 }
 
 #htmlConnection * {
