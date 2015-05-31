@@ -91,3 +91,7 @@
 .glyphicon-transfer:before {
 	content: "\e178";
 }
+
+.glyphicon-envelope::before {
+    content: "✉";
+}

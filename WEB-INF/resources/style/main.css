@@ -897,10 +897,13 @@ input {
 	border: solid 10px white;
 }
 
+#htmlConnection .inner div {
+	border: 1px solid transparent;
+}
 
 #htmlConnection h2{
 	margin-top: 25%;
-	font-size: 9em;
+	font-size: 8.5em;
 	margin-bottom:15px;
 	font-family: 'Lobster';
 }
@@ -908,7 +911,6 @@ input {
 #htmlConnection p{
 	padding-left: 100px;
 	padding-right: 100px;
-	margin-bottom: 40px;
 }
 
 #htmlConnection input{
@@ -961,6 +963,12 @@ input {
 	border: 2px solid #FE1938;
 	background-color: #FE6176;
 	cursor: pointer;
+}
+
+#htmlConnection input.action{
+	margin-top: 3px;
+	background-color: white;
+	color: black;
 }
 
 #htmlConnection * {

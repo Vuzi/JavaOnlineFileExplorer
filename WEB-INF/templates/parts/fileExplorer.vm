@@ -20,7 +20,6 @@
 		<div id="content" class="blurable"></div>
 	</div>
 </div>
-<script src="$context.getRequestAddr()resources/js/jquery-2.1.4.min.js"></script>
 <script src="$context.getRequestAddr()resources/js/utils.js"></script>
 <script src="$context.getRequestAddr()resources/js/folder.js"></script>
 <script src="$context.getRequestAddr()resources/js/tree.js"></script>
@@ -313,25 +312,37 @@
 
 	var elem = $('[action=change_view]');
 	
+	// Bar button
 	$('[action=change_view]').on('click', function(e) {
 
-		var test = $('<div class="drop-menu"></div>').
-					append('<div class="option-item">Grande icones</div>').
-					append('<div class="option-item">Petites icones</div>');
+		var element = $('<div class="drop-menu"></div>');
 
-		$('body').append(test);
+		var iconView = $('<div class="option-item">Icônes</div>');
+		var tableView = $('<div class="option-item">Tableau</div>');
 
-		test.css('position', 'absolute');
-		test.css('top', (elem.offset().top + elem.height()) + 'px');
-		test.css('left', elem.offset().left + 'px');
-		test.css('min-width', elem.width() + 'px');
+		iconView.on('click', function() {
+			element.remove();
 
-		test.on('mouseleave', function(e) {
-			console.log('leave');
-			test.remove();
+			folder.folderRenderer = new FolderIconRenderer();
+			folder.refresh();
 		});
-		test.on('mouseenter', function(e) {
-			console.log('enter');
+
+		tableView.on('click', function() {
+			element.remove();
+
+			folder.folderRenderer = new FolderTableRenderer();
+			folder.refresh();
+		});
+
+		$('body').append(element.append(iconView).append(tableView));
+
+		element.css('position', 'absolute');
+		element.css('top', (elem.offset().top + elem.height()) + 'px');
+		element.css('left', elem.offset().left + 'px');
+		element.css('min-width', elem.width() + 'px');
+
+		element.on('mouseleave', function(e) {
+			element.remove();
 		});
 	});
 
