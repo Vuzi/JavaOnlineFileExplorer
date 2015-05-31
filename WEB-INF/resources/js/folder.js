@@ -23,7 +23,7 @@ var FolderTableRenderer = CallbackHandler.extend({
 	},
 	render : function() {
 		this.rendered = $('<table class="' + this.size + '"></table>');
-		this.rendered.append($('<tr><th></th><th>Nom</th><th>Type</th><th>Création</th><th>Modification</th><th>Taille</th></tr>'));
+		this.rendered.append($('<tr><th><p></p></th><th><p>Nom</p></th><th><p>Type</p></th><th><p>Création</p></th><th><p>Modification</p></th><th><p>Taille</p></th></tr>'));
 	},
 	generateTypeIcon : function(mimeType, filename, path, size) {
 		var icons_dir = "resources/style/icons/";
@@ -107,18 +107,18 @@ var FolderTableRenderer = CallbackHandler.extend({
 		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path, element.size);
 		var line = $('<tr></tr>');
 
-		line.append($('<td class="icon"></td>').append(icon));
-		line.append($('<td>' + (name || element.name) + '</td>'));
-		line.append($('<td>' + (type || element.type) + '</td>'));
+		line.append($('<td class="icon"></td>').append($('<p></p>').append(icon)));
+		line.append($('<td><p>' + (name || element.name) + '</p></td>'));
+		line.append($('<td><p>' + (type || element.type) + '</p></td>'));
 
 		if(element.UID) {
-			line.append($('<td>' + (element.modificationDate ? new Date(element.modificationDate).toLocaleString() : new Date(element.edit).toLocaleString() )+ '</td>'));
-			line.append($('<td>' + (element.creationDate ? new Date(element.creationDate).toLocaleString() : new Date(element.creation).toLocaleString() )+ '</td>'));
-			line.append($('<td>' + (element.size ? sizeFormat(element.size) : '-') + '</td>'));
+			line.append($('<td><p>' + (element.modificationDate ? new Date(element.modificationDate).toLocaleString() : new Date(element.edit).toLocaleString() )+ '</p></td>'));
+			line.append($('<td><p>' + (element.creationDate ? new Date(element.creationDate).toLocaleString() : new Date(element.creation).toLocaleString() )+ '</p></td>'));
+			line.append($('<td><p>' + (element.size ? sizeFormat(element.size) : '-') + '</p></td>'));
 		} else {
-			line.append($('<td> - </td>'));
-			line.append($('<td> - </td>'));
-			line.append($('<td> - </td>'));
+			line.append($('<td><p> - </p></td>'));
+			line.append($('<td><p> - </p></td>'));
+			line.append($('<td><p> - </p></td>'));
 		}
 
 		line.on('dragstart', function(e) {
