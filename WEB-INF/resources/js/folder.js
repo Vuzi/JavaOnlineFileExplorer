@@ -349,6 +349,11 @@ var Folder = CallbackHandler.extend({
 
 		this.render(tmp, null, values);
 	},
+	refresh : function() {
+		this.prepare_update();
+		this.render(this.element, this.parent);
+		this.finish_update();
+	},
 	update : function(element, parent) {
 		var me = this;
 		var link;
@@ -389,6 +394,7 @@ var Folder = CallbackHandler.extend({
 	},
 	render : function(element, parent, search) {
 		this.element = element;
+		this.parent = parent;
 		
 		var me = this;
 		var h1 = (search ? $('<h1> Résultat de la recherche "' + search.search + '" dans "' + search.path + '" </h1>')
