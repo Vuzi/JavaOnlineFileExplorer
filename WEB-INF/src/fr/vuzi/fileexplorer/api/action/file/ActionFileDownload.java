@@ -3,6 +3,7 @@ package fr.vuzi.fileexplorer.api.action.file;
 import java.io.DataInputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.zip.GZIPOutputStream;
 
 import fr.vuzi.fileexplorer.database.directory.DirectoryUtils;
 import fr.vuzi.fileexplorer.database.file.File;
@@ -63,12 +64,17 @@ public class ActionFileDownload extends AAction {
 		
 		// Prepare headers
 		c.getResponse().setContentType("application/octet-stream");
-		c.getResponse().setContentLength((int)file.size);
 		c.getResponse().setHeader("Content-Type", file.type);
 		c.getResponse().setHeader("Content-Disposition","attachment;filename=\"" + name + "\"");
 
 		// Write the file to the output
 		OutputStream out = c.getResponse().getOutputStream();
+
+		// Compress if possible
+		if(c.supportEncoding("gzip")) {
+			c.getResponse().addHeader("Content-Encoding", "gzip");
+			out = new GZIPOutputStream(out);
+		}
 		
         byte[] buffer = new byte[4096];
         int byteReads = -1;
@@ -79,6 +85,7 @@ public class ActionFileDownload extends AAction {
 
         out.flush();
         out.close();
+        
         in.close();
 	}
 }
