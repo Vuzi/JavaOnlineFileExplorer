@@ -2,8 +2,6 @@ package fr.vuzi.fileexplorer.api.action.front;
 
 import fr.vuzi.fileexplorer.database.user.User;
 import fr.vuzi.fileexplorer.database.user.UserUtils;
-import fr.vuzi.fileexplorer.message.ErrorMessage;
-import fr.vuzi.fileexplorer.message.GenericMessage;
 import fr.vuzi.webframework.action.AActionNoCredentials;
 import fr.vuzi.webframework.action.IAction;
 import fr.vuzi.webframework.context.IContext;
@@ -27,6 +25,11 @@ public class ActionFileExplorer extends AActionNoCredentials {
 		IContext c = getActionContext();
 		String login = c.getParameterUnique("login");
 		String pass = c.getParameterUnique("password");
+
+		c.getResponse().addHeader("Cache-Control", "private, must-revalidate");
+		
+		
+		//c.getResponse().addHeader("Content-Encoding", "gzip");
 		
 		if(login != null && !login.isEmpty() && pass != null && !pass.isEmpty()) {
 			User user = UserUtils.getUser(login, pass);
@@ -34,7 +37,6 @@ public class ActionFileExplorer extends AActionNoCredentials {
 				// Save in the session and send the connected user in the response
 				c.setSessionAttribute("user-uid", user.UID);
 				c.setSessionAttribute("user-cr", user.credentials);
-				
 			} else {
 				// No user with the provided values
 				c.setAttribute("error", "Erreur : identifiant et/ou mot de passe invalide");
