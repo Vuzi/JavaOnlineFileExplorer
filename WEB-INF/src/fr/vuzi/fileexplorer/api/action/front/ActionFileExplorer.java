@@ -25,11 +25,6 @@ public class ActionFileExplorer extends AActionNoCredentials {
 		IContext c = getActionContext();
 		String login = c.getParameterUnique("login");
 		String pass = c.getParameterUnique("password");
-
-		c.getResponse().addHeader("Cache-Control", "private, must-revalidate");
-		
-		
-		//c.getResponse().addHeader("Content-Encoding", "gzip");
 		
 		if(login != null && !login.isEmpty() && pass != null && !pass.isEmpty()) {
 			User user = UserUtils.getUser(login, pass);
