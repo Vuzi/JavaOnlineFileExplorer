@@ -105,7 +105,8 @@ var PopUpCancelable = PopUp.extend({
 var PopUpAction = PopUpCancelable.extend({
 	_show_loading : function() {
 		// Show a loading animation
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		//this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		this.content.empty().append("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'>...Chargement...</div>");
 		this.toggle_dissmiss();
 	},
 	action : function(type, URI, values) {
@@ -340,7 +341,8 @@ var FileCreationWindow = PopUpAction.extend({
 			return;
 		}
 
-		this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		//this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
+		this.content.empty().append("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'>...Chargement...</div>");
 		this.toggle_dissmiss();
 		
 		var file = this.file[0].files[0];

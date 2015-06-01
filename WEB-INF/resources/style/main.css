@@ -721,10 +721,15 @@ div.pop_up.error h2 {
 }
 
 .loader-label {
-	margin-top: 50px;
+	margin-top: 5px; /*50px*/
 	width: 100%;
 	text-align: center;
 }
+
+div.load img{
+	width: 100px;
+	border: 1px solid transparent;
+} 
 
 .loader {
 	width: 20px;
