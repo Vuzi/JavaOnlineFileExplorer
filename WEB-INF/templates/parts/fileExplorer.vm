@@ -49,7 +49,6 @@
 	var searchList; // Search list (left panel)
 
 	var contructContextualMenu = function(element, e) {
-
 		if(!element.path) {
 			var folder_nb = 0;
 			var file_nb = 0;
@@ -57,7 +56,7 @@
 			var reference;
 
 			$.each(element, function(UID, value) {
-				if(value.size) {
+				if(!(value.size === "undefined")) {
 					file_nb++;
 					file_total += value.size;
 				} else {
@@ -106,7 +105,7 @@
 					}
 				},
 			], e.pageX, e.pageY);
-		} else if(element.size) {
+		} else if(!(element.size === undefined)) {
 			menu.display( [
 				{ info : true, name : "Nom", value : element.name },
 				{ info : true, name : "Chemin", value : element.path },

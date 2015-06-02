@@ -15,11 +15,11 @@ function sizeFormat(bytes) {
 }
 
 function isDir(element) {
-	return element.name && !element.size;
+	return element.name && (element.size === undefined)
 }
 
 function isFile(element) {
-	return element.name && element.size;
+	return element.name && !(element.size === undefined)
 }
 
 var Class = function() {}
