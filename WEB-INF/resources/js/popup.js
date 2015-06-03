@@ -268,7 +268,7 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 		var me = this;
 
 		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible de changer le nom", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			new Toast("Impossible de changer le nom", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
 			return;
 		}
 
@@ -332,16 +332,15 @@ var FileCreationWindow = PopUpAction.extend({
 		var me = this;
 
 		if(!this.file.val()) {
-			new Pop_up("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
+			new Toast("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
 			return;
 		}
 
 		if(!dir_name || dir_name == "" || dir_name.indexOf('/') >= 0 || dir_name.indexOf('"') >= 0 || dir_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			new Toast("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
 			return;
 		}
 
-		//this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
 		this.content.empty().append("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'>...Chargement...</div>");
 		this.toggle_dissmiss();
 		
@@ -475,7 +474,7 @@ var FileRenamingWindow = PopUpAction.extend({
 		var me = this;
 
 		if(!file_name || file_name == "" || file_name.indexOf('/') >= 0 || file_name.indexOf('"') >= 0 || file_name.indexOf("'") >= 0) {
-			new Pop_up("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error").display();
+			new Toast("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error").display();
 			return;
 		}
 
@@ -588,7 +587,7 @@ var ResourceMoveWindow = ResourceGenericWindow.extend({
 		var file_path = this.file_path.val().trim();
 
 		if(!file_path || file_path == "" || file_path.indexOf('"') >= 0 || file_path.indexOf("'") >= 0) {
-			new Pop_up("Impossible de déplacer le fichier", "Le chemin '" + file_path + "' n'est pas valide", "error").display();
+			new Toast("Impossible de déplacer le fichier", "Le chemin '" + file_path + "' n'est pas valide", "error").display();
 			return;
 		}
 

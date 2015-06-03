@@ -242,7 +242,7 @@ var DirectoryTree = CallbackHandler.extend({
 			},
 			error: function(data) {
 				console.log(data);
-				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
+				var pop = new Toast("Erreur " + data.status, data.message, "error");
 				pop.display();
 			},
 			fail: function(data) {
