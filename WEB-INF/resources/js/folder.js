@@ -237,21 +237,21 @@ var FolderIconRenderer = FolderRenderer.extend({
 		}
 
 		var icon_path = endpoint + icons_dir + icon_src;
-		var image = $('<div class="image" style="background-image: url(' + icon_path + ');"/>');
-
+		var image = $('<div class="image"></div>');
+		image.css('background-image', 'url("' + icon_path + '")');
 
 		if(mimeType.match("^image")) {
 			var image_path = endpoint + 'api/file-bin' + path + filename;
 
 			if (size <= 1048576){
-				image.css('background-image', 'url(' + image_path + ')');
+				image.css('background-image', 'url("' + image_path + '")');
 				image.addClass('preview');
 			} else {
 				image.on('mouseover', function() {
-					image.css('background-image', 'url(' + image_path + ')');
+					image.css('background-image', 'url("' + image_path + '")');
 				});
 				image.on('mouseout', function() {
-					image.css('background-image', 'url(' + icon_path + ')');
+					image.css('background-image', 'url("' + icon_path + '")');
 				});
 			}
 			
