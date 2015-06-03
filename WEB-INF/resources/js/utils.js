@@ -22,6 +22,10 @@ function isFile(element) {
 	return element.name && !(element.size === undefined)
 }
 
+function isNameValid(name) {
+	return !(!name || name == "" || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0 || name.indexOf('"') >= 0 || name.indexOf("'") >= 0 || name.indexOf("<") >= 0 || name.indexOf(">") >= 0);
+}
+
 var Class = function() {}
 
 Class.extend = function(prop) {
