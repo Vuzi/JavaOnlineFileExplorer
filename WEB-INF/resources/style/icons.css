@@ -95,3 +95,8 @@
 .glyphicon-envelope::before {
     content: "✉";
 }
+
+
+.glyphicon-log-out:before {
+  content: "\e163";
+}

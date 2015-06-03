@@ -15,6 +15,7 @@
 					<a href="#">Affichage</a>
 				</li>
 				<li><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
+				<li action="logout" class="logout"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Déconnexion</a></li>
 			</ul>
 		</nav>
 		<div id="content" class="blurable"></div>
@@ -403,5 +404,11 @@
 		element.on('mouseleave', function(e) {
 			element.remove();
 		});
+	});
+	
+	$('[action=logout]').on('click', function(e) {
+		$.ajax(endpoint + "api/logout/").done(function(){
+			window.location.reload();
+		});		
 	});
 </script>
