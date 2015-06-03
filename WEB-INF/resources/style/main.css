@@ -244,6 +244,19 @@ ul{
 	color: #FE6176;
 }
 
+#options li.logout{
+	float: right;
+}
+
+#options li.logout a{
+	color: #FE6176;
+}
+
+#options li.logout a:hover{
+	color: white;
+}
+
+
 input {
 	font-family: 'Biryani', sans-serif;
 }
