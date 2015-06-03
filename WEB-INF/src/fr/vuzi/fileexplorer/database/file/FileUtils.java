@@ -137,7 +137,7 @@ public class FileUtils {
 		Date now = new Date();	
 
 		gfsFile.setFilename(name);
-		gfsFile.setContentType(mimeType);
+		gfsFile.setContentType(mimeType != null ? mimeType : "application/octet-stream");
 		gfsFile.put("owner", new ObjectId(u.UID));
 		gfsFile.put("path", d.name == null ? "/" : d.path + d.name + "/");
 		gfsFile.put("creation", now);
@@ -169,7 +169,7 @@ public class FileUtils {
 		Date now = new Date();	
 
 		gfsFile.setFilename(filename);
-		gfsFile.setContentType(mimeType);
+		gfsFile.setContentType(mimeType != null ? mimeType : "application/octet-stream");
 		gfsFile.put("owner", new ObjectId(u.UID));
 		gfsFile.put("path", d.name == null ? "/" : d.path + d.name + "/");
 		gfsFile.put("creation", now);
