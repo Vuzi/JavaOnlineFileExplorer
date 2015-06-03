@@ -56,7 +56,7 @@
 			var reference;
 
 			$.each(element, function(UID, value) {
-				if(!(value.size === "undefined")) {
+				if(!(value.size === undefined)) {
 					file_nb++;
 					file_total += value.size;
 				} else {
