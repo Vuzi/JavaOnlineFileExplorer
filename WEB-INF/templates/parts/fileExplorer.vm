@@ -20,9 +20,8 @@
 				<li action="logout" class="logout"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Déconnexion</a></li>
 			</ul>
 		</nav>
-		<div id="content" class="blurable">
-		</div>
-		<div id="test"></div>
+		<div id="content" class="blurable"></div>
+		<div id="drag-upload"><p>Déposez vos fichiers</p></div>
 	</div>
 </div>
 <script src="$context.getRequestAddr()resources/js/utils.js"></script>
@@ -455,7 +454,7 @@ $('#right').on('dragenter', function(e) {
     e.stopPropagation();
 
 	if( i == 0 )
-		$('#test').fadeIn();
+		$('#drag-upload').fadeIn();
 
 	i++;
 });
@@ -468,7 +467,7 @@ $('#right').on('dragleave', function(e) {
 	i--;
 
 	if(i == 0)
-		$('#test').fadeOut();
+		$('#drag-upload').fadeOut();
 });
 
 $('#right').on('drop', function(e) {
@@ -476,7 +475,7 @@ $('#right').on('drop', function(e) {
     e.stopPropagation();
 
     i = 0;
-	$('#test').fadeOut();
+	$('#drag-upload').fadeOut();
 
      var file = e.originalEvent.dataTransfer.files[0];
 

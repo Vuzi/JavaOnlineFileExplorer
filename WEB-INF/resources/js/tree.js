@@ -208,9 +208,12 @@ var DirectoryTree = CallbackHandler.extend({
 			
 			if(path_test == path || (path_test + '/') == path) {
 				node.select(pushState);
-				break;
+				returnn;
 			}
 		}
+		
+		// Default
+		this.select(null);
 	},
 	select : function(UID, pushState) {
 		var node = this.nodes[UID];
