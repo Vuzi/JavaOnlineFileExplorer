@@ -329,6 +329,17 @@ input[type=text] {
 	display: inline-block;
 	text-align: center;
 }
+#content li a {
+	display: inline-block;
+}
+
+#content li a.dragged {
+	opacity: 0.5;
+}
+
+#content.dragging li a.selected {
+	opacity: 0.5;
+}
 
 #content li a figure {
 	margin-left: 30px;
@@ -1302,9 +1313,6 @@ input {
 #content ul.largeView li a.drag_over .image-wrapper {
 	border: 3px solid orange;
 }
-
-
-
 
 
 /*SMALL ICON VIEW*/

@@ -125,12 +125,6 @@ public class FrontController extends AFrontController {
 	
 	@Override
 	protected IContext createContext(HttpServletRequest request, HttpServletResponse response) {
-		/*try {
-			Thread.sleep(5000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}*/
 		return new BasicAuthContext(request, response); // Use custom session handling basic auth
 	}
 }

@@ -278,9 +278,14 @@ var FolderIconRenderer = FolderRenderer.extend({
 		}).on('dragend', function(e) {
 			me.fireEvent('dragend', element, icon, e);
 		}).on('dragover', function(e) {
-			icon.addClass('drag_over');
+			e.preventDefault();  
+			e.stopPropagation();
+			icon.addClass('drag_over', element, icon, e);
 		}).on('dragleave', function(e) {
 			icon.removeClass('drag_over');
+		}).on('drop', function(e) {
+			icon.removeClass('drag_over');
+			me.fireEvent('drop', element, icon, e);
 		});
 
 		icon.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
@@ -325,6 +330,7 @@ var Folder = CallbackHandler.extend({
 		this.folderRenderer.renderer = this.renderer;
 		this.in_update = false;
 		this.selected = [];
+		this.dragged = [];
 	},
 	prepare_update : function() {
 		this.in_update = true;
@@ -437,36 +443,47 @@ var Folder = CallbackHandler.extend({
 		}).on('dragend', function(element, icon, e) {
 			if(!this.in_update) 
 				me._action_drag_stop(element, icon, e);
+		}).on('drop', function(element, icon, e) {
+			if(!this.in_update) 
+				me._action_drop(element, icon, e);
 		});
 
 		// Render element
 		this.renderer.empty().append(h1).append(this.folderRenderer.rendered);
 	},
 	_action_drag_start : function(element, icon, event) {
-		if(this.selected[element.UID]) {
-			event.dataTransfer.setData("value", this.selected);
-			event.dataTransfer.setData("multiple", true);
+		var me = this;
 
-			icon.css('opacity', '0.5');
-/*
-			$.each(this.selected, function(key, value) {
-				value.image.css('opacity', '0.5');
-			});*/
+		if(Object.keys(this.selected).length > 1 && this.selected[element.UID]) {
+			this.dragged = []
+			$.each(this.selected, function(UID, element) {
+				me.dragged.push(element);
+			});
+			this.renderer.addClass('dragging');
 		} else {
-			event.dataTransfer.setData("value", icon);
-			event.dataTransfer.setData("multiple", false);
-			icon.css('opacity', '0.5');
+			this.dragged = [ element ];
+			icon.addClass('dragged');
 		}
 	},
 	_action_drag_stop : function(element, icon, event) {
 		if(this.selected[element.UID]) {
-			/*
-			$.each(this.selected, function(key, value) {
-				value.css('opacity', 1);
-			});*/
-			icon.css('opacity', '1');
+			this.renderer.removeClass('dragging');
 		} else {
-			icon.css('opacity', '1');
+			icon.removeClass('dragged');
+		}
+		this.dragged = [];
+	},
+	_action_drop : function(element, icon, event) {
+		var me = this;
+console.log(isDir(element))
+		if(isDir(element) && this.dragged.length > 0) {
+			startLoading("Déplacement de resources en cours...");
+
+			// Bind & launch action
+			new MoveElementsAction().on('done', function(done, error, fail) {
+				stopLoading();
+				me.fireEvent('need_update', me.element);
+			}).proceed(this.dragged, element.name ? element.path + element.name + '/' : '/');
 		}
 	},
 	_action_select : function(element, icon, event) {

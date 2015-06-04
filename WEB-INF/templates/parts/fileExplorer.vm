@@ -259,6 +259,9 @@
 
 		stopLoading();
 	});
+	folder.on('need_update', function(element) {
+		tree.update();
+	});
 
 	// Construct the contextual menu
 	menu = new ContextualMenu(folder, tree);
@@ -432,6 +435,8 @@
 		});		
 	});
 
+
+/*
 	// Drag & drop
 	$(document).on('dragenter', function (e) {
 	    e.stopPropagation();
@@ -475,12 +480,12 @@
 	// Now that we have a plugin, we can listen for the new events 
 	$(document).draghover().on({
 		'draghoverstart': function() {
-			$('#drag-upload-back').fadeIn();
+			//$('#drag-upload-back').fadeIn();
 		},
 		'draghoverend': function() {
-			$('#drag-upload-back').fadeOut();
+			//$('#drag-upload-back').fadeOut();
 		}
-	});
+	});*/
 
 	var toastHandler = new ToastHandler($("#toast_back"));
 
