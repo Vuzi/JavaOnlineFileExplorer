@@ -1499,3 +1499,35 @@ input {
 	margin-left: 344px;
 	display: none;
 }
+
+
+#drag-upload{
+	height: 350px;
+	width: 400px;
+	border-radius: 5px;
+	border: dashed 3px #E7E5DC;
+	background-image: url(icons/cloudupload.png);
+	background-position: center;
+	background-size: 300px 300px;
+	background-repeat:  no-repeat;
+	top: 50px;
+	position: absolute;
+	margin-left: 344px;
+	margin-top: 250px;
+	display: none;
+}
+
+#drag-upload:hover{
+	border: dashed 3px lightgray;
+}
+	
+#drag-upload p{
+	cursor: default;
+	text-align: center;
+	font-family: lobster;
+	margin-top: 300px;
+	color: lightgray;
+	font-size: 2em;
+	font-weight: bold;
+}
+
