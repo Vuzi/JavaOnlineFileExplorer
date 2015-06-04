@@ -622,19 +622,21 @@ background-color: #FE6176;
 
 
 
+
+
 #right #content li.drag-upload{
 	font-size: 10px;
 }
 
 #right #content li.drag-upload img{
-	border-radius: 5px;
-	border: dashed 1px black;
+	border-radius: 50%;
+	border: dashed 1px darkgray;
 	background-color: darkgray;
 	opacity: 0.3;
 }
 
 #right #content li.drag-upload img:hover{
-	border: dashed 1px black;
+	border: dashed 1px darkgray;
 	opacity: 0.9;
 }
 
@@ -655,5 +657,5 @@ background-color: #FE6176;
 }
 
 #right #content tr.drag-upload:hover{
-	opacity: 0.8;
+	opacity: 0.9;
 }
