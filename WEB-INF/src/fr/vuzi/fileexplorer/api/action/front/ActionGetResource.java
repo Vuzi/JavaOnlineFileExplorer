@@ -54,7 +54,6 @@ public class ActionGetResource extends AAction {
 			// 404 : file not found
 			c.getResponseWriter().write("Error : no file " + c.getParameterUnique("_path"));
 			c.getResponse().setStatus(404);
-			c.getResponse().getOutputStream().close();
 			return;	
 		}
 		
@@ -64,7 +63,6 @@ public class ActionGetResource extends AAction {
 		if(modifiedSince.equals(c .getRequest().getHeader("If-Modified-Since"))) {
 			// 304 : no changes
 			c.getResponse().setStatus(304);
-			c.getResponse().getOutputStream().close();
 			return;
 		}
 		
