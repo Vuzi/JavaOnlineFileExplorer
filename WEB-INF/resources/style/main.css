@@ -1489,3 +1489,13 @@ input {
 	margin-bottom: 0;
 	cursor: default;
 }
+
+#test {
+	height: 500px;
+	width: 500px;
+	background-color: red;
+	top: 50px;
+	position: absolute;
+	margin-left: 344px;
+	display: none;
+}

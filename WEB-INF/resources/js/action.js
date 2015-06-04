@@ -15,6 +15,8 @@ CreateFileAction = Action.extend({
 	proceed : function(parent, file, name) {
 		var formData = new FormData();
 		var me = this;
+
+		name = name || file.name;
 		
 		formData.append(name, file, file.name);
 		

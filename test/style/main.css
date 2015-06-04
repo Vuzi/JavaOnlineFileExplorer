@@ -54,8 +54,8 @@ font-family: 'Roboto Condensed', sans-serif;
 }
 
 #tree ul{
-padding: 5px;
-padding-left: 5%;
+	padding: 5px;
+	padding-left: 5%;
 }
 
 #tree ul li{
@@ -619,7 +619,38 @@ background-color: #FE6176;
 
 
 
+#right #content #drag-upload{
+	transition-duration: 0.5s;
+	overflow: hidden;
+	display: block;
+	margin: auto;	
+	margin-top: 200px;
+	height: 350px;
+	width: 400px;
+	text-align: center;
+	background-position: center;
+	background-size: 300px 300px;
+	background-repeat:  no-repeat;
+	vertical-align: center;
+	border-radius: 30px;
+	border: dashed 5px transparent;
+}
 
+#right #content #drag-upload p{
+	margin-top: 300px;
+	color: transparent;
+	font-size: 25px;
+	font-weight: bold;
+}
+
+#right #content #drag-upload:hover{
+	border: dashed 5px lightgray;
+	background-image: url(icons/cloudupload.png);
+}
+
+#right #content #drag-upload:hover p{
+	color: lightgray;
+}
 
 
 
