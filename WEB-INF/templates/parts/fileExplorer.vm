@@ -1,3 +1,6 @@
+<div id="drag-upload-back">
+	<div id="drag-upload"><p>Déposez vos fichiers</p></div>
+</div>
 <div id="global" class="blurable">
 
 	<div id="left">
@@ -21,7 +24,6 @@
 			</ul>
 		</nav>
 		<div id="content" class="blurable"></div>
-		<div id="drag-upload"><p>Déposez vos fichiers</p></div>
 	</div>
 </div>
 <script src="$context.getRequestAddr()resources/js/utils.js"></script>
@@ -430,70 +432,56 @@
 		});		
 	});
 
-var i = 0;
+	// Drag & drop
+	$(document).on('dragenter', function (e) {
+	    e.stopPropagation();
+	    e.preventDefault();
+	});
 
-$(document).on('dragenter', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-});
-$(document).on('dragover', function (e) 
-{
-  e.stopPropagation();
-  e.preventDefault();
-});
-$(document).on('drop', function (e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-});
+	$(document).on('dragover', function (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	});
 
-// Drag & drop
-$('#right').on('dragenter', function(e) {
-    e.preventDefault();  
-    e.stopPropagation();
+	$(document).on('dragleave', function (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	});
 
-	if( i == 0 )
-		$('#drag-upload').fadeIn();
+	$(document).on('drop', function(e) {
+	    e.preventDefault();  
+	    e.stopPropagation();
 
-	i++;
-});
+		$('#drag-upload-back').fadeOut();
+
+	     var file = e.originalEvent.dataTransfer.files[0];
+
+	     if(file) {
+			if(!isNameValid(file.name)) {
+				toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + file_name + "' n'est pas valide", "error"));
+				return;
+			}
+
+			startLoading("Upload fichier...");
+
+			new CreateFileAction().on('done', function(done, error, fail) {
+				stopLoading();
+				tree.update();
+			}).proceed(tree.selected.directory, file);
+	     }
+	})
 
 
-$('#right').on('dragleave', function(e) {
-    e.preventDefault();  
-    e.stopPropagation();
-
-	i--;
-
-	if(i == 0)
-		$('#drag-upload').fadeOut();
-});
-
-$('#right').on('drop', function(e) {
-    e.preventDefault();  
-    e.stopPropagation();
-
-    i = 0;
-	$('#drag-upload').fadeOut();
-
-     var file = e.originalEvent.dataTransfer.files[0];
-
-     if(file) {
-		if(!isNameValid(file.name)) {
-			toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + file_name + "' n'est pas valide", "error"));
-			return;
+	// Now that we have a plugin, we can listen for the new events 
+	$(document).draghover().on({
+		'draghoverstart': function() {
+			$('#drag-upload-back').fadeIn();
+		},
+		'draghoverend': function() {
+			$('#drag-upload-back').fadeOut();
 		}
+	});
 
-		startLoading("Upload fichier...");
-
-		new CreateFileAction().on('done', function(done, error, fail) {
-			stopLoading();
-			tree.update();
-		}).proceed(tree.selected.directory, file);
-     }
-})
-
-var toastHandler = new ToastHandler($("#toast_back"));
+	var toastHandler = new ToastHandler($("#toast_back"));
 
 </script>

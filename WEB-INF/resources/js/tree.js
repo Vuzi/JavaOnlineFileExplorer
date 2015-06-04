@@ -208,7 +208,7 @@ var DirectoryTree = CallbackHandler.extend({
 			
 			if(path_test == path || (path_test + '/') == path) {
 				node.select(pushState);
-				returnn;
+				return;
 			}
 		}
 		
