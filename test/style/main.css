@@ -619,42 +619,41 @@ background-color: #FE6176;
 
 
 
-#right #content #drag-upload{
-	transition-duration: 0.5s;
-	overflow: hidden;
-	display: block;
-	margin: auto;	
-	margin-top: 200px;
-	height: 350px;
-	width: 400px;
-	text-align: center;
-	background-position: center;
-	background-size: 300px 300px;
-	background-repeat:  no-repeat;
-	vertical-align: center;
-	border-radius: 30px;
-	border: dashed 5px transparent;
+
+
+
+#right #content li.drag-upload{
+	font-size: 10px;
 }
 
-#right #content #drag-upload p{
-	margin-top: 300px;
-	color: transparent;
-	font-size: 25px;
-	font-weight: bold;
+#right #content li.drag-upload img{
+	border-radius: 5px;
+	border: dashed 1px black;
+	background-color: darkgray;
+	opacity: 0.3;
 }
 
-#right #content #drag-upload:hover{
-	border: dashed 5px lightgray;
-	background-image: url(icons/cloudupload.png);
+#right #content li.drag-upload img:hover{
+	border: dashed 1px black;
+	opacity: 0.9;
 }
 
-#right #content #drag-upload:hover p{
-	color: lightgray;
+#right #content li.drag-upload img:hover{
+	color: #1c1c1c;
+}
+
+#right #content li.drag-upload figcaption{
+	color: gray;
 }
 
 
 
+#right #content tr.drag-upload{
+	
+	opacity: 0.3;
+	background-color: darkgray;
+}
 
-
-
-
+#right #content tr.drag-upload:hover{
+	opacity: 0.8;
+}
