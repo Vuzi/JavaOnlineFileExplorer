@@ -1,5 +1,42 @@
 
 // =======================================================
+//                      Toast handler
+// =======================================================
+// 
+ToastHandler = Class.extend({
+	init : function(renderer) {
+		this.messages = [];
+		this.renderer = renderer;
+	},
+	add : function(toast) {
+		// Place in the queue
+		this.messages.push(toast);
+
+		if(this.messages.length == 1) {
+			// Display now
+			this._display(this.messages[0]);
+		}
+
+		return this;
+	},
+	_update : function() {
+		if(this.messages.length <= 0)
+			return;
+
+		this._display(this.messages[0]);
+	},
+	_display : function(toast) {
+		var me = this;
+
+		toast.display(this.renderer);
+		toast.on('dissmiss', function() {
+			me.messages.splice(me.messages.indexOf(toast), 1);
+			me._update();
+		});
+	}
+})
+
+// =======================================================
 //                      Pop up base class
 // =======================================================
 
@@ -52,17 +89,49 @@ var PopUp = CallbackHandler.extend({
 //                      Toast
 // =======================================================
 
-var Toast = PopUp.extend({
-	init : function(title, message, type) {
-		this._super(title, message);
+var Toast = CallbackHandler.extend({
+	init : function(title, message, type, timer) {
+		this._super();
+		this.title = title;
+		this.message = message;
 		this.type = type ||'info';
+
+		if(!timer) {
+			if(this.type == 'info' || this.type == 'success')
+				this.timer = 2000;
+			else
+				this.timer = 4000;
+		} else
+			this.timer = timer;
+	},
+	display : function(render) {
+		var me = this;
+
+		this.render();
+		this.content.addClass('bounce');
+		render.append(this.content);
+
+		this.fireEvent('display', this);
+
+		setTimeout(function() {
+			me.dissmiss();
+		}, this.timer);
 	},
 	render : function() {
-		return this._super().addClass(this.type);
+		this.content = $('<div class="toast bouncy-bottom"></div>');
+		this.content.append($('<h2></h2>').append(this.title));
+		this.content.append($('<p></p>').append(this.message));
+		this.content.addClass(this.type);
 	},
-	display : function(timer) {
-		this._super();
-		this.dissmiss(timer || 2000);
+	dissmiss : function() {
+		var me = this;
+
+		me.content.removeClass('bounce');
+		me.fireEvent('dissmiss', this);
+
+		setTimeout(function() {
+			me.content.remove();
+		}, 1000);
 	}
 });
 
@@ -105,14 +174,22 @@ var PopUpCancelable = PopUp.extend({
 var PopUpAction = PopUpCancelable.extend({
 	_show_loading : function() {
 		// Show a loading animation
+		var loader_content = $("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'></div>");
+		var loader = new Toast("Opération en cours", loader_content, null, 999999);
+		toastHandler.add(loader);
+
+		this.on('done', function() {
+			loader.dissmiss();
+		});
+
 		//this.content.empty().append('<div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader"></div><div class="loader-label">Chargement...</div>');
-		this.content.empty().append("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'>...Chargement...</div>");
-		this.toggle_dissmiss();
+		//this.content.empty().append("<div class='load'><img src='"+endpoint+"resources/style/icons/loader.gif'/></div><div class='loader-label'>...Chargement...</div>");
+		//this.toggle_dissmiss();
 	},
 	action : function(type, URI, values) {
 		var me = this;
 
-		this._show_loading();
+		//this._show_loading();
 
 		// Perform the request
 		$.ajax({
@@ -133,14 +210,13 @@ var PopUpAction = PopUpCancelable.extend({
 					return;
 				}
 
-				var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-				pop.display();
-				
+				toastHandler.add(new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error"));
+
 				me.fireEvent('error', me, data.responseJSON.data);
 				me.dissmiss();
 			},
 			fail: function(data) {
-				var pop = new Toast("Erreur ", "La requête a échouée", "error");
+				toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
 				pop.display();
 
 				me.fireEvent('fail', me);
@@ -198,8 +274,8 @@ var DirectoryCreationWindow = PopUpAction.extend({
 
 		// On success
 		this.on('success', function() {
-			var toast = new Toast("Création du dossier effectuée", "Le dossier '" + me.dir_name.val() + "' a été crée avec succès", "success");
-			toast.display();
+			me.fireEvent('done');
+			toastHandler.add(new Toast("Création du dossier effectuée", "Le dossier '" + me.dir_name.val() + "' a été crée avec succès", "success"));
 		});
 	},
 	display : function() {
@@ -212,7 +288,7 @@ var DirectoryCreationWindow = PopUpAction.extend({
 		var me = this;
 		
 		if(!isNameValid(dir_name)) {
-			new Toast("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			toastHandler.add(new Toast("Impossible de créer le dossier", "Le nom '" + dir_name + "' n'est pas valide", "error"));
 			return;
 		}
 
@@ -254,8 +330,7 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 
 		// On success
 		this.on('success', function() {
-			var toast = new Toast("Dossier modifié", "Le dossier '" + me.dir_name.val() + "' a été renommé avec succès", "success");
-			toast.display();
+			toastHandler.add(new Toast("Dossier modifié", "Le dossier '" + me.dir_name.val() + "' a été renommé avec succès", "success"));
 		});
 	},
 	display : function() {
@@ -268,7 +343,7 @@ var DirectoryRenamingWindow = PopUpAction.extend({
 		var me = this;
 
 		if(!isNameValid(dir_name)) {
-			new Toast("Impossible de changer le nom", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			toastHandler.add(new Toast("Impossible de changer le nom", "Le nom '" + dir_name + "' n'est pas valide", "error"));
 			return;
 		}
 
@@ -318,8 +393,7 @@ var FileCreationWindow = PopUpAction.extend({
 
 		// On success
 		this.on('success', function() {
-			var toast = new Toast("Fichier uploadé", "Le fichier '" + me.dir_name.val() + "' a été uploadé avec succès", "success");
-			toast.display();
+			toastHandler.add(new Toast("Fichier uploadé", "Le fichier '" + me.dir_name.val() + "' a été uploadé avec succès", "success"));
 		});
 	},
 	display : function() {
@@ -332,12 +406,12 @@ var FileCreationWindow = PopUpAction.extend({
 		var me = this;
 
 		if(!this.file.val()) {
-			new Toast("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error").display();
+			toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Aucun fichier sélectionné", "error"));
 			return;
 		}
 
 		if(!isNameValid(dir_name)) {
-			new Toast("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error").display();
+			toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + dir_name + "' n'est pas valide", "error"));
 			return;
 		}
 
@@ -351,8 +425,7 @@ var FileCreationWindow = PopUpAction.extend({
 		
 		var xhr = new XMLHttpRequest();
 		xhr.onerror = function(error) {
-			var toast = new Toast("Erreur ", "La requête a échouée", "error");
-			toast.display();
+			toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
 
 			me.fireEvent('fail', me);
 			me.dissmiss();
@@ -367,62 +440,18 @@ var FileCreationWindow = PopUpAction.extend({
 				var val = JSON.parse(xhr.responseText);
 				
 				if(val && val.data && val.data.message) {
-		    		var toast = new Toast("Erreur " + val.data.status, val.data.message, "error");
+		    		toastHandler.add(new Toast("Erreur " + val.data.status, val.data.message, "error"));
 					me.fireEvent('error', me, val.data);
 				} else {
-		    		var toast = new Toast("Erreur ", "La requête a échouée", "error");
+		    		toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
 					me.fireEvent('error', me, {});
 				}
 
-				toast.display();
 				me.dissmiss();
 			}
 		};
 		xhr.open('POST', endpoint + 'api/file-bin' + dir_path, true);
 		xhr.send(formData);
-	}
-})
-
-// =======================================================
-//                   File deletion
-// =======================================================
-
-var FileDeletionWindow = PopUpAction.extend({
-	init : function(file) {
-		var me = this;
-
-		this.path = file.name ? file.path + file.name + '/' : file.path;
-		
-		var message = $('<p>Êtes vous certain de vouloir supprimer le fichier "' + file.name + '" ?</p>');
-		this.submit = $('<input type="submit" value="Supprimer" style="display: inline-block; margin-right: 10px;"></input>');
-		this.cancel = $('<input type="submit" value="Annuler" style="display: inline-block;"></input>');
-		
-		message.append($('<div style="text-align: center;"></div>').append(this.submit).append(this.cancel));
-		
-		this._super("Suppression fichier", message);
-
-		// Cancel button
-		this.cancel.on('click', function(e) {
-			me.dissmiss();
-		});
-		
-		// Submit button
-		this.submit.on('click', function(e) {
-			me.action();
-		});
-
-		// On success
-		this.on('success', function() {
-			var toast = new Toast("Suppression du fichier effectuée", "Le fichier '" + file.name + "' a été supprimé avec succès", "success");
-			toast.display();
-		});
-	},
-	display : function() {
-		this._super();
-		this.cancel.focus();
-	},
-	action : function() {
-		this._super('DELETE', 'api/file' + this.path, {});
 	}
 })
 
@@ -434,6 +463,7 @@ var FileRenamingWindow = PopUpAction.extend({
 	init : function(file) {
 		var me = this;
 
+		this.file = file;
 		this.path = file.name ? file.path + file.name + '/' : file.path;
 		
 		var message = $('<div></div>');
@@ -460,8 +490,7 @@ var FileRenamingWindow = PopUpAction.extend({
 
 		// On success
 		this.on('success', function() {
-			var toast = new Toast("Fichier modifié", "Le fichier '" + me.file_name.val() + "' a été renommé avec succès", "success");
-			toast.display();
+			toastHandler.add(new Toast("Fichier modifié", "Le fichier '" + me.file_name.val() + "' a été renommé avec succès", "success"));
 		});
 	},
 	display : function() {
@@ -473,12 +502,18 @@ var FileRenamingWindow = PopUpAction.extend({
 		var file_path = this.file_path.val().trim();
 		var me = this;
 
-		if(!isNameValid(dir_name)) {
-			new Toast("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error").display();
+		if(!isNameValid(file_name)) {
+			toastHandler.add(new Toast("Impossible de changer le nom", "Le nom '" + file_name + "' n'est pas valide", "error"));
 			return;
 		}
 
-		this._super('POST', 'api/file' + this.path, { action : "rename", name : file_name });
+		this.dissmiss();
+		
+		// Bind & launch action
+		new RenameElementAction().on('done', function(done, error, fail) {
+			me.fireEvent('done');
+		}).proceed(this.file, file_name);
+
 	}
 })
 
@@ -544,17 +579,17 @@ var ResourceMoveWindow = ResourceGenericWindow.extend({
 
 		// Construct view
 		var message = $('<div></div>');
-		this.file_name = $('<input class="field" type="text" disabled="disabled" value="' + this.names + '" placeholder="Nom ' + this.title + '"></input>');
-		this.file_path = $('<input class="field" type="text" value="' + this.path + '" ></input>');
+		var name = $('<input class="field" type="text" disabled="disabled" value="' + this.names + '" placeholder="Nom ' + this.title + '"></input>');
+		this.path_field = $('<input class="field" type="text" value="' + this.path + '" ></input>');
 		var tree_div = $('<div class="tree"></div>');
 		this.submit = $('<input type="submit" value="Déplacer le' + (this.total_nb > 1 ? 's' : '') + ' ' + this.title + '"></input>');
 
-		message.append('<span class="field-name">Nom' + (this.total_nb > 1 ? 's' : '') + ' : </span>').append(this.file_name).append('<br/>').
-		append('<span class="field-name">Chemin : </span>').append(this.file_path).append('<br/>').append(tree_div).append(this.submit);
+		message.append('<span class="field-name">Nom' + (this.total_nb > 1 ? 's' : '') + ' : </span>').append(name).append('<br/>').
+		append('<span class="field-name">Chemin : </span>').append(this.path_field).append('<br/>').append(tree_div).append(this.submit);
 
 		this.tree = new DirectoryTree(tree_div);
 		this.tree.on('select', function(element, node, e, ignorePushState) {
-			me.file_path.val(element.name ? element.path + element.name + '/' : '/');
+			me.path_field.val(element.name ? element.path + element.name + '/' : '/');
 		});
 		
 		this._super("Déplacement " + this.title, message);
@@ -562,18 +597,6 @@ var ResourceMoveWindow = ResourceGenericWindow.extend({
 		// Submit button
 		this.submit.on('click', function(e) {
 			me.action();
-		});
-
-		// On success
-		this.on('done', function(done, error, fail) {
-			if(error + fail == 0)
-				new Toast("Déplacement effectué avec succès",
-					      "L'opération de déplacement a été effectuée avec succès",
-					      "success").display()
-			else
-				new Toast("Déplacement effectué",
-					      "L'opération de déplacement a été effectuée, mais des erreurs sont survenues durant celle-ci",
-					      "warning").display(3500);
 		});
 	},
 	display : function() {
@@ -584,26 +607,20 @@ var ResourceMoveWindow = ResourceGenericWindow.extend({
 	action : function() {
 		var me = this;
 		var requests = new Requests();
-		var file_path = this.file_path.val().trim();
+		var path = this.path_field.val().trim();
 
-		if(!isNameValid(dir_name)) {
-			new Toast("Impossible de déplacer le fichier", "Le chemin '" + file_path + "' n'est pas valide", "error").display();
+		// Test name
+		if(!isPathValid(path)) {
+			toastHandler.add(new Toast("Impossible de déplacer le fichier", "Le chemin '" + path + "' n'est pas valide", "error"));
 			return;
 		}
+		
+		this.dissmiss();
 
-		this._show_loading();
-
-		$.each(this.elements, function(UID, element) {
-			if(isDir(element))
-				requests.add({ type : 'POST', uri : 'api/dir' +  (element.name ? element.path + element.name + '/' : element.path), value : { action : "move", path : file_path } });
-			else
-				requests.add({ type : 'POST', uri : 'api/file' +  element.path + element.name, value : { action : "move", path : file_path } });
-		});
-
-		requests.on('done', function(done, error, fail) {
-			me.dissmiss();
+		// Bind & launch action
+		new MoveElementsAction().on('done', function(done, error, fail) {
 			me.fireEvent('done', done, error, fail);
-		}).proceed();
+		}).proceed(this.elements, path);
 	}
 })
 
@@ -635,18 +652,6 @@ var ResourceDeletionWindow = ResourceGenericWindow.extend({
 		this.submit.on('click', function(e) {
 			me.action();
 		});
-
-		// On success
-		this.on('done', function(done, error, fail) {
-			if(error + fail == 0)
-				new Toast("Suppression effectué avec succès",
-					      "L'opération de suppression a été effectuée avec succès",
-					      "success").display()
-			else
-				new Toast("Suppression effectué",
-					      "L'opération de suppression a été effectuée, mais des erreurs sont survenues durant celle-ci",
-					      "warning").display(3500);
-		});
 	},
 	display : function() {
 		this._super();
@@ -654,20 +659,12 @@ var ResourceDeletionWindow = ResourceGenericWindow.extend({
 	},
 	action : function() {
 		var me = this;
-		var requests = new Requests();
 
-		this._show_loading();
-
-		$.each(this.elements, function(UID, element) {
-			if(isDir(element))
-				requests.add({ type : 'DELETE', uri : 'api/dir' +  (element.name ? element.path + element.name + '/' : element.path) });
-			else
-				requests.add({ type : 'DELETE', uri : 'api/file' +  element.path + element.name });
-		});
-
-		requests.on('done', function(done, error, fail) {
-			me.dissmiss();
+		this.dissmiss();
+		
+		// Bind & launch action
+		new DeleteElementsAction().on('done', function(done, error, fail) {
 			me.fireEvent('done', done, error, fail);
-		}).proceed();
+		}).proceed(this.elements);
 	}
 })

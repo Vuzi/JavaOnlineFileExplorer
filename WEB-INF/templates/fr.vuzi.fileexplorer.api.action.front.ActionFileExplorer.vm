@@ -1,4 +1,5 @@
 <div id="pop_up_back"></div>
+<div id="toast_back"></div>
 
 #if (!$context.getSessionAttribute('user-uid'))
 	#parse("parts/login.vm")

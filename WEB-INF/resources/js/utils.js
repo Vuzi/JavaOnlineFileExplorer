@@ -15,15 +15,19 @@ function sizeFormat(bytes) {
 }
 
 function isDir(element) {
-	return element.name && (element.size === undefined)
+	return element && element.name && (element.size === undefined)
 }
 
 function isFile(element) {
-	return element.name && !(element.size === undefined)
+	return element && element.name && !(element.size === undefined)
 }
 
 function isNameValid(name) {
 	return !(!name || name == "" || name.indexOf('/') >= 0 || name.indexOf('\\') >= 0 || name.indexOf('"') >= 0 || name.indexOf("'") >= 0 || name.indexOf("<") >= 0 || name.indexOf(">") >= 0);
+}
+
+function isPathValid(name) {
+	return !(!name || name == "" || name.indexOf('\\') >= 0 || name.indexOf('"') >= 0 || name.indexOf("'") >= 0 || name.indexOf("<") >= 0 || name.indexOf(">") >= 0);
 }
 
 var Class = function() {}
@@ -196,7 +200,7 @@ var Requests = CallbackHandler.extend({
 					success: function(data) {
 						done++;
 
-						me.fireEvent('success', me, data.data);
+						me.fireEvent('success', done, error, fail, me, data.data);
 
 						if((done + error + fail) >= me.actions.length)
 							me.fireEvent('done', done, error, fail);
@@ -209,10 +213,9 @@ var Requests = CallbackHandler.extend({
 							return;
 						}
 
-						var pop = new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error");
-						pop.display();
+						toastHandler.add(new Toast("Erreur " + data.responseJSON.data.status, data.responseJSON.data.message, "error"));
 						
-						me.fireEvent('error', me, data.responseJSON.data);
+						me.fireEvent('error', done, error, fail, me, data.responseJSON.data);
 
 						if((done + error + fail) >= me.actions.length)
 							me.fireEvent('done', done, error, fail);
@@ -220,10 +223,9 @@ var Requests = CallbackHandler.extend({
 					fail: function(data) {
 						fail++;
 
-						var pop = new Toast("Erreur ", "La requête a échouée", "error");
-						pop.display();
+						toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
 
-						me.fireEvent('fail', me);
+						me.fireEvent('fail', done, error, fail, me);
 						
 						if((done + error + fail) >= me.actions.length)
 							me.fireEvent('done', done, error, fail);

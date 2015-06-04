@@ -22,6 +22,7 @@
 	</div>
 </div>
 <script src="$context.getRequestAddr()resources/js/utils.js"></script>
+<script src="$context.getRequestAddr()resources/js/action.js"></script>
 <script src="$context.getRequestAddr()resources/js/folder.js"></script>
 <script src="$context.getRequestAddr()resources/js/tree.js"></script>
 <script src="$context.getRequestAddr()resources/js/menu.js"></script>
@@ -124,7 +125,7 @@
 				{ button : true, name : "Renommer le fichier", icon : "pencil", action :
 					function() {
 						if(!folder.in_update)
-							new FileRenamingWindow(element).on('success', function(popUp, data) {
+							new FileRenamingWindow(element).on('done', function(popUp, data) {
 								tree.select(element.UID); tree.update();
 							}).display();
 					}
@@ -411,4 +412,8 @@
 			window.location.reload();
 		});		
 	});
+
+
+var toastHandler = new ToastHandler($("#toast_back"));
+
 </script>
