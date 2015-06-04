@@ -3,6 +3,7 @@
 		<div id="tree" class="tree"></div>
 		<div id="searchs"></div>
 		<div id="tree_cursor"></div>
+		<div id="activity" class="bouncy-bottom bounce"><img draggable="false" src="$context.getRequestAddr()resources/style/icons/spinner.gif"><p>Chargement...</p></div>
 	</div>
 	
 	<div id="right">
@@ -36,6 +37,15 @@
 	var right = $('#right');
 	var left = $('#left');
 	var tree_cursor = $('#tree_cursor');
+
+	function startLoading(title) {
+		$('#activity p').text(title);
+		$('#activity').addClass('bounce');
+	}
+
+	function stopLoading() {
+		$('#activity').removeClass('bounce');
+	}
 	
 	var endpoint = '$context.getRequestAddr()';
 	
@@ -124,10 +134,11 @@
 				},
 				{ button : true, name : "Renommer le fichier", icon : "pencil", action :
 					function() {
-						if(!folder.in_update)
+						if(!folder.in_update) {
 							new FileRenamingWindow(element).on('done', function(popUp, data) {
 								tree.select(element.UID); tree.update();
 							}).display();
+						}
 					}
 				},
 				{ button : true, name : "Déplacer le fichier", icon : "share-alt", action :
@@ -170,7 +181,7 @@
 				(element.name ? { button : true, name : "Renommer le dossier", icon : "pencil", action :
 					function() {
 						if(!folder.in_update)
-							new DirectoryRenamingWindow(element).on('success', function(popUp, data) {
+							new DirectoryRenamingWindow(element).on('done', function(popUp, data) {
 								tree.select(tree.selected.UID); tree.update();
 							}).display();
 					}
@@ -202,6 +213,8 @@
 	tree.on('select', function(element, node, e, ignorePushState) {
 		tree.disable_selection();
 		searchList.deselect();
+
+		startLoading("Ouverture dossier...");
 
 		folder.update(element, node.parent ? node.parent.directory : null);
 
@@ -239,6 +252,8 @@
 	});
 	folder.on('update', function(element) {
 		tree.enable_selection();
+
+		stopLoading();
 	});
 
 	// Construct the contextual menu
@@ -254,7 +269,7 @@
 	// Event binding (Option menu)
 	$('[action=new_dir]').on('click', function(e) {
 		if(tree.selected) {
-			new DirectoryCreationWindow(tree.selected.directory).on('success', function() {
+			new DirectoryCreationWindow(tree.selected.directory).on('done', function() {
 				tree.update();
 			}).display();
 		}
@@ -262,7 +277,7 @@
 	
 	$('[action=new_file]').on('click', function(e) {
 		if(tree.selected) {
-			new FileCreationWindow(tree.selected.directory).on('success', function() {
+			new FileCreationWindow(tree.selected.directory).on('done', function() {
 				tree.update();
 			}).display();
 		}

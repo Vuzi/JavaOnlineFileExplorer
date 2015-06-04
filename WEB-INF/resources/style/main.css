@@ -634,14 +634,46 @@ input[type=text] {
     }
 }
 
+@-webkit-keyframes bounceOutDown {
+	0% {
+		-webkit-transform: translateY(0);
+	}
+	
+	20% {
+		opacity: 1;
+		-webkit-transform: translateY(-20px);
+	}
+	
+	100% {
+		opacity: 0;
+		-webkit-transform: translateY(2000px);
+	}
+}
+
+@keyframes bounceOutDown {
+	0% {
+		transform: translateY(0);
+	}
+	
+	20% {
+		opacity: 1;
+		transform: translateY(-20px);
+	}
+	
+	100% {
+		opacity: 0;
+		transform: translateY(2000px);
+	}
+}
+
 .bouncy-bottom {
 	-webkit-animation-duration: 1.2s;
 	animation-duration: 1.2s;
 	-webkit-animation-fill-mode: both;
 	animation-fill-mode: both;
 
-    -webkit-animation-name: bounceOutUp;
-    animation-name: bounceOutUp;
+    -webkit-animation-name: bounceOutDown;
+    animation-name: bounceOutDown;
 }
 
 .bouncy-bottom.bounce {
@@ -1374,6 +1406,7 @@ input {
 
 .toast.success {
 	background-color: #dff0d8;
+	border-left-color: green;
 }
 
 .toast.info {
@@ -1382,7 +1415,8 @@ input {
 }
 
 .toast.warning {
-	background-color: #fcf8e3
+	background-color: #fcf8e3;
+	border-left-color: DarkGoldenRod;
 }
 
 .toast.error {
@@ -1433,4 +1467,25 @@ input {
 	/*background-image: url(backgrounds/test.png);*/
 
 	opacity:1;
+}
+
+#activity {
+	position: fixed;
+	bottom: 20px;
+	left : 0px;
+}
+
+#activity img {
+	height: 20px;
+	width: 20px;
+	margin-bottom: -5px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+#activity p {
+	color: lightgray;
+	display: inline-block;
+	margin-bottom: 0;
+	cursor: default;
 }

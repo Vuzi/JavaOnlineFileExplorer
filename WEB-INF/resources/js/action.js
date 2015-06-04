@@ -1,3 +1,7 @@
+
+// =======================================================
+//                     Base action
+// =======================================================
 Action = CallbackHandler.extend({
 	init : function() {
 		this._super();
@@ -8,8 +12,43 @@ Action = CallbackHandler.extend({
 //                     File creation
 // =======================================================
 CreateFileAction = Action.extend({
-	proceed : function(element, name) {
+	proceed : function(parent, file, name) {
+		var formData = new FormData();
+		var me = this;
+		
+		formData.append(name, file, file.name);
+		
+		var xhr = new XMLHttpRequest();
+		xhr.onerror = function(error) {
+			toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
 
+			me.fireEvent('fail', me);
+			me.fireEvent('done', me);
+		}
+		xhr.onload = function () {
+			var val = JSON.parse(xhr.responseText);
+
+			if (xhr.status === 200) {
+				toastHandler.add(new Toast("Fichier uploadé", "Le fichier '" + name + "' a été uploadé avec succès", "success"));
+
+				me.fireEvent('success', me, val || {});
+				me.fireEvent('done', me);
+			} else {
+				var val = JSON.parse(xhr.responseText);
+				
+				if(val && val.data && val.data.message) {
+		    		toastHandler.add(new Toast("Erreur " + val.data.status, val.data.message, "error"));
+					me.fireEvent('error', me, val.data);
+				} else {
+		    		toastHandler.add(new Toast("Erreur ", "La requête a échouée", "error"));
+					me.fireEvent('error', me, {});
+				}
+
+				me.fireEvent('done', me);
+			}
+		};
+		xhr.open('POST', endpoint + 'api/file-bin' + (parent.name ? parent.path + parent.name + '/' : parent.path), true);
+		xhr.send(formData);
 	}
 });
 
@@ -17,8 +56,25 @@ CreateFileAction = Action.extend({
 //                   Directory creation
 // =======================================================
 CreateDirectoryAction = Action.extend({
-	proceed : function(element, name) {
+	proceed : function(parent, name) {
+		var me = this;
 
+		// Construct request
+		var requests = new Requests();
+		requests.add({ type : 'PUT', uri : 'api/dir' +  (parent.name ? parent.path + parent.name + '/' : parent.path) + name });
+		
+		// Bind & fire
+		requests.on('done', function(done, error, fail) {
+			toastHandler.add(new Toast("Création du dossier effectuée", "Le dossier '" + name + "' a été crée avec succès", "success"));
+
+			me.fireEvent('done', done, error, fail, parent);
+		}).on('success', function(done, error, fail) {
+			me.fireEvent('success', done, error, fail, parent);
+		}).on('error', function(done, error, fail) {
+			me.fireEvent('error', done, error, fail, parent);
+		}).on('fail', function(done, error, fail) {
+			me.fireEvent('fail', done, error, fail, parent);
+		}).proceed();
 	}
 });
 
@@ -39,7 +95,10 @@ RenameElementAction = Action.extend({
 
 		// Bind & fire
 		requests.on('done', function(done, error, fail) {
-			toastHandler.add(new Toast("Fichier modifié", "Le fichier '" + element.name + "' a été renommé avec succès", "success"));
+			if(isDir(element))
+				toastHandler.add(new Toast("Dossier modifié", "Le dossier '" + element.name + "' a été renommé en '" + name + "' avec succès", "success"));
+			else
+				toastHandler.add(new Toast("Fichier modifié", "Le fichier '" + element.name + "' a été renommé en '" + name + "' avec succès", "success"));
 
 			me.fireEvent('done', done, error, fail, element);
 		}).on('success', function(done, error, fail) {
