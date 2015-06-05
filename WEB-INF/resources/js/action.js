@@ -55,6 +55,32 @@ CreateFileAction = Action.extend({
 });
 
 // =======================================================
+//                    Share file
+// =======================================================
+ShareFileAction = Action.extend({
+	proceed : function(file) {
+		var me = this;
+
+		// Construct request
+		var requests = new Requests();
+		requests.add({ type : 'POST', uri : 'api/file' +  file.path + file.name + '/', value : { action : "share" } });
+		
+		// Bind & fire
+		requests.on('done', function(done, error, fail) {
+			me.fireEvent('done', done, error, fail, parent);
+		}).on('success', function(done, error, fail, request, data) {
+			var url = endpoint + "api/file-shared/" + data.shared;
+			toastHandler.add(new Toast("Partage du fichier effectuée", 'URL : <b><a href="' + url + '">' + url + '</a></b>', "success", 5000));
+			me.fireEvent('success', done, error, fail, parent);
+		}).on('error', function(done, error, fail) {
+			me.fireEvent('error', done, error, fail, parent);
+		}).on('fail', function(done, error, fail) {
+			me.fireEvent('fail', done, error, fail, parent);
+		}).proceed();
+	}
+});
+
+// =======================================================
 //                   Directory creation
 // =======================================================
 CreateDirectoryAction = Action.extend({

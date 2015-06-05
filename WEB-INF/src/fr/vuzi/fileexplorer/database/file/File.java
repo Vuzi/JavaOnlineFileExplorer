@@ -48,6 +48,11 @@ public class File {
 	 * Parent directory ID of the file
 	 */
 	public String parentUID;
+	
+	/**
+	 * Shared UID
+	 */
+	public String shared;
 
 	/**
 	 * Empty constructor
@@ -67,6 +72,7 @@ public class File {
 		this.creationDate = (Date) gfsFile.get("creation");
 		this.modificationDate = (Date) gfsFile.get("edit");
 		this.size = gfsFile.getLength();
+		this.shared = (String) gfsFile.get("shared");
 		
 		ObjectId parent = (ObjectId) gfsFile.get("parent");
 		if(parent != null)
@@ -81,6 +87,7 @@ public class File {
 		this.creationDate = (Date) gfsFile.get("creation");
 		this.modificationDate = (Date) gfsFile.get("edit");
 		this.size = (Long)gfsFile.get("length");
+		this.shared = (String) gfsFile.get("shared");
 		if(gfsFile.get("parent") != null)
 			this.parentUID = gfsFile.get("parent").toString();
 	}
@@ -93,6 +100,7 @@ public class File {
 		this.creationDate = d.getDate("creation");
 		this.modificationDate = d.getDate("edit");
 		this.size = d.getLong("length");
+		this.shared = d.getString("shared");
 		if(d.getObjectId("parent") != null)
 			this.parentUID = d.getObjectId("parent").toString();
 	}
