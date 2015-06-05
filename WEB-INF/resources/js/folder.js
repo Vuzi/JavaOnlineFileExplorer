@@ -105,7 +105,7 @@ var FolderTableRenderer = CallbackHandler.extend({
 	add : function(element, type, name, selectable) {
 		var me = this;
 		var icon = this.generateTypeIcon(type || element.type, name || element.name, element.path, element.size);
-		var line = $('<tr></tr>');
+		var line = $('<tr draggable="true"></tr>');
 
 		line.append($('<td class="icon"></td>').append($('<p></p>').append(icon)));
 		line.append($('<td><p>' + (name || element.name) + '</p></td>'));
@@ -122,13 +122,18 @@ var FolderTableRenderer = CallbackHandler.extend({
 		}
 
 		line.on('dragstart', function(e) {
-			me.fireEvent('dragstart', element, line, e);
+			me.fireEvent('dragstart', element, icon, e);
 		}).on('dragend', function(e) {
-			me.fireEvent('dragend', element, line, e);
+			me.fireEvent('dragend', element, icon, e);
 		}).on('dragover', function(e) {
-			line.addClass('drag_over');
+			e.preventDefault();  
+			e.stopPropagation();
+			icon.addClass('drag_over', element, icon, e);
 		}).on('dragleave', function(e) {
-			line.removeClass('drag_over');
+			icon.removeClass('drag_over');
+		}).on('drop', function(e) {
+			icon.removeClass('drag_over');
+			me.fireEvent('drop', element, icon, e);
 		});
 
 		line.on(window.onMobile() ? 'click' : 'dblclick', function(e) {
@@ -423,6 +428,8 @@ var Folder = CallbackHandler.extend({
 		element.files.forEach(function(file) {
 			me.folderRenderer.add(file);
 		});
+
+		// Add drag & drop icon
 		
 		// Handle events
 		this.folderRenderer.on('click', function(element, icon, e) {
@@ -451,6 +458,9 @@ var Folder = CallbackHandler.extend({
 		// Render element
 		this.renderer.empty().append(h1).append(this.folderRenderer.rendered);
 	},
+	isDragging : function() {
+		return this.dragged.length != 0
+	},
 	_action_drag_start : function(element, icon, event) {
 		var me = this;
 
@@ -461,6 +471,11 @@ var Folder = CallbackHandler.extend({
 			});
 			this.renderer.addClass('dragging');
 		} else {
+			// Direct download
+			if(isFile(element)) {
+    			event.dataTransfer.setData("DownloadURL", "application/octet-stream:" + element.name + ":" + endpoint + "api/file-bin" + element.path + element.name);
+			}
+			
 			this.dragged = [ element ];
 			icon.addClass('dragged');
 		}
@@ -475,7 +490,6 @@ var Folder = CallbackHandler.extend({
 	},
 	_action_drop : function(element, icon, event) {
 		var me = this;
-console.log(isDir(element))
 		if(isDir(element) && this.dragged.length > 0) {
 			startLoading("Déplacement de resources en cours...");
 

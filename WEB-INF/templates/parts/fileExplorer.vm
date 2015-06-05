@@ -436,7 +436,6 @@
 	});
 
 
-/*
 	// Drag & drop
 	$(document).on('dragenter', function (e) {
 	    e.stopPropagation();
@@ -457,35 +456,44 @@
 	    e.preventDefault();  
 	    e.stopPropagation();
 
+	    // Failsafe test
+	    if(folder.isDragging() || !tree.selected)
+	    	return;
+
 		$('#drag-upload-back').fadeOut();
 
-	     var file = e.originalEvent.dataTransfer.files[0];
+	     var files = e.originalEvent.dataTransfer.files;
+	     var i = 0;
 
-	     if(file) {
+
+	     $.each(files, function(key, file) {
 			if(!isNameValid(file.name)) {
-				toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + file_name + "' n'est pas valide", "error"));
+				toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + file.name + "' n'est pas valide", "error"));
 				return;
 			}
 
-			startLoading("Upload fichier...");
+			startLoading("Upload fichiers (" + files.length + ") ...");
+			i++;
 
 			new CreateFileAction().on('done', function(done, error, fail) {
-				stopLoading();
+				if(i-- <= 0)
+					stopLoading();
+
 				tree.update();
 			}).proceed(tree.selected.directory, file);
-	     }
+	     });
 	})
-
 
 	// Now that we have a plugin, we can listen for the new events 
 	$(document).draghover().on({
 		'draghoverstart': function() {
-			//$('#drag-upload-back').fadeIn();
+			if(!folder.isDragging() && tree.selected)
+				$('#drag-upload-back').fadeIn();
 		},
 		'draghoverend': function() {
-			//$('#drag-upload-back').fadeOut();
+			$('#drag-upload-back').fadeOut();
 		}
-	});*/
+	});
 
 	var toastHandler = new ToastHandler($("#toast_back"));
 
