@@ -246,6 +246,8 @@
 		if(isFile(element)) {
 			if(element.type.match("^image"))
 				new ImagePreviewWindow(element).display();
+			else if(element.type.match("^video"))
+				new VideoPreviewWindow(element).display();
 			else
 				window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
 		} else

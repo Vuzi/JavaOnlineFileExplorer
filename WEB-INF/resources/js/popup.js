@@ -178,6 +178,16 @@ var ImagePreviewWindow = PopUpCancelable.extend({
 	}
 });
 
+// =======================================================
+//                     Video preview
+// =======================================================
+// 
+var VideoPreviewWindow = PopUpCancelable.extend({
+	init : function(file) {
+		this.video = $('<video controls src="' + endpoint + 'api/file-bin' + file.path + file.name + '"></video>');
+		this._super(file.name, this.video);
+	}
+});
 
 // =======================================================
 //                Directory creation
