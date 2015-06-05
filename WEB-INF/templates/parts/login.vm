@@ -11,7 +11,7 @@
 					#end
 					<form method="POST">									
 						<input type="text" name="login" placeholder="Identifiant"/><span class="glyphicon glyphicon-user"></span><br/>
-						<input type="text" name="password" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
+						<input type="password" name="password" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
 						<input id="login" type="submit" name="login-submit" value="Connexion"><br/>
 						<input id="subscribe" class="action" type="submit" name="subscribe-submit" value="Inscription" ><br/>
 					</form>
@@ -19,8 +19,8 @@
 				<div class="content-inscription" style="display: none;">
 					<form method="POST">									
 						<input type="text" name="login" placeholder="Identifiant"/><span class="glyphicon glyphicon-user"></span><br/>
-						<input type="text" name="password" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
-						<input type="text" name="password2" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
+						<input type="password" name="password" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
+						<input type="password" name="password2" placeholder="Mot de passe"/><span class="glyphicon glyphicon-lock"></span><br/>
 						<input type="text" name="email" placeholder="Email"/><span class="glyphicon glyphicon-envelope"></span><br/>
 						<input id="subscribe" type="submit" name="subscribe-submit" value="Inscription" ><br/>
 						<input id="login" class="action" type="submit" name="login-submit" value="Connexion"><br/>

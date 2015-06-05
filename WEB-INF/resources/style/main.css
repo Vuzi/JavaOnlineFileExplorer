@@ -244,8 +244,12 @@ ul{
 	color: #FE6176;
 }
 
+#options .search_bar{
+	display: inline-block;
+}
+
 #options li.logout{
-	float: right;
+	/*float: right;*/
 }
 
 #options li.logout a{
@@ -255,6 +259,8 @@ ul{
 #options li.logout a:hover{
 	color: white;
 }
+
+
 
 
 input {
@@ -1082,7 +1088,7 @@ input {
 	-moz-transition: all .5s ease;
 }
 
-#htmlConnection input[type="text"]{
+#htmlConnection input[type="text"], #htmlConnection input[type="password"]{
 	background-color: rgba(0,0,0,0);
 	border: 0;
 	border-bottom: 2px solid gray;
@@ -1093,7 +1099,7 @@ input {
 	outline: none;
 }
 
-#htmlConnection input[type=text]:focus {
+#htmlConnection input[type=text]:focus , #htmlConnection input[type=password]:focus {
 	border-bottom: 2px solid #FE1938;
 }
 

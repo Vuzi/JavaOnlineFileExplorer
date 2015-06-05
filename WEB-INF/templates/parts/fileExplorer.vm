@@ -19,8 +19,8 @@
 				<li action="change_view">
 					<a href="#">Affichage</a>
 				</li>
-				<li><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
-				<li action="logout" class="logout"><a href="#"><span class="glyphicon glyphicon-log-out"></span> Déconnexion</a></li>
+				<li class="search_bar"><a class="glyphicon glyphicon-search" action="search" href="#"></a><input type="text" id="search"/></li>
+				<li action="logout" class="logout"><a href="#"><span class="glyphicon glyphicon-log-out"></span></a></li>
 			</ul>
 		</nav>
 		<div id="content" class="blurable"></div>
@@ -348,6 +348,7 @@
 		iconView.on('click', function() {
 			element.remove();
 			view = "icon";
+			size = "normal";
 			folder.folderRenderer = new FolderIconRenderer();
 			folder.refresh();
 		});
@@ -355,6 +356,7 @@
 		tableView.on('click', function() {
 			element.remove();
 			view = "table";
+			size = "normal";
 			folder.folderRenderer = new FolderTableRenderer();
 			folder.refresh();
 		});
@@ -375,7 +377,6 @@
 			element.remove();
 		});
 	});
-	
 	
 	var elem_change_view = $('[action=change_view]');
 	var size = "normal";
