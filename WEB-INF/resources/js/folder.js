@@ -38,6 +38,9 @@ var FolderTableRenderer = CallbackHandler.extend({
 				// Avi video
 				icon_src = "avi.png";
 				break;
+			case 'video/mp4' :
+				icon_src = "mp4.png";
+				break;
 			case 'text/csv' :
 				// CSV file
 				icon_src = "csv.png";
@@ -181,6 +184,9 @@ var FolderIconRenderer = FolderRenderer.extend({
 			case 'video/x-msvideo' :
 				// Avi video
 				icon_src = "avi.png";
+				break;
+			case 'video/mp4' :
+				icon_src = "mp4.png";
 				break;
 			case 'text/csv' :
 				// CSV file
