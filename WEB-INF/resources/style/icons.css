@@ -96,6 +96,13 @@
     content: "✉";
 }
 
+.glyphicon-copy:before {
+  content: "\e205";
+}
+
+.glyphicon-send:before {
+  content: "\e171";
+}
 
 .glyphicon-log-out:before {
   content: "\e163";
