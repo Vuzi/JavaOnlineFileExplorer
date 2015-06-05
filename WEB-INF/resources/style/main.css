@@ -1394,6 +1394,8 @@ input {
 	text-overflow: ellipsis;
     -o-text-overflow: ellipsis;
     -ms-text-overflow: ellipsis;
+
+	pointer-events: auto;
 }
 
 .toast p{

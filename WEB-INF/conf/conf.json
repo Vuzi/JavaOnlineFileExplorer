@@ -12,6 +12,7 @@
 					"fr.vuzi.fileexplorer.api.action.directory.ActionDirDeletion",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileShow",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileDownload",
+					"fr.vuzi.fileexplorer.api.action.file.ActionFileSharedDownload",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileUpload",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileModification",
 					"fr.vuzi.fileexplorer.api.action.file.ActionFileCreation",

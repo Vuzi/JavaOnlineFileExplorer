@@ -136,6 +136,14 @@
 							window.open(endpoint + "api/file-bin" + element.path + element.name, "_blank");
 					}
 				},
+				{ button : true, name : "Partager le fichier", icon : "cloud-download", action :
+					function() {
+						if(!folder.in_update)
+							new ShareFileAction().on('done', function(done, error, fail) {
+								stopLoading();
+							}).proceed(element);
+					}
+				},
 				{ button : true, name : "Renommer le fichier", icon : "pencil", action :
 					function() {
 						if(!folder.in_update) {

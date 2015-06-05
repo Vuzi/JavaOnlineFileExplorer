@@ -64,6 +64,10 @@ public class ActionFileModification extends AAction {
 		case "MOVE" :
 			moveAction(c, u);
 			break;
+		case "share" :
+		case "SHARE" :
+			shareAction(c, u);
+			break;
 		default:
 			c.setAttribute("model", new GenericMessage(true, 400, new ErrorMessage(400, "Error : Unkown action '" + action + "' for '/" + c.getParameterUnique("_path") + "'")));
 			c.setStatus(400);
@@ -210,6 +214,34 @@ public class ActionFileModification extends AAction {
 		}
 
 		c.setAttribute("model", new GenericMessage(FileUtils.moveFile(u, file, container)));
+	}
+	
+	/**
+	 * Change the directory of the file
+	 * @param c The action's context
+	 * @param u The current user
+	 */
+	private void shareAction(IContext c, User u) {
+		List<String> path = DirectoryUtils.getPath(c.getParameterUnique("_path"));
+		String name = path.size() > 0 ? path.remove(path.size() - 1) : null;
+
+		File file = FileUtils.getFile(u, path, name);
+
+		if(file == null) {
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : No file '" + name + "' found")));
+			c.setStatus(404);
+			return;	
+		}
+
+		file = FileUtils.shareFile(u, file);
+		
+		if(file == null) {
+			c.setAttribute("model", new GenericMessage(true, 404, new ErrorMessage(404, "Error : The file '" + name + "' could not be shared")));
+			c.setStatus(404);
+			return;	
+		}
+
+		c.setAttribute("model", new GenericMessage(file));
 	}
 
 	@Override

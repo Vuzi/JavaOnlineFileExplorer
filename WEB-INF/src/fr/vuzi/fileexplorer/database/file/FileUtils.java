@@ -4,8 +4,11 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -223,8 +226,6 @@ public class FileUtils {
 	 * @return The renamed file
 	 */
 	public static File renameFile(User u, File f, String newName) {
-		System.out.println(newName);
-		
 		MongoCollection<Document> collection = DataBase.getInstance().getCollection("files.files");
 
 		// Change name
@@ -340,5 +341,49 @@ public class FileUtils {
 		}
 		
 		return files;
+	}
+
+	public static File shareFile(User u, File f) {
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("files.files");
+
+		// Shared name
+		MessageDigest mda;
+		String link;
+		try {
+			mda = MessageDigest.getInstance("SHA-512");
+			link = String.format("%0128x", new BigInteger(1, mda.digest((f.UID + new Date().getTime()).getBytes()))).substring(0, 10);
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		// Change shared value
+		BasicDBObject query = new BasicDBObject();
+		query.put("_id", new ObjectId(f.UID));
+		query.put("owner", new ObjectId(u.UID));
+		
+		BasicDBObject update = new BasicDBObject();
+		update.append("$set", new BasicDBObject().append("shared", link));
+		
+		collection.updateOne(query, update);
+		DirectoryUtils.updateDirectoryDate(u, f.parentUID);
+		
+		f.shared = link;
+
+		return f;
+	}
+
+	public static File getFileShared(String id) {
+		MongoCollection<Document> collection = DataBase.getInstance().getCollection("files.files");
+		
+		BasicDBObject query = new BasicDBObject();
+		query.put("shared", id);
+
+		Document d = collection.find(query).first();
+		
+		if(d == null)
+			return null;
+		else
+			return new File(d);
 	}
 }

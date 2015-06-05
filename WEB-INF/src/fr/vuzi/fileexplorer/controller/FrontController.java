@@ -102,6 +102,7 @@ public class FrontController extends AFrontController {
 		// -- File actions (bin) --
 		// File download
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileDownload",  new String[] { "_path" }));
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-shared/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.file.ActionFileSharedDownload",  new String[] { "_id" }));
 
 		// File upload
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/api/file-bin/(.*)/?$", "POST", "fr.vuzi.fileexplorer.api.action.file.ActionFileUpload", new String[] { "_path" }));
