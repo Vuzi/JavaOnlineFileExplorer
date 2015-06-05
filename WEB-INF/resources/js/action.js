@@ -70,6 +70,18 @@ ShareFileAction = Action.extend({
 			me.fireEvent('done', done, error, fail, parent);
 		}).on('success', function(done, error, fail, request, data) {
 			var url = endpoint + "api/file-shared/" + data.shared;
+			var clipboard = $('<a href="#" class="glyphicon glyphicon-copy"></a>');
+			clipboard.on('click', function(e) {
+				var isIe = (navigator.userAgent.toLowerCase().indexOf("msie") != -1 
+				           || navigator.userAgent.toLowerCase().indexOf("trident") != -1);
+
+			    if (isIe) {
+			        window.clipboardData.setData('Text', url);    
+			    } else {
+			        e.clipboardData.setData('text/plain', url);
+			    }
+			});
+
 			toastHandler.add(new Toast("Partage du fichier effectuée", 'URL : <b><a href="' + url + '">' + url + '</a></b>', "success", 5000));
 			me.fireEvent('success', done, error, fail, parent);
 		}).on('error', function(done, error, fail) {
