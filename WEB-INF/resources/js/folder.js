@@ -358,7 +358,7 @@ var Folder = CallbackHandler.extend({
 		var tmp = { files : [], directories : [] };
 
 		elements.forEach(function(element) {
-			if(element.size)
+			if(isFile(element))
 				tmp.files.push(element);
 			else
 				tmp.directories.push(element);
