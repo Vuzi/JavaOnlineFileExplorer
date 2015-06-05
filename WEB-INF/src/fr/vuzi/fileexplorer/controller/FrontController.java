@@ -119,8 +119,7 @@ public class FrontController extends AFrontController {
 		// Resources
 		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/resources/(.*)/?$", "GET", "fr.vuzi.fileexplorer.api.action.front.ActionGetResource", new String[] { "_path" }));
 		// Front page
-		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/(?:~(.*))?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",  new String[] { "_path" }, "velocity"));
-		
+		rewriter.addRule(new RewriteRule(Configuration.URIroot + "/?(?:~(.*))?$", "GET|POST", "fr.vuzi.fileexplorer.api.action.front.ActionFileExplorer",  new String[] { "_path" }, "velocity"));
 	}
 	
 	@Override

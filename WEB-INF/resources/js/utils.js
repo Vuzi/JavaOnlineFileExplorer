@@ -233,7 +233,7 @@ var Requests = CallbackHandler.extend({
 				});
 			}, time);
 
-			time += 500;
+			time += 100;
 		});
 
 		return this;

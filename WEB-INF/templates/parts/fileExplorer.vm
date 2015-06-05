@@ -465,7 +465,6 @@
 	     var files = e.originalEvent.dataTransfer.files;
 	     var i = 0;
 
-
 	     $.each(files, function(key, file) {
 			if(!isNameValid(file.name)) {
 				toastHandler.add(new Toast("Impossible d'envoyer le fichier", "Le nom '" + file.name + "' n'est pas valide", "error"));
@@ -473,10 +472,9 @@
 			}
 
 			startLoading("Upload fichiers (" + files.length + ") ...");
-			i++;
 
 			new CreateFileAction().on('done', function(done, error, fail) {
-				if(i-- <= 0)
+				if(i++ >= files.length)
 					stopLoading();
 
 				tree.update();
